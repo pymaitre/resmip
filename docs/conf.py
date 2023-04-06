@@ -10,7 +10,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('..\\src'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -19,7 +19,7 @@ project = 'srmip'
 copyright = '2023, G. Palazzo, M.G. Ubeira-Gabellini'
 author = 'G. Palazzo, M.G. Ubeira-Gabellini'
 # The full version, including alpha/beta/rc tags
-release = '00.00.01'
+release = '0.0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

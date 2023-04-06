@@ -6,11 +6,10 @@
 Welcome to srmip's documentation!
 =================================
 
-.. toctree::
+.. toctree:: modules
    :maxdepth: 2
    :caption: Contents:
 
-   modules
 
 Indices and tables
 ==================

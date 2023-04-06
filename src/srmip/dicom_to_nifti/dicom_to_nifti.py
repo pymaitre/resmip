@@ -1,4 +1,4 @@
-"""Module for conversion from dicom to niftii."""
+"""Module for conversion from dicom to nifti."""
 
 from typing import Union, Dict, List, Tuple
 from pathlib import Path

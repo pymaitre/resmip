@@ -22,12 +22,20 @@ class RTStructure:
     Nifti RT Structure.
 
     :name: Name of the RT Structure (str)
-    :mask: 3D mask array of the RT Structure (np.array
-        of shape=(z_length, y_length, x_length) and dtype=uint8)
+    :mask: 3D mask array of the RT Structure (sitk.Image
+        of GetSize=(x_length, y_length, z_length) and dtype=uint8)
     """
 
-    name: str
-    mask: np.array
+    name: str = None
+    mask: sitk.Image = None
+
+    def get_array(self) -> np.ndarray:
+        """
+        Transform the SimpleITK mask to numpy array.
+
+        :return: numpy array of shape=(z_length, y_length, x_length) and dtype=uint8.
+        """
+        return sitk.GetArrayFromImage(sitk.Cast(self.mask, sitk.sitkUInt8))
 
 
 def read_dicom_image(image_path: Union[str, Path]) -> sitk.Image:
@@ -147,8 +155,7 @@ def convert_single_structure(  # pylint: disable=too-many-locals
     if not skip_contour:
         struct_image = sitk.GetImageFromArray(1 * (image_blank > 0))
         struct_image.CopyInformation(reference_image)
-        structure_mask_array = sitk.GetArrayFromImage(sitk.Cast(struct_image, sitk.sitkUInt8))
-        return RTStructure(name=struct_name, mask=structure_mask_array)
+        return RTStructure(name=struct_name, mask=struct_image)
     return RTStructure(None, None)
 
 
@@ -201,7 +208,7 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
         for dicom_structure in dicom_structures:
             if regex is True:
                 for structure_name in structure_names:
-                    if re.search(structure_name, dicom_structure["ROIName"].value):
+                    if re.search(structure_name.lower(), dicom_structure["ROIName"].value.lower()):
                         matched_dicom_structures.append(dicom_structure)
                         break
             else:

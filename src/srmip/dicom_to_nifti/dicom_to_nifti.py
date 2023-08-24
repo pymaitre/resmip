@@ -184,7 +184,7 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     """
     if rtst_path.is_dir():
         rtst_path = list(rtst_path.iterdir())[0]
-    dicom_struct = pydcm.dcmread(rtst_path)
+    dicom_struct = pydcm.dcmread(rtst_path, force=True)
 
     if spacing_override:
         current_spacing = list(reference_image.GetSpacing())

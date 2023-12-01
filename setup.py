@@ -37,7 +37,7 @@ setup(
     license="None",
     author="G. Palazzo, M.G. Ubeira-Gabellini",
     author_email="",
-    url="https://github.com/SRresearch/srmip",
+    url="https://github.com/pymaitre/srmip",
     package_dir={"": package_root},
     packages=find_packages(package_root),
     zip_safe=False,

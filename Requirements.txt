@@ -1,7 +1,0 @@
-numpy
-pydicom
-SimpleITK
-platipy
-scikit-image
-sphinx
-sphinx_rtd_theme

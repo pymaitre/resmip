@@ -54,6 +54,7 @@ def check_if_valid_structure(
 ) -> bool:
     """
     Check if the structure point sequence is valid.
+
     If the structure is invalid, print more information and return false.
 
     :param struct_index: ROI Number of the RT Structure (int|pydcm.valuerep.IS)

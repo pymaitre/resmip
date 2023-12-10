@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "srmip"
+version = "0.0.1"
+description = "Python library for Medical Image Processing (MIP)."
+authors = ["G. Palazzo, M.G. Ubeira-Gabellini"]
+license = "GNU Lesser General Public License v2.1"
+readme = "README.md"
+repository = "https://github.com/pymaitre/srmip"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.12"
+numpy = "^1.24.2"
+pydicom = "^2.3.1"
+simpleitk = "^2.2.1"
+scikit-image = "^0.20.0"
+platipy = "^0.6.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^5.0.0"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+prospector = "^1.10.3"
+pytest = "^7.4.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

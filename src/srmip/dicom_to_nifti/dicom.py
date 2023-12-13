@@ -3,6 +3,7 @@
 from pathlib import Path
 from typing import Union
 
+import numpy as np
 import SimpleITK as sitk
 
 
@@ -36,7 +37,6 @@ def read_dicom_series(dicom_series_directory_path: Union[str, Path]) -> None:
         except KeyError:
             # if the key is not present in the image, we must find a way to keep track of this information
             pass
-    import numpy as np
 
     instance_numbers = np.zeros(slices_number, dtype=int)
     image_position_patients = np.zeros((slices_number, 3), dtype=float)
@@ -63,7 +63,7 @@ SLICE_DEPENDENT_FIELDS = {
     "0020|0032": "ImagePositionPatient",
 }
 
-
-study_path = Path(__file__).parents[3] / "tests" / "Dicom" / "IBSI1_CT_phantom" / "image"
-print(study_path)
-read_dicom_series(study_path)
+# TODO: This part must be removed!
+# study_path = Path(__file__).parents[1] / "tests" / "Dicom" / "IBSI1_CT_phantom" / "image"
+# print(study_path)
+# read_dicom_series(study_path)

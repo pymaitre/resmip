@@ -1,5 +1,6 @@
 """Read and write dicom files."""
 
+import json
 from pathlib import Path
 from typing import Union
 
@@ -16,21 +17,11 @@ def read_dicom_series(dicom_series_directory_path: Union[str, Path]) -> None:
     dicom_series_reader.SetFileNames(dicom_series_files)
     dicom_series_reader.MetaDataDictionaryArrayUpdateOn()
     dicom_series_reader.LoadPrivateTagsOn()
-    dicom_image = dicom_series_reader.Execute()
-    slice_0_metadata = {}
-    slice_1_metadata = {}
+    dicom_series = dicom_series_reader.Execute()
     series_metadata = {}
     for k in dicom_series_reader.GetMetaDataKeys(0):
         v = dicom_series_reader.GetMetaData(0, k)
-        slice_0_metadata[k] = v
         series_metadata[k] = v
-    for k in dicom_series_reader.GetMetaDataKeys(1):
-        v = dicom_series_reader.GetMetaData(1, k)
-        slice_1_metadata[k] = v
-    for (key, value1), (_, value2) in zip(slice_0_metadata.items(), slice_1_metadata.items()):
-        if value1 != value2:
-            print(key, value1, value2)
-    print(sitk.GetArrayFromImage(dicom_image).shape)
     for slice_dependent_field in SLICE_DEPENDENT_FIELDS.keys():
         try:
             series_metadata.pop(slice_dependent_field)
@@ -55,6 +46,12 @@ def read_dicom_series(dicom_series_directory_path: Union[str, Path]) -> None:
     # saved as numpy array for convenience, but np.arrays cannot be serialized!
     series_metadata["slice_indexes"] = instance_numbers
     series_metadata["image_positions"] = image_position_patients
+    for key, value in series_metadata.items():
+        # numpy arrays must be serialized to strings
+        if not isinstance(value, str):
+            value = json.dumps(value.tolist())
+        dicom_series.SetMetaData(key, value)
+    return dicom_series
 
 
 SLICE_DEPENDENT_FIELDS = {

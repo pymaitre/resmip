@@ -14,6 +14,10 @@ class Image(sitk.Image):
     _metadata: dict
     """Dictionary containing metadata."""
 
+    def __init__(self, *args):
+        super().__init__(*args)
+        self._metadata = {}
+
     @property
     def metadata(self):
         return self._metadata

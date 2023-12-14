@@ -12,6 +12,7 @@ ignore-paths:
   - .venv
   - build
   - docs
+  - tests/Dicom
 
 ignore-patterns:
   - .*templates\.py$

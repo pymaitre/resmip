@@ -40,7 +40,7 @@ class Image(sitk.Image):
         # TODO: duplicate code, the metadata file name must be returned by a function
         serialized_metadata = (filename.parent / f"{filename.stem}.json").read_text()
         new_image = Image(sitk.ReadImage(str(filename)))
-        new_image._metadata = serialized_metadata
+        new_image.metadata = serialized_metadata
         return new_image
 
 
@@ -88,7 +88,7 @@ def read_dicom_series(dicom_series_directory_path: Union[str, Path]) -> None:
             value = json.dumps(value.tolist())
             series_metadata[key] = value  # TODO: we should be able to go back to np.array somehow
         dicom_series.SetMetaData(key, value)
-    dicom_series._metadata = series_metadata
+    dicom_series.metadata = series_metadata
     return dicom_series
 
 

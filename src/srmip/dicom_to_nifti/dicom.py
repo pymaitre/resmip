@@ -15,6 +15,7 @@ class Image(sitk.Image):
     """Dictionary containing metadata."""
 
     def __init__(self, *args):
+        """Call sitk.Image constructor a create an empty dictionary for the header."""
         super().__init__(*args)
         self._metadata = {}
 

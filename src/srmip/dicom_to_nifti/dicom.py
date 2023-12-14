@@ -8,6 +8,37 @@ import numpy as np
 import SimpleITK as sitk
 
 
+class Image(sitk.Image):
+    """Wrapper class of SimpleITK.Image with support to headers."""
+
+    _metadata: dict
+    """Dictionary containing metadata."""
+
+    @property
+    def metadata(self):
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value):
+        self._metadata = value
+
+    def write_nifti(self, filename):
+        filename = Path(filename)
+        sitk.WriteImage(self, str(filename))
+        serialized_metadata = json.dumps(self.metadata)
+        # maybe it is better to write it as a hidden file
+        (filename.parent / f"{filename.stem}.json").write_text(serialized_metadata)
+
+    @staticmethod
+    def read_nifti(filename):
+        filename = Path(filename)
+        # TODO: duplicate code, the metadata file name must be returned by a function
+        serialized_metadata = (filename.parent / f"{filename.stem}.json").read_text()
+        new_image = Image(sitk.ReadImage(str(filename)))
+        new_image._metadata = serialized_metadata
+        return new_image
+
+
 def read_dicom_series(dicom_series_directory_path: Union[str, Path]) -> None:
     dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(
         str(dicom_series_directory_path)
@@ -17,12 +48,12 @@ def read_dicom_series(dicom_series_directory_path: Union[str, Path]) -> None:
     dicom_series_reader.SetFileNames(dicom_series_files)
     dicom_series_reader.MetaDataDictionaryArrayUpdateOn()
     dicom_series_reader.LoadPrivateTagsOn()
-    dicom_series = dicom_series_reader.Execute()
+    dicom_series = Image(dicom_series_reader.Execute())
     series_metadata = {}
     for k in dicom_series_reader.GetMetaDataKeys(0):
         v = dicom_series_reader.GetMetaData(0, k)
         series_metadata[k] = v
-    for slice_dependent_field in SLICE_DEPENDENT_FIELDS.keys():
+    for slice_dependent_field in SLICE_DEPENDENT_FIELDS:
         try:
             series_metadata.pop(slice_dependent_field)
         except KeyError:
@@ -50,7 +81,9 @@ def read_dicom_series(dicom_series_directory_path: Union[str, Path]) -> None:
         # numpy arrays must be serialized to strings
         if not isinstance(value, str):
             value = json.dumps(value.tolist())
+            series_metadata[key] = value  # TODO: we should be able to go back to np.array somehow
         dicom_series.SetMetaData(key, value)
+    dicom_series._metadata = series_metadata
     return dicom_series
 
 

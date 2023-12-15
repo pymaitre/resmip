@@ -1,8 +1,12 @@
 """Test module for dicom.py"""
 
+import json
 from pathlib import Path
 
+import numpy as np
+import pydicom
 import pytest
+import SimpleITK as sitk
 
 from srmip.dicom_to_nifti.dicom import Image, read_dicom_series
 
@@ -44,3 +48,21 @@ def test_metadata_file_name(is_string, tmp_path):
         given_nifti_file_name = nifti_file_name
     metadata_file_name = Image().metadata_file_name(given_nifti_file_name)
     assert metadata_file_name == tmp_path / f".{nifti_file_name.stem}.json"
+
+
+def test_dicom_image_pixel_array():
+    image = read_dicom_series(dicom_ct_path())
+    image_array = sitk.GetArrayFromImage(image)
+    min_instance_number = np.array(json.loads(image.metadata["slice_indexes"])).max()
+    for dicom_file in dicom_ct_path().glob("*.dcm"):
+        dataset = pydicom.dcmread(dicom_file)
+        if dataset["Modality"].value != "CT":
+            continue
+        slice_index = min_instance_number - dataset["InstanceNumber"].value
+        pixel_array = (
+            np.frombuffer(dataset.PixelData, dtype=np.int16).reshape(
+                (dataset["Rows"].value, dataset["Columns"].value)
+            )
+            - 1000
+        )
+        assert np.all(pixel_array == image_array[slice_index, :, :])

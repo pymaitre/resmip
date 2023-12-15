@@ -15,7 +15,6 @@ ignore-paths:
   - tests/Dicom
 
 ignore-patterns:
-  - .*templates\.py$
   - .*__init__\.py$
 
 pydocstyle:

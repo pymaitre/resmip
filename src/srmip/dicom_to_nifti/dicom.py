@@ -1,11 +1,16 @@
 """Read and write dicom files."""
 
+from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Dict, Union
 
 import numpy as np
 import SimpleITK as sitk
+
+FileNameType = Union[str, Path]
+"""Types used int the classes and functions for file names."""
 
 
 class Image(sitk.Image):
@@ -28,7 +33,7 @@ class Image(sitk.Image):
     def metadata(self, value):
         self._metadata = value
 
-    def metadata_file_name(self, filename: Union[str, Path]) -> Path:
+    def metadata_file_name(self, filename: FileNameType) -> Path:
         """
         Generate the filename for the metadata.
 
@@ -41,14 +46,15 @@ class Image(sitk.Image):
         filename = Path(filename)
         return filename.parent / f".{filename.stem}.json"
 
-    def write_nifti(self, filename):
+    def write_nifti(self, filename: FileNameType) -> None:
+        """Save nifti file (and metadata)."""
         filename = Path(filename)
         sitk.WriteImage(self, str(filename))
         serialized_metadata = json.dumps(self.metadata)
         self.metadata_file_name(filename).write_text(serialized_metadata)
 
     @staticmethod
-    def read_nifti(filename):
+    def read_nifti(filename: FileNameType) -> Image:
         filename = Path(filename)
         new_image = Image(sitk.ReadImage(str(filename)))
         serialized_metadata = new_image.metadata_file_name(filename).read_text()
@@ -56,7 +62,7 @@ class Image(sitk.Image):
         return new_image
 
 
-def read_dicom_series(dicom_series_directory_path: Union[str, Path]) -> None:
+def read_dicom_series(dicom_series_directory_path: FileNameType) -> None:
     dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(
         str(dicom_series_directory_path)
     )

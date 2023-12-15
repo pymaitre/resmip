@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from srmip.dicom_to_nifti.dicom import Image, read_dicom_series
 
 
@@ -30,3 +32,15 @@ def test_metadata_contains_only_strings():
 
     for element in dicom_image.metadata.values():
         assert isinstance(element, str)
+
+
+@pytest.mark.parametrize("is_string", [True, False])
+def test_metadata_file_name(is_string, tmp_path):
+    """Test that the metadata file name has the correct name."""
+    nifti_file_name = tmp_path / "nifti_image.nii"
+    if is_string:
+        given_nifti_file_name = str(nifti_file_name)
+    else:
+        given_nifti_file_name = nifti_file_name
+    metadata_file_name = Image().metadata_file_name(given_nifti_file_name)
+    assert metadata_file_name == tmp_path / f".{nifti_file_name.stem}.json"

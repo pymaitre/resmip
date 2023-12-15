@@ -20,26 +20,38 @@ class Image(sitk.Image):
         self._metadata = {}
 
     @property
-    def metadata(self):
+    def metadata(self) -> Dict[str, str]:
+        """Dicom header combined with other metadata."""
         return self._metadata
 
     @metadata.setter
     def metadata(self, value):
         self._metadata = value
 
+    def metadata_file_name(self, filename: Union[str, Path]) -> Path:
+        """
+        Generate the filename for the metadata.
+
+        Defaults a json file with same name of the output image file (filename).
+        The json filename is prepended with a "." to make it hidden.
+
+        :param filename: name of the output image file name.
+        :return: Path of the json metadata file.
+        """
+        filename = Path(filename)
+        return filename.parent / f".{filename.stem}.json"
+
     def write_nifti(self, filename):
         filename = Path(filename)
         sitk.WriteImage(self, str(filename))
         serialized_metadata = json.dumps(self.metadata)
-        # maybe it is better to write it as a hidden file
-        (filename.parent / f"{filename.stem}.json").write_text(serialized_metadata)
+        self.metadata_file_name(filename).write_text(serialized_metadata)
 
     @staticmethod
     def read_nifti(filename):
         filename = Path(filename)
-        # TODO: duplicate code, the metadata file name must be returned by a function
-        serialized_metadata = (filename.parent / f"{filename.stem}.json").read_text()
         new_image = Image(sitk.ReadImage(str(filename)))
+        serialized_metadata = new_image.metadata_file_name(filename).read_text()
         new_image.metadata = serialized_metadata
         return new_image
 

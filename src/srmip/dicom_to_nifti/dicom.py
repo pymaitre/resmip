@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import Union
+from typing import Dict, Union
 
 import numpy as np
 import SimpleITK as sitk
@@ -11,7 +11,7 @@ import SimpleITK as sitk
 class Image(sitk.Image):
     """Wrapper class of SimpleITK.Image with support to headers."""
 
-    _metadata: dict
+    _metadata: Dict[str, str]
     """Dictionary containing metadata."""
 
     def __init__(self, *args):

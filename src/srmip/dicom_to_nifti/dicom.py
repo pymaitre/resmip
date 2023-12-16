@@ -66,6 +66,15 @@ class Image(sitk.Image):
 
     @staticmethod
     def read_nifti(filename: PathLike) -> Image:
+        """
+        Read nifti file.
+
+        If the json metadata can be found, load it.
+        :param filename: Name of the nifti file.
+        :type filename: PathLike
+        :return: Image and metadata.
+        :type: Image
+        """
         filename = Path(filename)
         new_image = Image(sitk.ReadImage(str(filename)))
         if new_image.metadata_file_name(filename).exists():
@@ -102,7 +111,8 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
         try:
             series_metadata.pop(slice_dependent_field)
         except KeyError:
-            # if the key is not present in the image, we must find a way to keep track of this information
+            # if the key is not present in the image, we must find a way
+            # to keep track of this information
             pass
 
     instance_numbers = np.zeros(slices_number, dtype=int)
@@ -130,7 +140,7 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
         # numpy arrays must be serialized to strings
         if not isinstance(value, str):
             value = json.dumps(value.tolist())
-            series_metadata[key] = value  # TODO: we should be able to go back to np.array somehow
+            series_metadata[key] = value
         dicom_series.SetMetaData(key, value)
     dicom_series.metadata = series_metadata
     return dicom_series

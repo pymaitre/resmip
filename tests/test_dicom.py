@@ -95,7 +95,9 @@ def test_saved_nifti_file_pixels(tmp_path):
 
 
 def test_saved_nifti_file_metadata(tmp_path):
-    """Check if the saved nifti file metadata corresponds to the one read from the dicom by this library."""
+    """
+    Check if the saved nifti file metadata corresponds to the one read from the dicom.
+    """
     dicom_image = read_dicom_series(dicom_ct_path())
     nifti_file_path = tmp_path / "testfile.nii"
     dicom_image.write_nifti(nifti_file_path)

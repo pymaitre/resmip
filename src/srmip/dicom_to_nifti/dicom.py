@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Dict, Union
 
 import numpy as np
+import pydicom
 import SimpleITK as sitk
 from bidict import bidict
 
@@ -67,8 +68,17 @@ class Image(sitk.Image):
     def read_nifti(filename: PathLike) -> Image:
         filename = Path(filename)
         new_image = Image(sitk.ReadImage(str(filename)))
-        serialized_metadata = new_image.metadata_file_name(filename).read_text()
-        new_image.metadata = json.loads(serialized_metadata)
+        if new_image.metadata_file_name(filename).exists():
+            serialized_metadata = new_image.metadata_file_name(filename).read_text()
+            series_metadata = json.loads(serialized_metadata)
+        else:
+            series_metadata = {}
+        for k in new_image.GetMetaDataKeys():
+            v = new_image.GetMetaData(k)
+            if re.sub(" *$", "", v).isdigit():
+                v = re.sub(" *$", "", v)
+            series_metadata[k] = v
+        new_image.metadata = series_metadata
         return new_image
 
 
@@ -85,7 +95,7 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
     series_metadata = {}
     for k in dicom_series_reader.GetMetaDataKeys(0):
         v = dicom_series_reader.GetMetaData(0, k)
-        if re.sub(" *$", "", v).isdigit():
+        if re.sub(r"^-?|\.?| *$", "", v).isdigit():
             v = re.sub(" *$", "", v)
         series_metadata[k] = v
     for slice_dependent_field in SLICE_DEPENDENT_FIELDS.inverse:
@@ -149,6 +159,12 @@ def write_dicom_series(image: Image, save_path: PathLike) -> None:
         if dicom_tag in image.metadata:
             image_metadata[dicom_tag] = image.metadata[dicom_tag]
 
+    for series_dependent_field in SERIES_DEPENDENT_FIELDS:
+        image_metadata[DICOM_FIELDS[series_dependent_field]] = pydicom.uid.generate_uid()
+
+    image_metadata["0018|0050"] = str(image.GetSpacing()[2])
+    image_metadata["0018|0088"] = str(image.GetSpacing()[2])
+
     for i in range(image.GetDepth()):
         image_slice = image[:, :, i]
 
@@ -157,6 +173,21 @@ def write_dicom_series(image: Image, save_path: PathLike) -> None:
 
         for key, value in slice_metadata.items():
             image_slice.SetMetaData(key, str(value))
+
+        # maybe these are not needed
+        # image_slice.SetMetaData("0008|0012", time.strftime("%Y%m%d"))  # Instance Creation Date
+        # image_slice.SetMetaData("0008|0013", time.strftime("%H%M%S"))  # Instance Creation Time
+
+        # these are set using the dicom header, but maybe we need them
+        # in case we import directly nifti files
+        # image_slice.SetMetaData(
+        #     "0020|0032", "\\".join(map(str, image.TransformIndexToPhysicalPoint((0, 0, i))))
+        # )  # Image Position (Patient)
+        # image_slice.SetMetaData("0020|0013", str(i))  # Instance Number
+        # image_slice.SetMetaData(
+        #     "0020|1041", str(image.TransformIndexToPhysicalPoint((0, 0, i))[2])
+        # )  # Slice Location
+
         series_writer.SetFileName(str(save_path / f"{i}.dcm"))
         series_writer.Execute(image_slice)
 
@@ -169,18 +200,33 @@ SLICE_DEPENDENT_FIELDS = bidict(
     }
 )
 
+SERIES_DEPENDENT_FIELDS = [
+    # "SOPClassUID",
+    "StudyInstanceUID",
+    "SeriesUID",
+    "StudyID",
+]
+
+# TODO: Add relevant tags (e.g.: clinician name)
 DICOM_FIELDS = bidict(
     {
-        "SOPClassUID": "0008|0016",
+        # "SOPClassUID": "0008|0016",
         "StudyDate": "0008|0020",
         "SeriesDate": "0008|0021",
+        "StudyTime": "0008|0030",
         "Modality": "0008|0060",
         "PatientName": "0010|0010",
         "PatientID": "0010|0020",
+        # "0018|0050": "SliceThickness",
+        # "0018|0088": "SpacingBetweenSlices",
+        "StudyInstanceUID": "0020|000D",
+        "SeriesUID": "0020|000E",
+        "StudyID": "0020|0010",
+        "ImageOrientationPatient": "0020|0037",
+        "FrameOfReferenceUID": "0020|0052",
+        "SliceLocation": "0020|1041",
+        # "RescaleIntercept": "0028|1052",
+        # "RescaleSlope": "0028|1053",
+        "RescaleType": "0028|1054",
     }
 )
-
-# TODO: This part must be removed!
-# study_path = Path(__file__).parents[1] / "tests" / "Dicom" / "IBSI1_CT_phantom" / "image"
-# print(study_path)
-# read_dicom_series(study_path)

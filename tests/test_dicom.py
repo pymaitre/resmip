@@ -10,6 +10,7 @@ import SimpleITK as sitk
 
 from srmip.dicom_to_nifti.dicom import (
     DICOM_FIELDS,
+    SERIES_DEPENDENT_FIELDS,
     Image,
     read_dicom_series,
     write_dicom_series,
@@ -99,7 +100,8 @@ def test_saved_nifti_file_metadata(tmp_path):
     nifti_file_path = tmp_path / "testfile.nii"
     dicom_image.write_nifti(nifti_file_path)
     nifti_image = Image().read_nifti(nifti_file_path)
-    assert nifti_image.metadata == dicom_image.metadata
+    for key, value in dicom_image.metadata.items():
+        assert nifti_image.metadata[key] == value
 
 
 def test_saved_dicom_series_pixels(tmp_path):
@@ -118,5 +120,39 @@ def test_saved_dicom_series_patient_data(tmp_path):
     for dicom_file in tmp_path.glob("*.dcm"):
         dataset = pydicom.dcmread(dicom_file)
         for name, tag in DICOM_FIELDS.items():
+            if name in SERIES_DEPENDENT_FIELDS:
+                continue
             if tag in input_image.metadata:
-                assert dataset[name].value == input_image.metadata[tag]
+                if dataset[name].VR == "DS":
+                    try:
+                        assert float(dataset[name].value) == float(input_image.metadata[tag])
+                    except TypeError:  # list[float]
+                        elements = input_image.metadata[tag].split("\\")
+                        for i, element in enumerate(dataset[name].value):
+                            assert float(element) == float(elements[i])
+                else:
+                    assert dataset[name].value == input_image.metadata[tag]
+
+
+def test_import_nifti_without_metadata(tmp_path):
+    """Test if the import of a nifti file saved without this library succeeds."""
+    input_image = read_dicom_series(dicom_ct_path())
+    nifti_file_name = tmp_path / "nifti_image.nii"
+    sitk.WriteImage(input_image, str(nifti_file_name))
+    nifti_image = input_image.read_nifti(nifti_file_name)
+
+    assert np.all(sitk.GetArrayFromImage(nifti_image) == sitk.GetArrayFromImage(input_image))
+
+    # check image dimension
+    assert int(nifti_image.metadata["dim[0]"]) == 3
+    image_dimension = int(nifti_image.metadata["dim[0]"])
+    assert np.all(
+        [int(nifti_image.metadata[f"dim[{i+1}]"]) for i in range(image_dimension)]
+        == list(input_image.GetSize())
+    )
+    # check voxel size
+    assert np.allclose(
+        [float(nifti_image.metadata[f"pixdim[{i+1}]"]) for i in range(image_dimension)],
+        list(input_image.GetSpacing()),
+        atol=0.001,
+    )

@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import json
+import os
+import re
 from pathlib import Path
 from typing import Dict, Union
 
 import numpy as np
 import SimpleITK as sitk
+from bidict import bidict
 
-FileNameType = Union[str, Path]
+PathLike = Union[str, os.PathLike]
 """Types used int the classes and functions for file names."""
 
 
@@ -33,7 +36,7 @@ class Image(sitk.Image):
     def metadata(self, value):
         self._metadata = value
 
-    def metadata_file_name(self, filename: FileNameType) -> Path:
+    def metadata_file_name(self, filename: PathLike) -> Path:
         """
         Generate the filename for the metadata.
 
@@ -41,19 +44,19 @@ class Image(sitk.Image):
         The json filename is prepended with a "." to make it hidden.
 
         :param filename: name of the output image file name.
-        :type filename: FileNameType
+        :type filename: PathLike
         :return: Path of the json metadata file.
         :rtype: Path
         """
         filename = Path(filename)
         return filename.parent / f".{filename.stem}.json"
 
-    def write_nifti(self, filename: FileNameType) -> None:
+    def write_nifti(self, filename: PathLike) -> None:
         """
         Save nifti file (and metadata).
 
         :param filename: Name of the nifti file.
-        :type filename: FileNameType
+        :type filename: PathLike
         """
         filename = Path(filename)
         sitk.WriteImage(self, str(filename))
@@ -61,15 +64,15 @@ class Image(sitk.Image):
         self.metadata_file_name(filename).write_text(serialized_metadata)
 
     @staticmethod
-    def read_nifti(filename: FileNameType) -> Image:
+    def read_nifti(filename: PathLike) -> Image:
         filename = Path(filename)
         new_image = Image(sitk.ReadImage(str(filename)))
         serialized_metadata = new_image.metadata_file_name(filename).read_text()
-        new_image.metadata = serialized_metadata
+        new_image.metadata = json.loads(serialized_metadata)
         return new_image
 
 
-def read_dicom_series(dicom_series_directory_path: FileNameType) -> Image:
+def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
     dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(
         str(dicom_series_directory_path)
     )
@@ -82,8 +85,10 @@ def read_dicom_series(dicom_series_directory_path: FileNameType) -> Image:
     series_metadata = {}
     for k in dicom_series_reader.GetMetaDataKeys(0):
         v = dicom_series_reader.GetMetaData(0, k)
+        if re.sub(" *$", "", v).isdigit():
+            v = re.sub(" *$", "", v)
         series_metadata[k] = v
-    for slice_dependent_field in SLICE_DEPENDENT_FIELDS:
+    for slice_dependent_field in SLICE_DEPENDENT_FIELDS.inverse:
         try:
             series_metadata.pop(slice_dependent_field)
         except KeyError:
@@ -93,8 +98,12 @@ def read_dicom_series(dicom_series_directory_path: FileNameType) -> Image:
     instance_numbers = np.zeros(slices_number, dtype=int)
     image_position_patients = np.zeros((slices_number, 3), dtype=float)
     for i in range(slices_number):
-        instance_number = dicom_series_reader.GetMetaData(i, "0020|0013")
-        image_position_patient = dicom_series_reader.GetMetaData(i, "0020|0032")
+        instance_number = dicom_series_reader.GetMetaData(
+            i, SLICE_DEPENDENT_FIELDS["InstanceNumber"]
+        )
+        image_position_patient = dicom_series_reader.GetMetaData(
+            i, SLICE_DEPENDENT_FIELDS["ImagePositionPatient"]
+        )
         instance_numbers[i] = instance_number
         image_position_patients[i] = image_position_patient.split("\\")
     slices_indexes = {
@@ -117,11 +126,59 @@ def read_dicom_series(dicom_series_directory_path: FileNameType) -> Image:
     return dicom_series
 
 
-SLICE_DEPENDENT_FIELDS = {
-    "0008|0018": "SOPInstanceUID",
-    "0020|0013": "InstanceNumber",
-    "0020|0032": "ImagePositionPatient",
-}
+def write_dicom_series(image: Image, save_path: PathLike) -> None:
+    """
+    Save the image as a Dicom series.
+
+    :param image: image object to be saved.
+    :type image: Image
+    :param save_path: Path where the image is saved. save_path must be a directory.
+        If it does not already exist, a new dicrectory is created.
+    :type save_path: PathLike
+    """
+    save_path = Path(save_path)
+    # the following raises an error if save_path is an existing non-directory file
+    save_path.mkdir(parents=True, exist_ok=True)
+    series_writer = sitk.ImageFileWriter()
+    series_writer.KeepOriginalImageUIDOn()
+
+    instance_numbers = np.array(json.loads(image.metadata["slice_indexes"]))
+
+    image_metadata = {}
+    for dicom_tag in DICOM_FIELDS.values():
+        if dicom_tag in image.metadata:
+            image_metadata[dicom_tag] = image.metadata[dicom_tag]
+
+    for i in range(image.GetDepth()):
+        image_slice = image[:, :, i]
+
+        slice_metadata = image_metadata.copy()
+        slice_metadata[SLICE_DEPENDENT_FIELDS["InstanceNumber"]] = instance_numbers[i]
+
+        for key, value in slice_metadata.items():
+            image_slice.SetMetaData(key, str(value))
+        series_writer.SetFileName(str(save_path / f"{i}.dcm"))
+        series_writer.Execute(image_slice)
+
+
+SLICE_DEPENDENT_FIELDS = bidict(
+    {
+        "SOPInstanceUID": "0008|0018",
+        "InstanceNumber": "0020|0013",
+        "ImagePositionPatient": "0020|0032",
+    }
+)
+
+DICOM_FIELDS = bidict(
+    {
+        "SOPClassUID": "0008|0016",
+        "StudyDate": "0008|0020",
+        "SeriesDate": "0008|0021",
+        "Modality": "0008|0060",
+        "PatientName": "0010|0010",
+        "PatientID": "0010|0020",
+    }
+)
 
 # TODO: This part must be removed!
 # study_path = Path(__file__).parents[1] / "tests" / "Dicom" / "IBSI1_CT_phantom" / "image"

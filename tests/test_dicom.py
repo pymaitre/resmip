@@ -8,7 +8,12 @@ import pydicom
 import pytest
 import SimpleITK as sitk
 
-from srmip.dicom_to_nifti.dicom import Image, read_dicom_series
+from srmip.dicom_to_nifti.dicom import (
+    DICOM_FIELDS,
+    Image,
+    read_dicom_series,
+    write_dicom_series,
+)
 
 
 def dicom_ct_path() -> Path:
@@ -30,9 +35,14 @@ def test_metadata_is_unique():
     assert new_image2.metadata == {}
 
 
-def test_metadata_contains_only_strings():
+@pytest.mark.parametrize("file_format", ["dicom", "nifti"])
+def test_metadata_contains_only_strings(file_format, tmp_path):
     """Check that all elements in the read Dicom header are python strings."""
     dicom_image = read_dicom_series(dicom_ct_path())
+    if file_format == "nifti":
+        nifti_image_path = tmp_path / "image.nii"
+        dicom_image.write_nifti(nifti_image_path)
+        dicom_image = Image().read_nifti(nifti_image_path)
 
     for element in dicom_image.metadata.values():
         assert isinstance(element, str)
@@ -50,29 +60,63 @@ def test_metadata_file_name(is_string, tmp_path):
     assert metadata_file_name == tmp_path / f".{nifti_file_name.stem}.json"
 
 
-def test_dicom_image_pixel_array():
-    """Check if the pixel grid read by SimpleITK corresponds to the one in the Dicom files."""
-    image = read_dicom_series(dicom_ct_path())
+def compare_dicom_pixels(image: Image, dicom_path: Path):
+    """Compare dicom pixel values between slices."""
     image_array = sitk.GetArrayFromImage(image)
     min_instance_number = np.array(json.loads(image.metadata["slice_indexes"])).max()
-    for dicom_file in dicom_ct_path().glob("*.dcm"):
+    for dicom_file in dicom_path.glob("*.dcm"):
         dataset = pydicom.dcmread(dicom_file)
         if dataset["Modality"].value != "CT":
             continue
         slice_index = min_instance_number - dataset["InstanceNumber"].value
-        pixel_array = (
-            np.frombuffer(dataset.PixelData, dtype=np.int16).reshape(
-                (dataset["Rows"].value, dataset["Columns"].value)
-            )
-            - 1000
+        pixel_array = np.frombuffer(dataset.PixelData, dtype=np.int16).reshape(
+            (dataset["Rows"].value, dataset["Columns"].value)
         )
         assert np.all(pixel_array == image_array[slice_index, :, :])
 
 
-def test_saved_nifti_file(tmp_path):
+def test_dicom_image_pixel_array():
+    """Check if the pixel grid read by SimpleITK corresponds to the one in the Dicom files."""
+    image = read_dicom_series(dicom_ct_path())
+    image_array = sitk.GetArrayFromImage(image) + 1000
+    new_image = Image(sitk.GetImageFromArray(image_array))
+    new_image.metadata = image.metadata
+    compare_dicom_pixels(new_image, dicom_ct_path())
+
+
+def test_saved_nifti_file_pixels(tmp_path):
     """Check if the saved nifti file corresponds to the one read by SimpleITK."""
     image = read_dicom_series(dicom_ct_path())
     nifti_file_path = tmp_path / "testfile.nii"
     image.write_nifti(nifti_file_path)
     sitk_image = sitk.ReadImage(str(nifti_file_path))
     assert np.all(sitk.GetArrayFromImage(sitk_image) == sitk.GetArrayFromImage(image))
+
+
+def test_saved_nifti_file_metadata(tmp_path):
+    """Check if the saved nifti file metadata corresponds to the one read from the dicom by this library."""
+    dicom_image = read_dicom_series(dicom_ct_path())
+    nifti_file_path = tmp_path / "testfile.nii"
+    dicom_image.write_nifti(nifti_file_path)
+    nifti_image = Image().read_nifti(nifti_file_path)
+    assert nifti_image.metadata == dicom_image.metadata
+
+
+def test_saved_dicom_series_pixels(tmp_path):
+    """Check if the saved Dicom series pixel grid is saved correctly."""
+    input_image = read_dicom_series(dicom_ct_path())
+    write_dicom_series(input_image, tmp_path)
+
+    compare_dicom_pixels(input_image, tmp_path)
+
+
+def test_saved_dicom_series_patient_data(tmp_path):
+    """Check if dicom header values are the same."""
+    input_image = read_dicom_series(dicom_ct_path())
+    write_dicom_series(input_image, tmp_path)
+
+    for dicom_file in tmp_path.glob("*.dcm"):
+        dataset = pydicom.dcmread(dicom_file)
+        for name, tag in DICOM_FIELDS.items():
+            if tag in input_image.metadata:
+                assert dataset[name].value == input_image.metadata[tag]

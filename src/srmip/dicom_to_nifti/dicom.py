@@ -107,9 +107,9 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
         if re.sub(r"^-?|\.?| *$", "", v).isdigit():
             v = re.sub(" *$", "", v)
         series_metadata[k] = v
-    for slice_dependent_field in SLICE_DEPENDENT_FIELDS.inverse:
+    for slice_dependent_field in SLICE_DEPENDENT_FIELDS:
         try:
-            series_metadata.pop(slice_dependent_field)
+            series_metadata.pop(DICOM_FIELDS[slice_dependent_field])
         except KeyError:
             # if the key is not present in the image, we must find a way
             # to keep track of this information
@@ -118,11 +118,9 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
     instance_numbers = np.zeros(slices_number, dtype=int)
     image_position_patients = np.zeros((slices_number, 3), dtype=float)
     for i in range(slices_number):
-        instance_number = dicom_series_reader.GetMetaData(
-            i, SLICE_DEPENDENT_FIELDS["InstanceNumber"]
-        )
+        instance_number = dicom_series_reader.GetMetaData(i, DICOM_FIELDS["InstanceNumber"])
         image_position_patient = dicom_series_reader.GetMetaData(
-            i, SLICE_DEPENDENT_FIELDS["ImagePositionPatient"]
+            i, DICOM_FIELDS["ImagePositionPatient"]
         )
         instance_numbers[i] = instance_number
         image_position_patients[i] = image_position_patient.split("\\")
@@ -179,7 +177,7 @@ def write_dicom_series(image: Image, save_path: PathLike) -> None:
         image_slice = image[:, :, i]
 
         slice_metadata = image_metadata.copy()
-        slice_metadata[SLICE_DEPENDENT_FIELDS["InstanceNumber"]] = instance_numbers[i]
+        slice_metadata[DICOM_FIELDS["InstanceNumber"]] = instance_numbers[i]
 
         for key, value in slice_metadata.items():
             image_slice.SetMetaData(key, str(value))
@@ -202,13 +200,11 @@ def write_dicom_series(image: Image, save_path: PathLike) -> None:
         series_writer.Execute(image_slice)
 
 
-SLICE_DEPENDENT_FIELDS = bidict(
-    {
-        "SOPInstanceUID": "0008|0018",
-        "InstanceNumber": "0020|0013",
-        "ImagePositionPatient": "0020|0032",
-    }
-)
+SLICE_DEPENDENT_FIELDS = [
+    "SOPInstanceUID",
+    "InstanceNumber",
+    "ImagePositionPatient",
+]
 
 SERIES_DEPENDENT_FIELDS = [
     # "SOPClassUID",
@@ -221,6 +217,7 @@ SERIES_DEPENDENT_FIELDS = [
 DICOM_FIELDS = bidict(
     {
         # "SOPClassUID": "0008|0016",
+        "SOPInstanceUID": "0008|0018",
         "StudyDate": "0008|0020",
         "SeriesDate": "0008|0021",
         "StudyTime": "0008|0030",
@@ -232,6 +229,8 @@ DICOM_FIELDS = bidict(
         "StudyInstanceUID": "0020|000D",
         "SeriesUID": "0020|000E",
         "StudyID": "0020|0010",
+        "InstanceNumber": "0020|0013",
+        "ImagePositionPatient": "0020|0032",
         "ImageOrientationPatient": "0020|0037",
         "FrameOfReferenceUID": "0020|0052",
         "SliceLocation": "0020|1041",

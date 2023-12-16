@@ -41,13 +41,20 @@ class Image(sitk.Image):
         The json filename is prepended with a "." to make it hidden.
 
         :param filename: name of the output image file name.
+        :type filename: FileNameType
         :return: Path of the json metadata file.
+        :rtype: Path
         """
         filename = Path(filename)
         return filename.parent / f".{filename.stem}.json"
 
     def write_nifti(self, filename: FileNameType) -> None:
-        """Save nifti file (and metadata)."""
+        """
+        Save nifti file (and metadata).
+
+        :param filename: Name of the nifti file.
+        :type filename: FileNameType
+        """
         filename = Path(filename)
         sitk.WriteImage(self, str(filename))
         serialized_metadata = json.dumps(self.metadata)
@@ -62,7 +69,7 @@ class Image(sitk.Image):
         return new_image
 
 
-def read_dicom_series(dicom_series_directory_path: FileNameType) -> None:
+def read_dicom_series(dicom_series_directory_path: FileNameType) -> Image:
     dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(
         str(dicom_series_directory_path)
     )
@@ -93,7 +100,7 @@ def read_dicom_series(dicom_series_directory_path: FileNameType) -> None:
     slices_indexes = {
         "min": instance_numbers.min(),
         "max": instance_numbers.max(),
-    }  # TODO: we must store this information in the image
+    }
     assert (
         slices_indexes["max"] - slices_indexes["min"] + 1 == slices_number
     )  # otherwise, throw an error (missing / duplicated slices)

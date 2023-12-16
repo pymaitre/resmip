@@ -51,6 +51,7 @@ def test_metadata_file_name(is_string, tmp_path):
 
 
 def test_dicom_image_pixel_array():
+    """Check if the pixel grid read by SimpleITK corresponds to the one in the Dicom files."""
     image = read_dicom_series(dicom_ct_path())
     image_array = sitk.GetArrayFromImage(image)
     min_instance_number = np.array(json.loads(image.metadata["slice_indexes"])).max()
@@ -66,3 +67,12 @@ def test_dicom_image_pixel_array():
             - 1000
         )
         assert np.all(pixel_array == image_array[slice_index, :, :])
+
+
+def test_saved_nifti_file(tmp_path):
+    """Check if the saved nifti file corresponds to the one read by SimpleITK."""
+    image = read_dicom_series(dicom_ct_path())
+    nifti_file_path = tmp_path / "testfile.nii"
+    image.write_nifti(nifti_file_path)
+    sitk_image = sitk.ReadImage(str(nifti_file_path))
+    assert np.all(sitk.GetArrayFromImage(sitk_image) == sitk.GetArrayFromImage(image))

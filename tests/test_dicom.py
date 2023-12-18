@@ -8,13 +8,8 @@ import pydicom
 import pytest
 import SimpleITK as sitk
 
-from srmip.dicom_to_nifti.dicom import (
-    DICOM_FIELDS,
-    SERIES_DEPENDENT_FIELDS,
-    Image,
-    read_dicom_series,
-    write_dicom_series,
-)
+from srmip.dicom_to_nifti.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
+from srmip.dicom_to_nifti.dicom import Image, read_dicom_series, write_dicom_series
 
 
 def dicom_ct_path() -> Path:

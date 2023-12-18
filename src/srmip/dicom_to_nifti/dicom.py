@@ -11,7 +11,12 @@ from typing import Dict, Union
 import numpy as np
 import pydicom
 import SimpleITK as sitk
-from bidict import bidict
+
+from srmip.dicom_to_nifti.constants import (
+    DICOM_FIELDS,
+    SERIES_DEPENDENT_FIELDS,
+    SLICE_DEPENDENT_FIELDS,
+)
 
 PathLike = Union[str, os.PathLike]
 """Types used int the classes and functions for file names."""
@@ -198,44 +203,3 @@ def write_dicom_series(image: Image, save_path: PathLike) -> None:
 
         series_writer.SetFileName(str(save_path / f"{i}.dcm"))
         series_writer.Execute(image_slice)
-
-
-SLICE_DEPENDENT_FIELDS = [
-    "SOPInstanceUID",
-    "InstanceNumber",
-    "ImagePositionPatient",
-]
-
-SERIES_DEPENDENT_FIELDS = [
-    # "SOPClassUID",
-    "StudyInstanceUID",
-    "SeriesUID",
-    "StudyID",
-]
-
-# TODO: Add relevant tags (e.g.: clinician name)
-DICOM_FIELDS = bidict(
-    {
-        # "SOPClassUID": "0008|0016",
-        "SOPInstanceUID": "0008|0018",
-        "StudyDate": "0008|0020",
-        "SeriesDate": "0008|0021",
-        "StudyTime": "0008|0030",
-        "Modality": "0008|0060",
-        "PatientName": "0010|0010",
-        "PatientID": "0010|0020",
-        # "0018|0050": "SliceThickness",
-        # "0018|0088": "SpacingBetweenSlices",
-        "StudyInstanceUID": "0020|000D",
-        "SeriesUID": "0020|000E",
-        "StudyID": "0020|0010",
-        "InstanceNumber": "0020|0013",
-        "ImagePositionPatient": "0020|0032",
-        "ImageOrientationPatient": "0020|0037",
-        "FrameOfReferenceUID": "0020|0052",
-        "SliceLocation": "0020|1041",
-        # "RescaleIntercept": "0028|1052",
-        # "RescaleSlope": "0028|1053",
-        "RescaleType": "0028|1054",
-    }
-)

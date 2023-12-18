@@ -10,7 +10,7 @@ SLICE_DEPENDENT_FIELDS = [
 SERIES_DEPENDENT_FIELDS = [
     # "SOPClassUID",
     "StudyInstanceUID",
-    "SeriesUID",
+    "SeriesInstanceUID",
     "StudyID",
 ]
 
@@ -29,7 +29,7 @@ DICOM_FIELDS = bidict(
         # "0018|0050": "SliceThickness",
         # "0018|0088": "SpacingBetweenSlices",
         "StudyInstanceUID": "0020|000D",
-        "SeriesUID": "0020|000E",
+        "SeriesInstanceUID": "0020|000E",
         "StudyID": "0020|0010",
         "InstanceNumber": "0020|0013",
         "ImagePositionPatient": "0020|0032",
@@ -38,6 +38,6 @@ DICOM_FIELDS = bidict(
         "SliceLocation": "0020|1041",
         # "RescaleIntercept": "0028|1052",
         # "RescaleSlope": "0028|1053",
-        "RescaleType": "0028|1054",
+        # "RescaleType": "0028|1054",
     }
 )

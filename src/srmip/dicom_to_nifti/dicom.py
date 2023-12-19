@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 from typing import Dict
 
@@ -16,26 +15,7 @@ from srmip.dicom_to_nifti.constants import (
     SERIES_DEPENDENT_FIELDS,
     SLICE_DEPENDENT_FIELDS,
 )
-from srmip.utils import PathLike
-
-
-def format_digit_string(digit_string: str) -> str:
-    """
-    Reformat a string containing a digit.
-
-    Remove trailing whitespaces. If the input string does not represent
-    a string, do nothing.
-    :param digit_string: python string containing the digit.
-    :type digit_string: str
-    :return: python string containing the digit without trailing whitespaces.
-    :rtype: str
-    """
-    captured_string = re.sub(
-        r"^-?(\d)*([0-9]\.|\.[0-9])?(\d)* *$", r"\g<1>\g<3>\g<2>", digit_string
-    )
-    if re.sub(r"\.", "", captured_string).isdigit():
-        digit_string = re.sub(" *$", "", digit_string)
-    return digit_string
+from srmip.utils import PathLike, format_digit_string
 
 
 class Image(sitk.Image):

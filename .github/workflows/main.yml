@@ -25,10 +25,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install .
+          python -m pip install --upgrade pip setuptools wheel poetry
+          poetry install --with test,docs
+
       - name: Control code structure
         run: |
-          python -m pip install prospector
           prospector --profile extras/profile.yaml
           pylint tests
+
+      - name: Build docs
+        run: |
+          cd docs
+          make html

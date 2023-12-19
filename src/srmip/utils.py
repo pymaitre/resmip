@@ -13,6 +13,7 @@ def format_digit_string(digit_string: str) -> str:
 
     Remove trailing whitespaces. If the input string does not represent
     a string, do nothing.
+
     :param digit_string: python string containing the digit.
     :type digit_string: str
     :return: python string containing the digit without trailing whitespaces.

@@ -59,6 +59,7 @@ class Image(sitk.Image):
         Load image file (and metadata).
 
         The image format is automatically determined from filename's suffix.
+
         :param filename: Name of the file. If filename is a directory,
             the writer assumes to write a Dicom series. Otherwise, it assumes a metatadata
             file with the following format exists: f".{filename.stem}.json".
@@ -88,6 +89,7 @@ class Image(sitk.Image):
 
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.
+
         :param filename: Name of the file. If filename is a directory,
             the writer assumes to write a Dicom series.
         :type filename: PathLike

@@ -4,6 +4,14 @@ srmip.dicom\_to\_nifti package
 Submodules
 ----------
 
+srmip.dicom\_to\_nifti.constants module
+---------------------------------------
+
+.. automodule:: srmip.dicom_to_nifti.constants
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 srmip.dicom\_to\_nifti.dicom module
 -----------------------------------
 

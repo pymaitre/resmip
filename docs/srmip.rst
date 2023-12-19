@@ -9,6 +9,17 @@ Subpackages
 
    srmip.dicom_to_nifti
 
+Submodules
+----------
+
+srmip.utils module
+------------------
+
+.. automodule:: srmip.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

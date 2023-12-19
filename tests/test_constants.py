@@ -18,6 +18,8 @@ def test_name_tag_correspond():
     # pick only one dicom file
     dicom_file_path = list(dicom_ct_path().glob("*.dcm"))[0]
     header = pydicom.dcmread(dicom_file_path)
+    # Add missing header values
+    header.add_new(0x00180088, "DS", header["SliceThickness"].value)
     for dicom_name, dicom_tag_str in DICOM_FIELDS.items():
         dicom_tag = [hex(int(number, 16)) for number in dicom_tag_str.split("|")]
         assert header[dicom_name].value == header[dicom_tag].value

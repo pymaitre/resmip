@@ -175,8 +175,14 @@ def write_dicom_series(image: Image, save_path: PathLike) -> None:
     for series_dependent_field in SERIES_DEPENDENT_FIELDS:
         image_metadata[DICOM_FIELDS[series_dependent_field]] = pydicom.uid.generate_uid()
 
-    image_metadata["0018|0050"] = str(image.GetSpacing()[2])
-    image_metadata["0018|0088"] = str(image.GetSpacing()[2])
+    # Do we want to round it back to the value of the Dicom or do we want
+    # to keep the value computed by SimpleITK? The pixel grid on the Dicom file
+    # is identical to the generated one.
+    # Maybe it's safer to round it.
+    # image_metadata["0018|0050"] = str(image.GetSpacing()[2])
+    rounded_z_spacing = float(f"{image.GetSpacing()[2]:.3e}")
+    image_metadata[DICOM_FIELDS["SliceThickness"]] = str(rounded_z_spacing)
+    image_metadata[DICOM_FIELDS["SpacingBetweenSlices"]] = str(rounded_z_spacing)
 
     for i in range(image.GetDepth()):
         image_slice = image[:, :, i]

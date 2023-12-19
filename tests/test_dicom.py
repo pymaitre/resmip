@@ -121,12 +121,15 @@ def test_saved_dicom_series_patient_data(tmp_path):
                 continue
             if tag in input_image.metadata:
                 if dataset[name].VR == "DS":
-                    try:
-                        assert float(dataset[name].value) == float(input_image.metadata[tag])
-                    except TypeError:  # list[float]
-                        elements = input_image.metadata[tag].split("\\")
-                        for i, element in enumerate(dataset[name].value):
-                            assert float(element) == float(elements[i])
+                    if input_image.metadata[tag] == "":
+                        assert dataset[name].value is None
+                    else:
+                        try:
+                            assert float(dataset[name].value) == float(input_image.metadata[tag])
+                        except TypeError:  # list[float]
+                            elements = input_image.metadata[tag].split("\\")
+                            for i, element in enumerate(dataset[name].value):
+                                assert float(element) == float(elements[i])
                 else:
                     assert dataset[name].value == input_image.metadata[tag]
 

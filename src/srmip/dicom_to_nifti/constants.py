@@ -26,6 +26,8 @@ DICOM_FIELDS = bidict(
         "ReferringPhysicianName": "0008|0090",
         "PatientName": "0010|0010",
         "PatientID": "0010|0020",
+        "PatientBirthDate": "0010|0030",
+        "PatientSex": "0010|0040",
         # "0018|0050": "SliceThickness",
         # "0018|0088": "SpacingBetweenSlices",
         "StudyInstanceUID": "0020|000D",

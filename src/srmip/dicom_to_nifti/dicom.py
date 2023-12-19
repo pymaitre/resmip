@@ -65,7 +65,7 @@ class Image(sitk.Image):
         :type filename: PathLike
         """
         filename = Path(filename)
-        sitk.WriteImage(self, str(filename))
+        sitk.WriteImage(self, filename)
         serialized_metadata = json.dumps(self.metadata)
         self.metadata_file_name(filename).write_text(serialized_metadata)
 
@@ -81,7 +81,7 @@ class Image(sitk.Image):
         :type: Image
         """
         filename = Path(filename)
-        new_image = Image(sitk.ReadImage(str(filename)))
+        new_image = Image(sitk.ReadImage(filename))
         if new_image.metadata_file_name(filename).exists():
             serialized_metadata = new_image.metadata_file_name(filename).read_text()
             series_metadata = json.loads(serialized_metadata)

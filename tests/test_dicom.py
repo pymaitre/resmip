@@ -9,7 +9,7 @@ import pytest
 import SimpleITK as sitk
 
 from srmip.dicom_to_nifti.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
-from srmip.dicom_to_nifti.dicom import Image, read_dicom_series, write_dicom_series
+from srmip.dicom_to_nifti.dicom import Image, read_dicom_series
 
 
 def dicom_ct_path() -> Path:
@@ -34,7 +34,7 @@ def test_metadata_is_unique():
 @pytest.mark.parametrize("file_format", ["dicom", "nifti"])
 def test_metadata_contains_only_strings(file_format, tmp_path):
     """Check that all elements in the read Dicom header are python strings."""
-    dicom_image = read_dicom_series(dicom_ct_path())
+    dicom_image = Image.read_image(dicom_ct_path())
     if file_format == "nifti":
         nifti_image_path = tmp_path / "image.nii"
         dicom_image.write_image(nifti_image_path)
@@ -73,16 +73,16 @@ def compare_dicom_pixels(image: Image, dicom_path: Path):
 
 def test_dicom_image_pixel_array():
     """Check if the pixel grid read by SimpleITK corresponds to the one in the Dicom files."""
-    image = read_dicom_series(dicom_ct_path())
+    image, image_metadata = read_dicom_series(dicom_ct_path())
     image_array = sitk.GetArrayFromImage(image) + 1000
     new_image = Image(sitk.GetImageFromArray(image_array))
-    new_image.metadata = image.metadata
+    new_image.metadata = image_metadata
     compare_dicom_pixels(new_image, dicom_ct_path())
 
 
 def test_saved_nifti_file_pixels(tmp_path):
     """Check if the saved nifti file corresponds to the one read by SimpleITK."""
-    image = read_dicom_series(dicom_ct_path())
+    image = Image().read_image(dicom_ct_path())
     nifti_file_path = tmp_path / "testfile.nii"
     image.write_image(nifti_file_path)
     sitk_image = sitk.ReadImage(nifti_file_path)
@@ -93,7 +93,7 @@ def test_saved_nifti_file_metadata(tmp_path):
     """
     Check if the saved nifti file metadata corresponds to the one read from the dicom.
     """
-    dicom_image = read_dicom_series(dicom_ct_path())
+    dicom_image = Image.read_image(dicom_ct_path())
     nifti_file_path = tmp_path / "testfile.nii"
     dicom_image.write_image(nifti_file_path)
     nifti_image = Image().read_image(nifti_file_path)
@@ -103,16 +103,16 @@ def test_saved_nifti_file_metadata(tmp_path):
 
 def test_saved_dicom_series_pixels(tmp_path):
     """Check if the saved Dicom series pixel grid is saved correctly."""
-    input_image = read_dicom_series(dicom_ct_path())
-    write_dicom_series(input_image, tmp_path)
+    input_image = Image.read_image(dicom_ct_path())
+    input_image.write_image(tmp_path)
 
     compare_dicom_pixels(input_image, tmp_path)
 
 
 def test_saved_dicom_series_patient_data(tmp_path):
     """Check if dicom header values are the same."""
-    input_image = read_dicom_series(dicom_ct_path())
-    write_dicom_series(input_image, tmp_path)
+    input_image = Image.read_image(dicom_ct_path())
+    input_image.write_image(tmp_path)
 
     for dicom_file in tmp_path.glob("*.dcm"):
         dataset = pydicom.dcmread(dicom_file)
@@ -137,10 +137,10 @@ def test_saved_dicom_series_patient_data(tmp_path):
 
 def test_import_nifti_without_metadata(tmp_path):
     """Test if the import of a nifti file saved without this library succeeds."""
-    input_image = read_dicom_series(dicom_ct_path())
+    input_image = Image.read_image(dicom_ct_path())
     nifti_file_name = tmp_path / "nifti_image.nii"
     sitk.WriteImage(input_image, nifti_file_name)
-    nifti_image = input_image.read_image(nifti_file_name)
+    nifti_image = Image().read_image(nifti_file_name)
 
     assert np.all(sitk.GetArrayFromImage(nifti_image) == sitk.GetArrayFromImage(input_image))
 
@@ -162,7 +162,7 @@ def test_import_nifti_without_metadata(tmp_path):
 @pytest.mark.parametrize("file_format", ["dicom", "nifti"])
 def test_write_image(file_format, tmp_path):
     """Test if write_image correctly overrides all write functions."""
-    input_image = read_dicom_series(dicom_ct_path())
+    input_image = Image().read_image(dicom_ct_path())
     if file_format == "nifti":
         output_file_name = tmp_path / "nifti" / "nifti_image.nii"
     elif file_format == "dicom":
@@ -184,7 +184,7 @@ def test_write_image(file_format, tmp_path):
 @pytest.mark.parametrize("file_format", ["dicom", "nifti"])
 def test_read_image(file_format, tmp_path):
     """Test if read_image correctly overrides all read functions."""
-    input_image = read_dicom_series(dicom_ct_path())
+    input_image = Image().read_image(dicom_ct_path())
     if file_format == "nifti":
         output_file_name = tmp_path / "nifti" / "nifti_image.nii"
     elif file_format == "dicom":
@@ -198,6 +198,6 @@ def test_read_image(file_format, tmp_path):
     if file_format == "nifti":
         new_image_reference = sitk.ReadImage(output_file_name, imageIO="NiftiImageIO")
     elif file_format == "dicom":
-        new_image_reference = read_dicom_series(output_file_name)
+        new_image_reference, _ = read_dicom_series(output_file_name)
 
     assert np.all(sitk.GetArrayFromImage(new_image) == sitk.GetArrayFromImage(new_image_reference))

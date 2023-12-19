@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Tuple
 
 import numpy as np
 import pydicom
@@ -38,7 +38,8 @@ class Image(sitk.Image):
     def metadata(self, value):
         self._metadata = value
 
-    def metadata_file_name(self, filename: PathLike) -> Path:
+    @staticmethod
+    def metadata_file_name(filename: PathLike) -> Path:
         """
         Generate the filename for the metadata.
 
@@ -69,17 +70,20 @@ class Image(sitk.Image):
         """
         filename = Path(filename)
         if filename.is_dir():
-            return read_dicom_series(filename)
-        new_image = Image(sitk.ReadImage(filename))
-        if new_image.metadata_file_name(filename).exists():
-            serialized_metadata = new_image.metadata_file_name(filename).read_text()
-            series_metadata = json.loads(serialized_metadata)
+            sitk_image, series_metadata = read_dicom_series(filename)
         else:
-            series_metadata = {}
-        for key in new_image.GetMetaDataKeys():
-            value = new_image.GetMetaData(key)
-            value = format_digit_string(value)
-            series_metadata[key] = value
+            # new_image = Image(sitk.ReadImage(filename))
+            sitk_image = sitk.ReadImage(filename)
+            if Image().metadata_file_name(filename).exists():
+                serialized_metadata = Image().metadata_file_name(filename).read_text()
+                series_metadata = json.loads(serialized_metadata)
+            else:
+                series_metadata = {}
+            for key in sitk_image.GetMetaDataKeys():
+                value = sitk_image.GetMetaData(key)
+                value = format_digit_string(value)
+                series_metadata[key] = value
+        new_image = Image(sitk_image)
         new_image.metadata = series_metadata
         return new_image
 
@@ -98,7 +102,7 @@ class Image(sitk.Image):
         if not filename.exists() and filename.suffix == "":
             filename.mkdir(parents=True, exist_ok=True)
         if filename.is_dir():
-            write_dicom_series(self, filename)
+            write_dicom_series(self, self.metadata, filename)
             return
         filename.parent.mkdir(parents=True, exist_ok=True)
         sitk.WriteImage(self, filename)
@@ -106,14 +110,14 @@ class Image(sitk.Image):
         self.metadata_file_name(filename).write_text(serialized_metadata)
 
 
-def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
+def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image, Dict[str, str]]:
     """
     Read Dicom series from file.
 
     :param dicom_series_directory_path: Path of the directory containing the Dicom Series.
     :type dicom_series_directory_path: PathLike
-    :return: Image and metadata.
-    :type: Image
+    :return: SimpleITK Image and metadata dictionary.
+    :type: Tuple[sitk.Image, Dict[str, str]
     """
     dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(
         str(dicom_series_directory_path)
@@ -123,7 +127,7 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
     dicom_series_reader.SetFileNames(dicom_series_files)
     dicom_series_reader.MetaDataDictionaryArrayUpdateOn()
     dicom_series_reader.LoadPrivateTagsOn()
-    dicom_series = Image(dicom_series_reader.Execute())
+    dicom_series = dicom_series_reader.Execute()
     series_metadata = {}
     for key in dicom_series_reader.GetMetaDataKeys(0):
         value = dicom_series_reader.GetMetaData(0, key)
@@ -162,16 +166,20 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
             value = json.dumps(value.tolist())
             series_metadata[key] = value
         dicom_series.SetMetaData(key, value)
-    dicom_series.metadata = series_metadata
-    return dicom_series
+    return dicom_series, series_metadata
 
 
-def write_dicom_series(image: Image, save_path: PathLike) -> None:
+def write_dicom_series(
+    image: sitk.Image, input_metadata: Dict[str, str], save_path: PathLike
+) -> None:
     """
     Save the image as a Dicom series.
 
     :param image: image object to be saved.
-    :type image: Image
+    :type image: sitk.Image
+    :param input_metadata: dictionary containing image metadata used for the creation
+        of the Dicom header.
+    :type input_metadata: Dict[str, str]
     :param save_path: Path where the image is saved. save_path must be a directory.
         If it does not already exist, a new dicrectory is created.
     :type save_path: PathLike
@@ -182,12 +190,12 @@ def write_dicom_series(image: Image, save_path: PathLike) -> None:
     series_writer = sitk.ImageFileWriter()
     series_writer.KeepOriginalImageUIDOn()
 
-    instance_numbers = np.array(json.loads(image.metadata["slice_indexes"]))
+    instance_numbers = np.array(json.loads(input_metadata["slice_indexes"]))
 
     image_metadata = {}
     for dicom_tag in DICOM_FIELDS.values():
-        if dicom_tag in image.metadata:
-            image_metadata[dicom_tag] = image.metadata[dicom_tag]
+        if dicom_tag in input_metadata:
+            image_metadata[dicom_tag] = input_metadata[dicom_tag]
 
     for series_dependent_field in SERIES_DEPENDENT_FIELDS:
         image_metadata[DICOM_FIELDS[series_dependent_field]] = pydicom.uid.generate_uid()

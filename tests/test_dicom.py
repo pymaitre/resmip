@@ -9,7 +9,12 @@ import pytest
 import SimpleITK as sitk
 
 from srmip.dicom_to_nifti.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
-from srmip.dicom_to_nifti.dicom import Image, read_dicom_series, write_dicom_series
+from srmip.dicom_to_nifti.dicom import (
+    Image,
+    format_digit_string,
+    read_dicom_series,
+    write_dicom_series,
+)
 
 
 def dicom_ct_path() -> Path:
@@ -37,8 +42,8 @@ def test_metadata_contains_only_strings(file_format, tmp_path):
     dicom_image = read_dicom_series(dicom_ct_path())
     if file_format == "nifti":
         nifti_image_path = tmp_path / "image.nii"
-        dicom_image.write_nifti(nifti_image_path)
-        dicom_image = Image().read_nifti(nifti_image_path)
+        dicom_image.write_image(nifti_image_path)
+        dicom_image = Image().read_image(nifti_image_path)
 
     for element in dicom_image.metadata.values():
         assert isinstance(element, str)
@@ -84,7 +89,7 @@ def test_saved_nifti_file_pixels(tmp_path):
     """Check if the saved nifti file corresponds to the one read by SimpleITK."""
     image = read_dicom_series(dicom_ct_path())
     nifti_file_path = tmp_path / "testfile.nii"
-    image.write_nifti(nifti_file_path)
+    image.write_image(nifti_file_path)
     sitk_image = sitk.ReadImage(nifti_file_path)
     assert np.all(sitk.GetArrayFromImage(sitk_image) == sitk.GetArrayFromImage(image))
 
@@ -95,8 +100,8 @@ def test_saved_nifti_file_metadata(tmp_path):
     """
     dicom_image = read_dicom_series(dicom_ct_path())
     nifti_file_path = tmp_path / "testfile.nii"
-    dicom_image.write_nifti(nifti_file_path)
-    nifti_image = Image().read_nifti(nifti_file_path)
+    dicom_image.write_image(nifti_file_path)
+    nifti_image = Image().read_image(nifti_file_path)
     for key, value in dicom_image.metadata.items():
         assert nifti_image.metadata[key] == value
 
@@ -140,7 +145,7 @@ def test_import_nifti_without_metadata(tmp_path):
     input_image = read_dicom_series(dicom_ct_path())
     nifti_file_name = tmp_path / "nifti_image.nii"
     sitk.WriteImage(input_image, nifti_file_name)
-    nifti_image = input_image.read_nifti(nifti_file_name)
+    nifti_image = input_image.read_image(nifti_file_name)
 
     assert np.all(sitk.GetArrayFromImage(nifti_image) == sitk.GetArrayFromImage(input_image))
 
@@ -201,3 +206,30 @@ def test_read_image(file_format, tmp_path):
         new_image_reference = read_dicom_series(output_file_name)
 
     assert np.all(sitk.GetArrayFromImage(new_image) == sitk.GetArrayFromImage(new_image_reference))
+
+
+@pytest.mark.parametrize("is_digit", [True, False])
+@pytest.mark.parametrize("trailing_whitespaces", [0, 1, 4])
+@pytest.mark.parametrize("dots", [0, 1, 2])
+@pytest.mark.parametrize("leading_minus", [0, 1, 2])
+def test_format_digit_string(is_digit, trailing_whitespaces, dots, leading_minus):
+    """Test function for format_digit_string."""
+    indexes = [0, 1]
+    if is_digit:
+        test_strings = ["16576719", "16576719"]
+    else:
+        test_strings = ["165aop7671a9", "165aop7671a9"]
+    for _ in range(trailing_whitespaces):
+        for i in indexes:
+            test_strings[i] += " "
+            if is_digit and (dots in [0, 1] and leading_minus in [0, 1]):
+                break
+    for _ in range(dots):
+        for i in indexes:
+            test_strings[i] = test_strings[i][:4] + "." + test_strings[i][4:]
+    for _ in range(leading_minus):
+        for i in indexes:
+            test_strings[i] = "-" + test_strings[i]
+
+    print(test_strings)
+    assert format_digit_string(test_strings[0]) == test_strings[1]

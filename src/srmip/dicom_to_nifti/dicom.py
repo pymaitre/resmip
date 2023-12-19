@@ -19,6 +19,25 @@ from srmip.dicom_to_nifti.constants import (
 from srmip.utils import PathLike
 
 
+def format_digit_string(digit_string: str) -> str:
+    """
+    Reformat a string containing a digit.
+
+    Remove trailing whitespaces. If the input string does not represent
+    a string, do nothing.
+    :param digit_string: python string containing the digit.
+    :type digit_string: str
+    :return: python string containing the digit without trailing whitespaces.
+    :rtype: str
+    """
+    captured_string = re.sub(
+        r"^-?(\d)*([0-9]\.|\.[0-9])?(\d)* *$", r"\g<1>\g<3>\g<2>", digit_string
+    )
+    if re.sub(r"\.", "", captured_string).isdigit():
+        digit_string = re.sub(" *$", "", digit_string)
+    return digit_string
+
+
 class Image(sitk.Image):
     """Wrapper class of SimpleITK.Image with support to headers."""
 
@@ -65,7 +84,7 @@ class Image(sitk.Image):
             file with the following format exists: f".{filename.stem}.json".
         :type filename: PathLike
         :return: Image and metadata.
-        :type: Image
+        :rtype: Image
         """
         filename = Path(filename)
         if filename.is_dir():
@@ -76,11 +95,10 @@ class Image(sitk.Image):
             series_metadata = json.loads(serialized_metadata)
         else:
             series_metadata = {}
-        for k in new_image.GetMetaDataKeys():
-            v = new_image.GetMetaData(k)
-            if re.sub(" *$", "", v).isdigit():
-                v = re.sub(" *$", "", v)
-            series_metadata[k] = v
+        for key in new_image.GetMetaDataKeys():
+            value = new_image.GetMetaData(key)
+            value = format_digit_string(value)
+            series_metadata[key] = value
         new_image.metadata = series_metadata
         return new_image
 
@@ -105,44 +123,6 @@ class Image(sitk.Image):
         serialized_metadata = json.dumps(self.metadata)
         self.metadata_file_name(filename).write_text(serialized_metadata)
 
-    def write_nifti(self, filename: PathLike) -> None:
-        """
-        Save nifti file (and metadata).
-
-        :param filename: Name of the nifti file.
-        :type filename: PathLike
-        """
-        filename = Path(filename)
-        sitk.WriteImage(self, filename)
-        serialized_metadata = json.dumps(self.metadata)
-        self.metadata_file_name(filename).write_text(serialized_metadata)
-
-    @staticmethod
-    def read_nifti(filename: PathLike) -> Image:
-        """
-        Read nifti file.
-
-        If the json metadata can be found, load it.
-        :param filename: Name of the nifti file.
-        :type filename: PathLike
-        :return: Image and metadata.
-        :type: Image
-        """
-        filename = Path(filename)
-        new_image = Image(sitk.ReadImage(filename))
-        if new_image.metadata_file_name(filename).exists():
-            serialized_metadata = new_image.metadata_file_name(filename).read_text()
-            series_metadata = json.loads(serialized_metadata)
-        else:
-            series_metadata = {}
-        for k in new_image.GetMetaDataKeys():
-            v = new_image.GetMetaData(k)
-            if re.sub(" *$", "", v).isdigit():
-                v = re.sub(" *$", "", v)
-            series_metadata[k] = v
-        new_image.metadata = series_metadata
-        return new_image
-
 
 def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
     """
@@ -163,11 +143,10 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
     dicom_series_reader.LoadPrivateTagsOn()
     dicom_series = Image(dicom_series_reader.Execute())
     series_metadata = {}
-    for k in dicom_series_reader.GetMetaDataKeys(0):
-        v = dicom_series_reader.GetMetaData(0, k)
-        if re.sub(r"^-?|\.?| *$", "", v).isdigit():
-            v = re.sub(" *$", "", v)
-        series_metadata[k] = v
+    for key in dicom_series_reader.GetMetaDataKeys(0):
+        value = dicom_series_reader.GetMetaData(0, key)
+        value = format_digit_string(value)
+        series_metadata[key] = value
     for slice_dependent_field in SLICE_DEPENDENT_FIELDS:
         try:
             series_metadata.pop(DICOM_FIELDS[slice_dependent_field])

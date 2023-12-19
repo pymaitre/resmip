@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict
 
 import numpy as np
 import pydicom
@@ -17,9 +16,7 @@ from srmip.dicom_to_nifti.constants import (
     SERIES_DEPENDENT_FIELDS,
     SLICE_DEPENDENT_FIELDS,
 )
-
-PathLike = Union[str, os.PathLike]
-"""Types used int the classes and functions for file names."""
+from srmip.utils import PathLike
 
 
 class Image(sitk.Image):

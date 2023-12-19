@@ -85,7 +85,7 @@ def test_saved_nifti_file_pixels(tmp_path):
     image = read_dicom_series(dicom_ct_path())
     nifti_file_path = tmp_path / "testfile.nii"
     image.write_nifti(nifti_file_path)
-    sitk_image = sitk.ReadImage(str(nifti_file_path))
+    sitk_image = sitk.ReadImage(nifti_file_path)
     assert np.all(sitk.GetArrayFromImage(sitk_image) == sitk.GetArrayFromImage(image))
 
 
@@ -120,16 +120,17 @@ def test_saved_dicom_series_patient_data(tmp_path):
             if name in SERIES_DEPENDENT_FIELDS:
                 continue
             if tag in input_image.metadata:
-                if dataset[name].VR == "DS":
+                if dataset[name].VR == "DS":  # DecimalString
+                    # Empty field in the header
                     if input_image.metadata[tag] == "":
                         assert dataset[name].value is None
-                    else:
-                        try:
-                            assert float(dataset[name].value) == float(input_image.metadata[tag])
-                        except TypeError:  # list[float]
-                            elements = input_image.metadata[tag].split("\\")
-                            for i, element in enumerate(dataset[name].value):
-                                assert float(element) == float(elements[i])
+                        continue
+                    try:
+                        assert float(dataset[name].value) == float(input_image.metadata[tag])
+                    except TypeError:  # list[float]
+                        elements = input_image.metadata[tag].split("\\")
+                        for i, element in enumerate(dataset[name].value):
+                            assert float(element) == float(elements[i])
                 else:
                     assert dataset[name].value == input_image.metadata[tag]
 
@@ -138,7 +139,7 @@ def test_import_nifti_without_metadata(tmp_path):
     """Test if the import of a nifti file saved without this library succeeds."""
     input_image = read_dicom_series(dicom_ct_path())
     nifti_file_name = tmp_path / "nifti_image.nii"
-    sitk.WriteImage(input_image, str(nifti_file_name))
+    sitk.WriteImage(input_image, nifti_file_name)
     nifti_image = input_image.read_nifti(nifti_file_name)
 
     assert np.all(sitk.GetArrayFromImage(nifti_image) == sitk.GetArrayFromImage(input_image))
@@ -156,3 +157,47 @@ def test_import_nifti_without_metadata(tmp_path):
         list(input_image.GetSpacing()),
         atol=0.001,
     )
+
+
+@pytest.mark.parametrize("file_format", ["dicom", "nifti"])
+def test_write_image(file_format, tmp_path):
+    """Test if write_image correctly overrides all write functions."""
+    input_image = read_dicom_series(dicom_ct_path())
+    if file_format == "nifti":
+        output_file_name = tmp_path / "nifti" / "nifti_image.nii"
+    elif file_format == "dicom":
+        output_file_name = tmp_path / "dicom" / "dicom_image"
+    else:
+        raise NotImplementedError
+
+    input_image.write_image(output_file_name)
+
+    if file_format == "nifti":
+        new_image = sitk.ReadImage(output_file_name, imageIO="NiftiImageIO")
+    elif file_format == "dicom":
+        dicom_images = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(str(output_file_name))
+        new_image = sitk.ReadImage(dicom_images, imageIO="GDCMImageIO")
+
+    assert np.all(sitk.GetArrayFromImage(new_image) == sitk.GetArrayFromImage(input_image))
+
+
+@pytest.mark.parametrize("file_format", ["dicom", "nifti"])
+def test_read_image(file_format, tmp_path):
+    """Test if read_image correctly overrides all read functions."""
+    input_image = read_dicom_series(dicom_ct_path())
+    if file_format == "nifti":
+        output_file_name = tmp_path / "nifti" / "nifti_image.nii"
+    elif file_format == "dicom":
+        output_file_name = tmp_path / "dicom" / "dicom_image"
+    else:
+        raise NotImplementedError
+
+    input_image.write_image(output_file_name)
+    new_image = Image().read_image(output_file_name)
+
+    if file_format == "nifti":
+        new_image_reference = sitk.ReadImage(output_file_name, imageIO="NiftiImageIO")
+    elif file_format == "dicom":
+        new_image_reference = read_dicom_series(output_file_name)
+
+    assert np.all(sitk.GetArrayFromImage(new_image) == sitk.GetArrayFromImage(new_image_reference))

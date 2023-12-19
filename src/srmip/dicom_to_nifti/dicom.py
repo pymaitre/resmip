@@ -54,6 +54,57 @@ class Image(sitk.Image):
         filename = Path(filename)
         return filename.parent / f".{filename.stem}.json"
 
+    @staticmethod
+    def read_image(filename: PathLike) -> Image:
+        """
+        Load image file (and metadata).
+
+        The image format is automatically determined from filename's suffix.
+        :param filename: Name of the file. If filename is a directory,
+            the writer assumes to write a Dicom series. Otherwise, it assumes a metatadata
+            file with the following format exists: f".{filename.stem}.json".
+        :type filename: PathLike
+        :return: Image and metadata.
+        :type: Image
+        """
+        filename = Path(filename)
+        if filename.is_dir():
+            return read_dicom_series(filename)
+        new_image = Image(sitk.ReadImage(filename))
+        if new_image.metadata_file_name(filename).exists():
+            serialized_metadata = new_image.metadata_file_name(filename).read_text()
+            series_metadata = json.loads(serialized_metadata)
+        else:
+            series_metadata = {}
+        for k in new_image.GetMetaDataKeys():
+            v = new_image.GetMetaData(k)
+            if re.sub(" *$", "", v).isdigit():
+                v = re.sub(" *$", "", v)
+            series_metadata[k] = v
+        new_image.metadata = series_metadata
+        return new_image
+
+    def write_image(self, filename: PathLike) -> None:
+        """
+        Save image file (and metadata).
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+        :param filename: Name of the file. If filename is a directory,
+            the writer assumes to write a Dicom series.
+        :type filename: PathLike
+        """
+        filename = Path(filename)
+        if not filename.exists() and filename.suffix == "":
+            filename.mkdir(parents=True, exist_ok=True)
+        if filename.is_dir():
+            write_dicom_series(self, filename)
+            return
+        filename.parent.mkdir(parents=True, exist_ok=True)
+        sitk.WriteImage(self, filename)
+        serialized_metadata = json.dumps(self.metadata)
+        self.metadata_file_name(filename).write_text(serialized_metadata)
+
     def write_nifti(self, filename: PathLike) -> None:
         """
         Save nifti file (and metadata).
@@ -94,6 +145,14 @@ class Image(sitk.Image):
 
 
 def read_dicom_series(dicom_series_directory_path: PathLike) -> Image:
+    """
+    Read Dicom series from file.
+
+    :param dicom_series_directory_path: Path of the directory containing the Dicom Series.
+    :type dicom_series_directory_path: PathLike
+    :return: Image and metadata.
+    :type: Image
+    """
     dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(
         str(dicom_series_directory_path)
     )
@@ -194,11 +253,12 @@ def write_dicom_series(image: Image, save_path: PathLike) -> None:
         # image_slice.SetMetaData("0008|0012", time.strftime("%Y%m%d"))  # Instance Creation Date
         # image_slice.SetMetaData("0008|0013", time.strftime("%H%M%S"))  # Instance Creation Time
 
+        image_slice.SetMetaData(
+            DICOM_FIELDS["ImagePositionPatient"],
+            "\\".join(map(str, image.TransformIndexToPhysicalPoint((0, 0, i)))),
+        )  # Image Position (Patient)
         # these are set using the dicom header, but maybe we need them
         # in case we import directly nifti files
-        # image_slice.SetMetaData(
-        #     "0020|0032", "\\".join(map(str, image.TransformIndexToPhysicalPoint((0, 0, i))))
-        # )  # Image Position (Patient)
         # image_slice.SetMetaData("0020|0013", str(i))  # Instance Number
         # image_slice.SetMetaData(
         #     "0020|1041", str(image.TransformIndexToPhysicalPoint((0, 0, i))[2])

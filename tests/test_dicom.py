@@ -7,6 +7,7 @@ import numpy as np
 import pydicom
 import SimpleITK as sitk
 
+from srmip import read_image, write_image
 from srmip.dicom_to_nifti.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
 from srmip.dicom_to_nifti.dicom import read_dicom_series
 from srmip.image.image import Image
@@ -70,3 +71,23 @@ def test_saved_dicom_series_patient_data(tmp_path):
                             assert float(element) == float(elements[i])
                 else:
                     assert dataset[name].value == input_image.metadata[tag]
+
+
+def test_read_image_from_main():
+    """Check if the read_image function behaves as expected."""
+    input_image_class = Image().read_image(dicom_ct_path())
+    input_image_main = read_image(dicom_ct_path())
+    assert input_image_main == input_image_class
+
+
+def test_write_image_from_main(tmp_path):
+    """Check if the read_image function behaves as expected."""
+    input_image = Image().read_image(dicom_ct_path())
+
+    input_image.write_image(tmp_path / "from_class")
+    write_image(input_image, tmp_path / "from_main")
+
+    image_from_class = Image().read_image(tmp_path / "from_class")
+    image_from_main = Image().read_image(tmp_path / "from_main")
+
+    assert image_from_class == image_from_main

@@ -4,7 +4,7 @@ import re
 from typing import Union
 
 PathLike = Union[str, os.PathLike]
-"""Types used int the classes and functions for file names."""
+"""Types used in classes and functions for file names."""
 
 
 def format_digit_string(digit_string: str) -> str:

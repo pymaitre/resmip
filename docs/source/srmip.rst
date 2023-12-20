@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    srmip.dicom_to_nifti
+   srmip.image
 
 Submodules
 ----------

@@ -9,7 +9,7 @@ SLICE_DEPENDENT_FIELDS = [
 """
 Dicom tags that vary across slices in a series.
 
-The need to be saved separately in the metadata file.
+They need to be saved separately in the metadata file.
 """
 
 SERIES_DEPENDENT_FIELDS = [

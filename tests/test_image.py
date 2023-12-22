@@ -6,6 +6,7 @@ import SimpleITK as sitk
 
 from srmip.dicom_to_nifti.dicom import read_dicom_series
 from srmip.image.image import Image
+from srmip.utils import format_digit_string
 
 from .utils import dicom_ct_path
 
@@ -136,3 +137,58 @@ def test_read_image(file_format, tmp_path):
         new_image_reference, _ = read_dicom_series(output_file_name)
 
     assert np.all(sitk.GetArrayFromImage(new_image) == sitk.GetArrayFromImage(new_image_reference))
+
+
+def test_default_read_image_metadata(tmp_path):
+    """Test default arguments of read_image."""
+    input_image = Image().read_image(dicom_ct_path())
+    output_file_name = tmp_path / "nifti" / "nifti_image.nii"
+    input_image.write_image(output_file_name)
+    new_image_default = Image().read_image(output_file_name)
+    new_image = Image().read_image(output_file_name, read_metadata=True)
+
+    assert new_image_default.metadata == new_image.metadata
+
+
+def test_read_image_without_metadata(tmp_path):
+    """Test read_metadata argument of read_image."""
+    input_image = Image().read_image(dicom_ct_path())
+    output_file_name = tmp_path / "nifti" / "nifti_image.nii"
+    input_image.write_image(output_file_name)
+    reference_image = sitk.ReadImage(output_file_name)
+    new_image = Image().read_image(output_file_name, read_metadata=False)
+    new_image_metadata = {}
+    for key in reference_image.GetMetaDataKeys():
+        value = reference_image.GetMetaData(key)
+        value = format_digit_string(value)
+        new_image_metadata[key] = value
+    assert new_image.metadata == new_image_metadata
+
+
+def test_default_write_image_metadata(tmp_path):
+    """Test default arguments of write_image."""
+    input_image = Image().read_image(dicom_ct_path())
+    output_file_name = tmp_path / "nifti" / "nifti_image.nii"
+    default_output_file_name = tmp_path / "nifti_default" / "nifti_image.nii"
+    input_image.write_image(default_output_file_name)
+    input_image.write_image(output_file_name, write_metadata=True)
+
+    new_image_default = Image().read_image(default_output_file_name)
+    new_image = Image().read_image(output_file_name)
+
+    assert new_image_default.metadata == new_image.metadata
+
+
+def test_write_image_without_metadata(tmp_path):
+    """Test read_metadata argument of write_image."""
+    input_image = Image().read_image(dicom_ct_path())
+    output_file_name = tmp_path / "nifti" / "nifti_image.nii"
+    reference_output_file_name = tmp_path / "nifti_default" / "nifti_image.nii"
+    reference_output_file_name.parent.mkdir()
+
+    input_image.write_image(output_file_name, write_metadata=False)
+    sitk.WriteImage(input_image, reference_output_file_name)
+
+    reference_image = Image().read_image(reference_output_file_name)
+    new_image = Image().read_image(output_file_name)
+    assert new_image.metadata == reference_image.metadata

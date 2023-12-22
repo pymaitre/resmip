@@ -12,20 +12,25 @@ Welcome to srmip's documentation!
 Getting started
 ---------------
 
-1. **Installation**
+1. **Installation**: Explore the :doc:`/getting-started/index` section for installing the library.
 
-2. **Tutorials**: Explore the :doc:`/tutorials/index` section for a range of tutorials that cater to different levels of expertise.
+2. **Tutorials**: Explore the :doc:`/tutorials/index` section for tutorials.
 
-
-.. toctree:: modules
+.. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Installation:
+
+   getting-started/index
 
 .. toctree::
    :maxdepth: 2
    :caption: Tutorials:
 
    tutorials/index
+
+.. toctree:: modules
+   :maxdepth: 2
+   :caption: Contents:
 
 Indices and tables
 ==================

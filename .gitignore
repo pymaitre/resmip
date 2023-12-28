@@ -106,7 +106,6 @@ celerybeat.pid
 
 # Environments
 .env
-.venv1
 .venv
 env/
 venv/
@@ -138,4 +137,3 @@ dmypy.json
 
 # Pycharm
 .idea/
-/.venv/

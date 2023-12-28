@@ -48,7 +48,7 @@ class Image(sitk.Image):
         return filename.parent / f".{filename.stem}.json"
 
     @staticmethod
-    def read_image(filename: PathLike) -> Image:
+    def read_image(filename: PathLike, read_metadata: bool = True) -> Image:
         """
         Load image file (and metadata).
 
@@ -58,6 +58,9 @@ class Image(sitk.Image):
             the writer assumes to write a Dicom series. Otherwise, it assumes a metatadata
             file with the following format exists: f".{filename.stem}.json".
         :type filename: PathLike
+        :param read_metadata: If true, read the json file with metadata
+            (not applicable for dicom files).
+        :type read_metadata: bool
         :return: Image and metadata.
         :rtype: Image
         """
@@ -67,7 +70,7 @@ class Image(sitk.Image):
         else:
             # new_image = Image(sitk.ReadImage(filename))
             sitk_image = sitk.ReadImage(filename)
-            if Image().metadata_file_name(filename).exists():
+            if read_metadata and Image().metadata_file_name(filename).exists():
                 serialized_metadata = Image().metadata_file_name(filename).read_text()
                 series_metadata = json.loads(serialized_metadata)
             else:
@@ -80,7 +83,7 @@ class Image(sitk.Image):
         new_image.metadata = series_metadata
         return new_image
 
-    def write_image(self, filename: PathLike) -> None:
+    def write_image(self, filename: PathLike, write_metadata: bool = True) -> None:
         """
         Save image file (and metadata).
 
@@ -90,6 +93,9 @@ class Image(sitk.Image):
         :param filename: Name of the file. If filename is a directory,
             the writer assumes to write a Dicom series.
         :type filename: PathLike
+        :param write_metadata: If true, save the json file with metadata
+            (not applicable for dicom files).
+        :type write_metadata: bool
         """
         filename = Path(filename)
         if not filename.exists() and filename.suffix == "":
@@ -99,5 +105,6 @@ class Image(sitk.Image):
             return
         filename.parent.mkdir(parents=True, exist_ok=True)
         sitk.WriteImage(self, filename)
-        serialized_metadata = json.dumps(self.metadata)
-        self.metadata_file_name(filename).write_text(serialized_metadata)
+        if write_metadata:
+            serialized_metadata = json.dumps(self.metadata)
+            self.metadata_file_name(filename).write_text(serialized_metadata)

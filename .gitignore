@@ -1,3 +1,6 @@
+# My files
+/src/wrk
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -69,7 +72,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+docs/build/
 
 # PyBuilder
 target/
@@ -103,6 +106,7 @@ celerybeat.pid
 
 # Environments
 .env
+.venv1
 .venv
 env/
 venv/
@@ -134,3 +138,4 @@ dmypy.json
 
 # Pycharm
 .idea/
+/.venv/

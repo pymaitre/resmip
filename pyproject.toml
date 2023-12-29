@@ -14,12 +14,14 @@ pydicom = "^2.3.1"
 simpleitk = "^2.2.1"
 scikit-image = "^0.20.0"
 platipy = "^0.6.0"
+bidict = "^0.22.1"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-sphinx = "^5.0.0"
+sphinx = "^6.0.0"
+sphinx-rtd-theme = "^2.0.0"
 
 [tool.poetry.group.test]
 optional = true

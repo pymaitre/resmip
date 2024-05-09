@@ -1,6 +1,10 @@
 """srmip."""
 
+import importlib.metadata as im
+
 from srmip.image import Image
+
+__version__ = im.version(__package__)
 
 
 def read_image(*args, **kwargs):

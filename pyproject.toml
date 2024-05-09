@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "srmip"
-version = "0.0.2"
+version = "0.0.3"
 description = "Python library for Medical Image Processing (MIP)."
 authors = ["G. Palazzo, M.G. Ubeira-Gabellini"]
 license = "GNU Lesser General Public License v2.1"

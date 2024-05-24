@@ -19,8 +19,12 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class DicomStructure:
+    """Structure read by the platipy wrapper."""
+
     name: str
+    """Name of the structure."""
     image: sitk.Image
+    """Structure mask as SimpleITK Image."""
 
 
 def check_if_valid_structure(

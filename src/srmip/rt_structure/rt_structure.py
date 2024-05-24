@@ -1,0 +1,141 @@
+"""RT Structure class."""
+from __future__ import annotations
+
+from pathlib import Path
+
+import SimpleITK as sitk
+
+from srmip import Image
+from srmip.dicom_to_nifti.rtst import read_dicom_rtstruct
+from srmip.utils import PathLike
+
+
+def get_structure_name_from_filename(filename: Path) -> str:
+    """
+    Get the structure name from the filename.
+
+    If the file is compressed, e.g.: structure.nii.gz, remove ".nii".
+    :param filename: Name of the file.
+    :type filename: Path
+    :return: Name of the RT Structure.
+    :rtype: str
+    """
+    compress_extensions = [".gz"]
+    if filename.suffix in compress_extensions:
+        return ".".join(filename.stem.split(".")[:-1])
+    return filename.stem
+
+
+class RTStructure(Image):
+    """RT Structure (wrapper of srmip.Image)."""
+
+    _name: str
+    """Name of the RT Structure."""
+
+    def __init__(self, *args, name: str = ""):
+        """
+        Call srmip.Image constructor and set a name for the RT Structure.
+
+        :param name: name of the RT Structure. Defaults to an empty string.
+        :type name: str
+        """
+        if not isinstance(name, str):
+            raise ValueError(
+                f"type({name}) ({type(name)}) is not a valid type for name. Supported type(s): str."
+            )
+        super().__init__(*args)
+        self._name = name
+
+    @property
+    def name(self) -> str:
+        """Name of the RT Structure."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @staticmethod
+    def read_image(
+        filename: PathLike,
+        read_metadata: bool = True,
+        structure_name: str = None,
+        reference_image: Image = None,
+    ) -> RTStructure:
+        """
+        Read RT Structure from file.
+
+        The image format is automatically determined from filename's suffix.
+
+        :param filename: Name of the file. If filename ends with ".dcm",
+            the reader assumes to read a Dicom rtstruct. Otherwise, it assumes a metatadata
+            file with the following format exists: f".{filename.stem}.json".
+        :type filename: PathLike
+        :param read_metadata: If true, read the json file with metadata
+            (not applicable for dicom files). Currently not used.
+        :type read_metadata: bool
+        :param structure_name: Name of the RT Structure (case-sensitive).
+            Required for dicom files. Optional for other files (if set to None, use filename).
+        :type structure_name: str
+        :param reference_image: 3D image used as reference for dicom Structures
+            (not used for other formats).
+        :type reference_image: Image
+        :return: RT Structure.
+        :rtype: RTStructure
+        """
+        filename = Path(filename)
+        if filename.suffix == ".dcm":
+            if structure_name is None:
+                raise ValueError("Must specify a structure name for dicom RT Structures.")
+            if reference_image is None:
+                raise ValueError("Must specify a reference image for dicom RT Structures.")
+            sitk_image = read_dicom_rtstruct(filename, reference_image, structure_name)[0]
+            new_rt_structure = RTStructure(sitk_image.name, sitk_image.image)
+            return new_rt_structure
+        if structure_name is None:
+            structure_name = get_structure_name_from_filename(filename)
+        new_rt_structure = RTStructure(structure_name, Image().read_image(filename))
+        return new_rt_structure
+
+    def write_image(
+        self, filename: PathLike, write_metadata: bool = False, file_format: str = None
+    ) -> None:
+        """
+        Save RT Structure file.
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+
+        :param filename: Name of the file. If filename is a directory,
+            use a the structure's name. For dicom files use the UID.
+        :type filename: PathLike
+        :param write_metadata: If true, write the json file with metadata
+            (not applicable for dicom files). Currently not used.
+        :param file_format: Format of the rt structure saved. If None,
+            infer it from filename.
+        :type file_format: str
+        """
+        # Create an RT Structure Set and save it
+        if file_format is None:
+            file_format = Path(filename).suffix
+        if file_format != ".dcm":
+            return self.write_nondicom(filename, file_format)
+        raise NotImplementedError  # save dicom rt structure set
+
+    def write_nondicom(self, filename: PathLike, file_format: str = None) -> None:
+        """
+        Save RT Structure for formats other than dicom.
+
+        :param filename: Name of the file. If filename is a directory,
+            use a the structure's name.
+        :type filename: PathLike
+        :param file_format: Format of the rt structure saved. If None,
+            infer it from filename.
+        :type file_format: str
+        """
+        filename = Path(filename)
+        if filename.is_dir():
+            assert file_format is not None
+            filename = filename / f"{self.name}{file_format}"
+        filename.parent.mkdir(parents=True, exist_ok=True)
+        sitk.WriteImage(self, filename)

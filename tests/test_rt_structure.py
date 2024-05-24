@@ -167,16 +167,16 @@ def test_write_dicom_structure(tmp_path):
         saved_structure["ReferencedFrameOfReferenceSequence"],
     ):
         assert x["FrameOfReferenceUID"] == y["FrameOfReferenceUID"]
-        for xx, yy in zip(
+        for xx, yy in zip(  # pylint: disable=C0103
             x["RTReferencedStudySequence"], y["RTReferencedStudySequence"]
-        ):  # pylint: disable=C0103
+        ):
             assert xx["ReferencedSOPInstanceUID"] == yy["ReferencedSOPInstanceUID"]
             for xxx, yyy in zip(xx["RTReferencedSeriesSequence"], yy["RTReferencedSeriesSequence"]):
                 assert xxx["SeriesInstanceUID"] == yyy["SeriesInstanceUID"]
                 xxx_ids = {a["ReferencedSOPInstanceUID"].value for a in xxx["ContourImageSequence"]}
                 yyy_ids = {a["ReferencedSOPInstanceUID"].value for a in yyy["ContourImageSequence"]}
                 assert xxx_ids == yyy_ids
-    for x, y in zip(
+    for x, y in zip(  # pylint: disable=C0103
         original_structure["StructureSetROISequence"], saved_structure["StructureSetROISequence"]
     ):
         assert x["ROINumber"] == y["ROINumber"]

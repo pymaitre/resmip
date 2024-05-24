@@ -135,7 +135,7 @@ def test_write_nifti_structure_set(extension, tmp_path):
     )
 
 
-def test_write_dicom_structure_set(tmp_path):
+def test_write_dicom_structure(tmp_path):
     """Create a RT Structure Set from a single RT Structure."""
     image = Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
@@ -143,7 +143,7 @@ def test_write_dicom_structure_set(tmp_path):
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
     )
 
-    rtst_path = tmp_path / f"rtst.dcm"
+    rtst_path = tmp_path / "rtst.dcm"
     rtst = RTStructureSet([structure])
     rtst.write_image(rtst_path, reference_image_path=dicom_ct_path())
 
@@ -162,12 +162,14 @@ def test_write_dicom_structure_set(tmp_path):
     ]
     for key in comparison_keys:
         assert original_structure[key] == saved_structure[key]
-    for x, y in zip(
+    for x, y in zip(  # pylint: disable=C0103
         original_structure["ReferencedFrameOfReferenceSequence"],
         saved_structure["ReferencedFrameOfReferenceSequence"],
     ):
         assert x["FrameOfReferenceUID"] == y["FrameOfReferenceUID"]
-        for xx, yy in zip(x["RTReferencedStudySequence"], y["RTReferencedStudySequence"]):
+        for xx, yy in zip(
+            x["RTReferencedStudySequence"], y["RTReferencedStudySequence"]
+        ):  # pylint: disable=C0103
             assert xx["ReferencedSOPInstanceUID"] == yy["ReferencedSOPInstanceUID"]
             for xxx, yyy in zip(xx["RTReferencedSeriesSequence"], yy["RTReferencedSeriesSequence"]):
                 assert xxx["SeriesInstanceUID"] == yyy["SeriesInstanceUID"]
@@ -198,7 +200,7 @@ def test_write_dicom_structure_set_without_reference(tmp_path):
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
     )
 
-    rtst_path = tmp_path / f"rtst.dcm"
+    rtst_path = tmp_path / "rtst.dcm"
     rtst = RTStructureSet([structure])
     with pytest.raises(ValueError):
         rtst.write_image(rtst_path)
@@ -212,10 +214,10 @@ def test_write_dicom_structure_set(tmp_path):
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
     )
 
-    rtst_path = tmp_path / f"rtst.dcm"
+    rtst_path = tmp_path / "rtst.dcm"
     structure.write_image(rtst_path, reference_image_path=dicom_ct_path())
 
-    rtst_set_path = tmp_path / f"rtst_set.dcm"
+    rtst_set_path = tmp_path / "rtst_set.dcm"
     rtst = RTStructureSet([structure])
     rtst.write_image(rtst_set_path, reference_image_path=dicom_ct_path())
 

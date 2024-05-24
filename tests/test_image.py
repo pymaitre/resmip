@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import SimpleITK as sitk
 
-from srmip.dicom_to_nifti.dicom import read_dicom_series
+from srmip.dicom_to_nifti.series import read_dicom_series
 from srmip.image.image import Image
 from srmip.utils import format_digit_string
 

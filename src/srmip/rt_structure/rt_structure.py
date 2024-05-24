@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Union
 
 import SimpleITK as sitk
 
 from srmip import Image
-from srmip.dicom_to_nifti.rtst import read_dicom_rtstruct
+from srmip.dicom_to_nifti.rtst import read_dicom_rtstruct, write_dicom_rtstruct
 from srmip.utils import PathLike
 
 
@@ -98,7 +99,11 @@ class RTStructure(Image):
         return new_rt_structure
 
     def write_image(
-        self, filename: PathLike, write_metadata: bool = False, file_format: str = None
+        self,
+        filename: PathLike,
+        write_metadata: bool = False,
+        file_format: str = None,
+        reference_image_path: PathLike = None,
     ) -> None:
         """
         Save RT Structure file.
@@ -114,13 +119,16 @@ class RTStructure(Image):
         :param file_format: Format of the rt structure saved. If None,
             infer it from filename.
         :type file_format: str
+        :param reference_image_path: Path of the reference dicom image.
+            Ignored when saving in formats other than dicom.
+        :type reference_image_path: PathLike
         """
         # Create an RT Structure Set and save it
         if file_format is None:
             file_format = Path(filename).suffix
         if file_format != ".dcm":
             return self.write_nondicom(filename, file_format)
-        raise NotImplementedError  # save dicom rt structure set
+        return RTStructureSet([self]).write_image(filename, file_format, reference_image_path)
 
     def write_nondicom(self, filename: PathLike, file_format: str = None) -> None:
         """
@@ -139,3 +147,88 @@ class RTStructure(Image):
             filename = filename / f"{self.name}{file_format}"
         filename.parent.mkdir(parents=True, exist_ok=True)
         sitk.WriteImage(self, filename)
+
+
+class RTStructureSet(dict[str, RTStructure]):
+    """RT Structure Set (dictionary of [str, RTStructure])."""
+
+    def __init__(self, structures: list[RTStructure] = None):
+        """Create a dictionary with the given RT Structures."""
+        if structures is None:
+            structures = []
+        self.update({structure.name: structure for structure in structures})
+
+    @staticmethod
+    def read_image(
+        filename: Union[PathLike, list[PathLike]],
+        structure_names: list[str] = None,
+        regex: bool = False,
+        reference_image: Image = None,
+        parallel: bool = True,
+    ) -> RTStructureSet:
+        """
+        Read RT Structure Set file(s).
+
+        :param filename:
+        :param structure_names: Names of the structures to be read.
+            Used for reading only specific structures in a dicom files,
+            can also be a regular expression.
+        :type structure_names: list[str]
+        :param regex: Whether to consider `structure_names` as a regular expression or not.
+        :type regex: bool
+        :param parallel: Whether to read structures in parallel or not.
+        :type parallel: bool
+        :param reference_image: 3D image used as reference for dicom Structures
+            (not used for other formats).
+        :type reference_image: Image
+        """
+        if isinstance(filename, PathLike):
+            filename = Path(filename)
+            structures = read_dicom_rtstruct(
+                filename,
+                reference_image=reference_image,
+                structure_names=structure_names,
+                regex=regex,
+                parallel=parallel,
+            )
+            return RTStructureSet([RTStructure(x.name, x.image) for x in structures])
+        structures = []
+        for f in filename:
+            structures.append(RTStructure().read_image(f))
+        return RTStructureSet(structures)
+
+    def write_image(
+        self,
+        filename: Union[PathLike, list[PathLike]],
+        file_format: str = None,
+        reference_image_path: PathLike = None,
+    ) -> None:
+        """
+        Save RT Structure Set file(s).
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+
+        :param filename: Name of the dicom file.
+            For other formats, it is a list of file names with same length of self.
+        :type filename: PathLike|list[PathLike]
+        :param file_format: Format of the rt structure saved. If None,
+            infer it from filename.
+        :type file_format: str
+        :param reference_image_path: Path of the reference dicom image.
+            Ignored when saving in formats other than dicom.
+        :type reference_image_path: PathLike
+        :return: RT Structure Set.
+        :rtype: RTStructureSet
+        """
+        if isinstance(filename, PathLike):
+            filename = Path(filename)
+            write_dicom_rtstruct(self, filename, reference_image_path)
+            return
+        filename = [Path(f) for f in filename]
+        assert len(filename) == len(self)
+        for f in filename:
+            assert isinstance(f, Path)
+        for structure_filename, structure in zip(filename, self.values()):
+            print(self.values())
+            structure.write_nondicom(structure_filename, file_format)

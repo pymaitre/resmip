@@ -8,11 +8,15 @@ from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from typing import Dict, Tuple, Union
 
+import matplotlib
 import numpy as np
 import pydicom as pydcm
 import SimpleITK as sitk
 from platipy.dicom.io import rtstruct_to_nifti
+from rt_utils import RTStructBuilder
 from skimage.draw import polygon
+
+from srmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
 
@@ -222,3 +226,48 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
             )
             structure_sets.append(nifti_structure)
     return structure_sets
+
+
+def write_dicom_rtstruct(
+    rt_structures: dict[str, sitk.Image],
+    save_path: PathLike,
+    dcm_series_path: PathLike,
+    color_map: matplotlib.colors.Colormap = matplotlib.colormaps.get_cmap("rainbow"),
+) -> None:
+    """
+    Write RT Structures to dicom file.
+
+    Wrapper of convert_nifti from platipy.dicom.io.nifti_to_rtstruct.
+    :param rt_structures: collection of structure name and structure mask.
+    :type rt_structures: dict[str, sitk.Image]
+    :param save_path: full path of the generated dicom file.
+    :type save_path: PathLike
+    :param save_path: path of the directory containing the reference dicom image.
+    :type save_path: PathLike
+    :param color_map: Colormap to use for output. Defaults to
+            matplotlib.colormaps.get_cmap("rainbow").
+    :type color_map: matplotlib.colors.Colormap
+    """
+    logger.info("Will convert the following masks to RTStruct:")
+    save_path = Path(save_path)
+    if dcm_series_path is None:
+        raise ValueError("The path of the reference dicom series must be specified.")
+    dcm_series_path = Path(dcm_series_path)
+
+    rtstruct = RTStructBuilder.create_new(dicom_series_path=str(dcm_series_path))
+
+    for mask_name in rt_structures:
+        # Use a hash of the name to get the color from the supplied color map
+        color = color_map(hash(mask_name) % 256)
+        color = color[:3]
+        color = [int(c * 255) for c in color]
+
+        mask = rt_structures[mask_name]
+        if not isinstance(mask, sitk.Image):
+            mask = sitk.ReadImage(str(mask))
+
+        bool_arr = sitk.GetArrayFromImage(mask) != 0
+        bool_arr = np.transpose(bool_arr, (1, 2, 0))
+        rtstruct.add_roi(mask=bool_arr, color=color, name=mask_name)
+
+    rtstruct.save(str(save_path))

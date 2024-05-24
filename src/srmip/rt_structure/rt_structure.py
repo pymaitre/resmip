@@ -91,11 +91,11 @@ class RTStructure(Image):
             if reference_image is None:
                 raise ValueError("Must specify a reference image for dicom RT Structures.")
             sitk_image = read_dicom_rtstruct(filename, reference_image, structure_name)[0]
-            new_rt_structure = RTStructure(sitk_image.name, sitk_image.image)
+            new_rt_structure = RTStructure(sitk_image.image, name=sitk_image.name)
             return new_rt_structure
         if structure_name is None:
             structure_name = get_structure_name_from_filename(filename)
-        new_rt_structure = RTStructure(structure_name, Image().read_image(filename))
+        new_rt_structure = RTStructure(Image().read_image(filename), name=structure_name)
         return new_rt_structure
 
     def write_image(
@@ -191,7 +191,7 @@ class RTStructureSet(dict[str, RTStructure]):
                 regex=regex,
                 parallel=parallel,
             )
-            return RTStructureSet([RTStructure(x.name, x.image) for x in structures])
+            return RTStructureSet([RTStructure(x.image, name=x.name) for x in structures])
         structures = []
         for f in filename:
             structures.append(RTStructure().read_image(f))

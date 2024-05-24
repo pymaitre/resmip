@@ -135,7 +135,7 @@ def test_write_nifti_structure_set(extension, tmp_path):
     )
 
 
-def test_write_dicom_structure(tmp_path):
+def test_write_dicom_structure(tmp_path):  # pylint: disable=R0914
     """Create a RT Structure Set from a single RT Structure."""
     image = Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"

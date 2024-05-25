@@ -182,7 +182,7 @@ class RTStructureSet(dict[str, RTStructure]):
             (not used for other formats).
         :type reference_image: Image
         """
-        if isinstance(filename, PathLike):
+        if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
             structures = read_dicom_rtstruct(
                 filename,
@@ -221,7 +221,7 @@ class RTStructureSet(dict[str, RTStructure]):
         :return: RT Structure Set.
         :rtype: RTStructureSet
         """
-        if isinstance(filename, PathLike):
+        if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
             write_dicom_rtstruct(self, filename, reference_image_path)
             return

@@ -45,5 +45,5 @@ jobs:
 
       - name: Test code
         run: |
-          python -m pip install pytest
-          pytest
+          poetry install --with test
+          poetry run pytest

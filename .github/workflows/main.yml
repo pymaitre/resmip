@@ -36,7 +36,7 @@ jobs:
       - name: Control code structure
         run: |
           poetry install --with test
-          poetry run prospector --profile extras/profile.yaml
+          poetry run prospector
           poetry run pylint tests
 
       - name: Build and test docs

@@ -41,7 +41,8 @@ jobs:
 
       - name: Build and test docs
         run: |
-          poetry install --with docs,test
+          python -m pip install .
+          python -m pip install sphinx sphinx-rtd-theme
           cd docs
           make html
           make doctest

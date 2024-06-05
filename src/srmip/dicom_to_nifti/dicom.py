@@ -53,9 +53,6 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image
     :return: SimpleITK Image and metadata dictionary.
     :type: Tuple[sitk.Image, Dict[str, str]
     """
-    # dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(
-    #     str(dicom_series_directory_path)
-    # )
     dicom_series_files = get_series_dicom_files(dicom_series_directory_path)
     slices_number = len(dicom_series_files)
     dicom_series_reader = sitk.ImageSeriesReader()

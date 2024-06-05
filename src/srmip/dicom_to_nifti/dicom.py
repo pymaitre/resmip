@@ -21,7 +21,17 @@ logger = logging.getLogger(__name__)
 
 
 def get_series_dicom_files(dicom_series_directory_path: PathLike) -> Tuple[str]:
-    """"""
+    """
+    Get the list of dicom files of the series to be read.
+
+    Read series ids first and then read the modalities. This is done in order to exclude
+    RT Dose files.
+    :param dicom_series_directory_path: Path of the directory containing the Dicom Series.
+    :type dicom_series_directory_path: PathLike
+    :return: Tuple of all full paths of the dicom slices (empty if no series are found
+        in the directory).
+    :type: Tuple[str]
+    """
     series_ids = sitk.ImageSeriesReader().GetGDCMSeriesIDs(str(dicom_series_directory_path))
     for series_id in series_ids:
         dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(

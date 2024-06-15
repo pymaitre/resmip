@@ -7,7 +7,7 @@ from typing import Dict
 
 import SimpleITK as sitk
 
-from srmip.dicom_to_nifti.series import read_dicom_series, write_dicom_series
+from srmip.dicom_nifti_conversion.series import read_dicom_series, write_dicom_series
 from srmip.utils import PathLike, format_digit_string
 
 

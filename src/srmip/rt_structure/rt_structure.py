@@ -7,7 +7,7 @@ from typing import Union
 import SimpleITK as sitk
 
 from srmip import Image
-from srmip.dicom_to_nifti.rtst import read_dicom_rtstruct, write_dicom_rtstruct
+from srmip.dicom_nifti_conversion.rtst import read_dicom_rtstruct, write_dicom_rtstruct
 from srmip.utils import PathLike
 
 

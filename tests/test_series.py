@@ -8,8 +8,8 @@ import pydicom
 import SimpleITK as sitk
 
 from srmip import read_image, write_image
-from srmip.dicom_to_nifti.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
-from srmip.dicom_to_nifti.series import read_dicom_series
+from srmip.dicom_nifti_conversion.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
+from srmip.dicom_nifti_conversion.series import read_dicom_series
 from srmip.image.image import Image
 
 from .utils import dicom_ct_path

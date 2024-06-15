@@ -238,6 +238,7 @@ def write_dicom_rtstruct(
     Write RT Structures to dicom file.
 
     Wrapper of convert_nifti from platipy.dicom.io.nifti_to_rtstruct.
+
     :param rt_structures: collection of structure name and structure mask.
     :type rt_structures: dict[str, sitk.Image]
     :param save_path: full path of the generated dicom file.
@@ -245,7 +246,7 @@ def write_dicom_rtstruct(
     :param save_path: path of the directory containing the reference dicom image.
     :type save_path: PathLike
     :param color_map: Colormap to use for output. Defaults to
-            matplotlib.colormaps.get_cmap("rainbow").
+        matplotlib.colormaps.get_cmap("rainbow").
     :type color_map: matplotlib.colors.Colormap
     """
     logger.info("Will convert the following masks to RTStruct:")

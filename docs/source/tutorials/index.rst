@@ -9,3 +9,4 @@ Tutorials on how to use srmip.
     :maxdepth: 2
 
     dicom_series
+    dicom_rtstruct

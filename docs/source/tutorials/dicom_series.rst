@@ -1,8 +1,11 @@
 .. title::
    Dicom series
 
+Dicom Series (CT/MR/PET)
+========================
+
 Import a Dicom series
-=====================
+---------------------
 
 Any Dicom series (e.g.: CT) can be imported with srmip using the ``read_image`` method from the ``Image`` class.
 
@@ -39,7 +42,7 @@ Alternatively, images can be imported with the ``read_image`` method:
     dicom_image = srmip.read_image(dicom_ct_directory)
 
 Save a Dicom series
-===================
+-------------------
 
 Images can be saved to Dicom using the ``write_image`` method of ``Image``, as long as the destination path is a directory:
 
@@ -54,7 +57,6 @@ Images can be saved to Dicom using the ``write_image`` method of ``Image``, as l
 
     dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "siemens_mprage_0_dcm"
     dicom_ct_destination_directory = tempfile.mkdtemp()
-    #print(dicom_ct_destination_directory)
 
 First of all, we define the path of the ditectory containing the Dicom CT and the directory where we want to save the Dicom files:
 

@@ -230,5 +230,4 @@ class RTStructureSet(dict[str, RTStructure]):
         for f in filename:
             assert isinstance(f, Path)
         for structure_filename, structure in zip(filename, self.values()):
-            print(self.values())
             structure.write_nondicom(structure_filename, file_format)

@@ -7,8 +7,9 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   srmip.dicom_to_nifti
+   srmip.dicom_nifti_conversion
    srmip.image
+   srmip.rt_structure
 
 Submodules
 ----------

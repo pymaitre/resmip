@@ -14,6 +14,8 @@ pydicom = "^2.3.1"
 simpleitk = "^2.2.1"
 scikit-image = "^0.20.0"
 platipy = "^0.6.0"
+matplotlib = "^3.7.5"
+rt-utils = "^1.2.7"
 bidict = "^0.22.1"
 
 [tool.poetry.group.docs]

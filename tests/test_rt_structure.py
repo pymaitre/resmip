@@ -1,0 +1,273 @@
+"""Test module for rt_structure.py"""
+
+import numpy as np
+import pydicom
+import pytest
+import SimpleITK as sitk
+
+from srmip import Image
+from srmip.rt_structure.rt_structure import RTStructure, RTStructureSet
+
+from .utils import dicom_ct_path, dicom_rtst_path
+
+TEST_RTST_SIZE = (204, 201, 60)
+"""Size of the test RT Structure."""
+TEST_RTST_SPACING = (0.97699999809265, 0.97699999809265, 2.9999999999998486)
+"""Spacing of the test RT Structure."""
+
+
+def test_read_single_dicom_structure():
+    """Read a dicom RT Structure from file."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    rtst = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+    assert rtst.name == structure_name
+    # check size
+    assert rtst.GetSize() == TEST_RTST_SIZE
+    # check spacing
+    np.testing.assert_allclose(rtst.GetSpacing(), TEST_RTST_SPACING)
+
+
+def test_read_single_dicom_structure_wrong_name():
+    """Read a dicom RT Structure from file, with a wrong name."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "gtv-1"
+    with pytest.raises(IndexError):
+        _ = RTStructure().read_image(
+            dicom_rtst_path(), structure_name=structure_name, reference_image=image
+        )
+
+
+def test_read_single_dicom_structure_without_reference_image():
+    """
+    Read a dicom RT Structure without specifying a reference image.
+
+    A value error should be raised.
+    """
+    structure_name = "GTV-1"
+    with pytest.raises(ValueError):
+        _ = RTStructure().read_image(dicom_rtst_path(), structure_name=structure_name)
+
+
+def test_read_single_dicom_structure_without_structure_name():
+    """
+    Read a dicom RT Structure without specifying a structure name.
+
+    A value error should be raised.
+    """
+    image = Image().read_image(dicom_ct_path())
+    with pytest.raises(ValueError):
+        _ = RTStructure().read_image(dicom_rtst_path(), reference_image=image)
+
+
+@pytest.mark.parametrize("use_structure_name", [True, False])
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+def test_read_single_nifti_structure(use_structure_name, extension, tmp_path):
+    """Read a nifti RT Structure with or without specifying a structure name."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    rtst = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+    if use_structure_name is False:
+        structure_name = "structure"
+    rtst_path = tmp_path / f"{structure_name}.{extension}"
+    sitk.WriteImage(rtst, rtst_path)
+
+    rtst = RTStructure().read_image(rtst_path)
+    assert rtst.name == structure_name
+    # check size
+    assert rtst.GetSize() == TEST_RTST_SIZE
+    # check spacing
+    np.testing.assert_allclose(rtst.GetSpacing(), TEST_RTST_SPACING)
+
+
+def test_create_structure_set_from_structure():
+    """Create a RT Structure Set from a single RT Structure."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    structure = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+
+    rtst = RTStructureSet([structure])
+    assert len(rtst) == 1
+    assert list(rtst.keys()) == [structure_name]
+    assert list(rtst.values()) == [structure]
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+def test_write_single_nifti_structure(extension, tmp_path):
+    """Create a RT Structure Set from a single RT Structure."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    structure = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+
+    rtst_path = tmp_path / f"{structure_name}.{extension}"
+    structure.write_image(rtst_path)
+
+    saved_structure = sitk.ReadImage(rtst_path)
+    np.testing.assert_array_equal(
+        sitk.GetArrayFromImage(structure), sitk.GetArrayFromImage(saved_structure)
+    )
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+def test_write_nifti_structure_set(extension, tmp_path):
+    """Create a RT Structure Set from a single RT Structure."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    structure = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+
+    rtst_path = tmp_path / f"{structure_name}.{extension}"
+    rtst = RTStructureSet([structure])
+    rtst.write_image([rtst_path])
+
+    saved_structure = sitk.ReadImage(rtst_path)
+    np.testing.assert_array_equal(
+        sitk.GetArrayFromImage(structure), sitk.GetArrayFromImage(saved_structure)
+    )
+
+
+def test_write_dicom_structure(tmp_path):  # pylint: disable=R0914
+    """Create a RT Structure Set from a single RT Structure."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    structure = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+
+    rtst_path = tmp_path / "rtst.dcm"
+    rtst = RTStructureSet([structure])
+    rtst.write_image(rtst_path, reference_image_path=dicom_ct_path())
+
+    original_structure = pydicom.dcmread(dicom_rtst_path())
+    saved_structure = pydicom.dcmread(rtst_path)
+
+    comparison_keys = [
+        "SOPClassUID",
+        "Modality",
+        "PatientName",
+        "PatientID",
+        "PatientBirthDate",
+        "PatientSex",
+        "PatientWeight",
+        "StudyInstanceUID",
+    ]
+    for key in comparison_keys:
+        assert original_structure[key] == saved_structure[key]
+    for x, y in zip(  # pylint: disable=C0103
+        original_structure["ReferencedFrameOfReferenceSequence"],
+        saved_structure["ReferencedFrameOfReferenceSequence"],
+    ):
+        assert x["FrameOfReferenceUID"] == y["FrameOfReferenceUID"]
+        for xx, yy in zip(  # pylint: disable=C0103
+            x["RTReferencedStudySequence"], y["RTReferencedStudySequence"]
+        ):
+            assert xx["ReferencedSOPInstanceUID"] == yy["ReferencedSOPInstanceUID"]
+            for xxx, yyy in zip(xx["RTReferencedSeriesSequence"], yy["RTReferencedSeriesSequence"]):
+                assert xxx["SeriesInstanceUID"] == yyy["SeriesInstanceUID"]
+                xxx_ids = {a["ReferencedSOPInstanceUID"].value for a in xxx["ContourImageSequence"]}
+                yyy_ids = {a["ReferencedSOPInstanceUID"].value for a in yyy["ContourImageSequence"]}
+                assert xxx_ids == yyy_ids
+    for x, y in zip(  # pylint: disable=C0103
+        original_structure["StructureSetROISequence"], saved_structure["StructureSetROISequence"]
+    ):
+        assert x["ROINumber"] == y["ROINumber"]
+        assert x["ReferencedFrameOfReferenceUID"] == y["ReferencedFrameOfReferenceUID"]
+        assert x["ROIName"] == y["ROIName"]
+
+    original_mask = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+    saved_mask = RTStructure().read_image(
+        rtst_path, structure_name=structure_name, reference_image=image
+    )
+    assert original_mask == saved_mask
+
+
+def test_write_dicom_structure_set_without_reference(tmp_path):
+    """Create a RT Structure Set from a single RT Structure without a reference image."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    structure = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+
+    rtst_path = tmp_path / "rtst.dcm"
+    rtst = RTStructureSet([structure])
+    with pytest.raises(ValueError):
+        rtst.write_image(rtst_path)
+
+
+def test_write_dicom_structure_set(tmp_path):
+    """Create a dicom RT Structure Set from a single structure."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    structure = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+
+    rtst_path = tmp_path / "rtst.dcm"
+    structure.write_image(rtst_path, reference_image_path=dicom_ct_path())
+
+    rtst_set_path = tmp_path / "rtst_set.dcm"
+    rtst = RTStructureSet([structure])
+    rtst.write_image(rtst_set_path, reference_image_path=dicom_ct_path())
+
+    rtst_mask = RTStructure().read_image(
+        rtst_path, structure_name=structure_name, reference_image=image
+    )
+    rtst_set_mask = RTStructure().read_image(
+        rtst_set_path, structure_name=structure_name, reference_image=image
+    )
+    assert rtst_mask == rtst_set_mask
+
+
+def test_read_dicom_structure_set():
+    """Read a dicom rtst file."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    rtst = RTStructureSet().read_image(
+        dicom_rtst_path(), structure_names=[structure_name], reference_image=image
+    )
+    assert len(rtst) == 1
+    assert rtst[structure_name].name == structure_name
+
+
+@pytest.mark.parametrize("regex", [True, False])
+def test_read_dicom_structure_set_regex(regex):
+    """Read a dicom rtst file with a regular expression match."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = r"[A-Z]TV-\d+"
+    rtst = RTStructureSet().read_image(
+        dicom_rtst_path(), structure_names=[structure_name], reference_image=image, regex=regex
+    )
+    if regex is True:
+        assert len(rtst) == 1
+        structure_name = "GTV-1"
+        assert rtst[structure_name].name == structure_name
+    else:
+        assert len(rtst) == 0
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+def test_read_nifti_structure_set(extension, tmp_path):
+    """Read multiple nifti rtst files."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    rtst = RTStructureSet().read_image(
+        dicom_rtst_path(), structure_names=[structure_name], reference_image=image
+    )
+
+    rtst_path = tmp_path / f"{structure_name}.{extension}"
+    rtst.write_image([rtst_path])
+
+    saved_rtst = RTStructureSet().read_image([rtst_path])
+    assert saved_rtst == rtst

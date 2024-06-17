@@ -7,7 +7,7 @@ from typing import Dict
 
 import SimpleITK as sitk
 
-from srmip.dicom_to_nifti.dicom import read_dicom_series, write_dicom_series
+from srmip.dicom_nifti_conversion.series import read_dicom_series, write_dicom_series
 from srmip.utils import PathLike, format_digit_string
 
 
@@ -18,7 +18,7 @@ class Image(sitk.Image):
     """Dictionary containing metadata."""
 
     def __init__(self, *args):
-        """Call sitk.Image constructor a create an empty dictionary for the header."""
+        """Call sitk.Image constructor and create an empty dictionary for the header."""
         super().__init__(*args)
         self._metadata = {}
 
@@ -55,7 +55,7 @@ class Image(sitk.Image):
         The image format is automatically determined from filename's suffix.
 
         :param filename: Name of the file. If filename is a directory,
-            the writer assumes to write a Dicom series. Otherwise, it assumes a metatadata
+            the reader assumes to read a Dicom series. Otherwise, it assumes a metatadata
             file with the following format exists: f".{filename.stem}.json".
         :type filename: PathLike
         :param read_metadata: If true, read the json file with metadata

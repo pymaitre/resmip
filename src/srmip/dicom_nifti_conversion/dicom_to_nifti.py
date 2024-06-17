@@ -1,15 +1,16 @@
 """Module for conversion from dicom to nifti."""
 
-from typing import Union, Dict, List, Tuple
-from pathlib import Path
-import re
 import logging
-from multiprocessing.pool import ThreadPool
-from functools import partial
+import re
 from dataclasses import dataclass
+from functools import partial
+from multiprocessing.pool import ThreadPool
+from pathlib import Path
+from typing import Dict, List, Tuple, Union
+
 import numpy as np
-import SimpleITK as sitk
 import pydicom as pydcm
+import SimpleITK as sitk
 from platipy.dicom.io import rtstruct_to_nifti
 from skimage.draw import polygon
 
@@ -115,7 +116,6 @@ def convert_single_structure(  # pylint: disable=too-many-locals
     for sl in range(  # pylint: disable=consider-using-enumerate
         len(struct_point_sequence[struct_index].ContourSequence)
     ):
-
         contour_data = rtstruct_to_nifti.fix_missing_data(
             struct_point_sequence[struct_index].ContourSequence[sl].ContourData
         )

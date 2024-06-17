@@ -3,6 +3,8 @@
 import importlib.metadata as im
 
 from srmip.image import Image
+from srmip.rt_structure import RTStructure  # noqa: F401
+from srmip.rt_structure import RTStructureSet  # noqa: F401
 
 __version__ = im.version(__package__)
 

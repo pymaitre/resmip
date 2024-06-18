@@ -2,6 +2,7 @@
 
 
 import json
+import logging
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -16,6 +17,32 @@ from srmip.dicom_nifti_conversion.constants import (
 )
 from srmip.utils import PathLike, format_digit_string
 
+logger = logging.getLogger(__name__)
+
+
+def get_series_dicom_files(dicom_series_directory_path: PathLike) -> Tuple[str]:
+    """
+    Get the list of dicom files of the series to be read.
+
+    Read series ids first and then read the modalities. This is done in order to exclude
+    RT Dose files.
+    :param dicom_series_directory_path: Path of the directory containing the Dicom Series.
+    :type dicom_series_directory_path: PathLike
+    :return: Tuple of all full paths of the dicom slices (empty if no series are found
+        in the directory).
+    :type: Tuple[str]
+    """
+    series_ids = sitk.ImageSeriesReader().GetGDCMSeriesIDs(str(dicom_series_directory_path))
+    for series_id in series_ids:
+        dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(
+            str(dicom_series_directory_path), series_id
+        )
+        ds = pydicom.dcmread(dicom_series_files[0])
+        if ds["Modality"].value != "RTDOSE":
+            return dicom_series_files
+    logger.warning("No Series can be found, make sure your restrictions are not too strong")
+    return tuple()
+
 
 def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image, Dict[str, str]]:
     """
@@ -26,9 +53,7 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image
     :return: SimpleITK Image and metadata dictionary.
     :type: Tuple[sitk.Image, Dict[str, str]
     """
-    dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(
-        str(dicom_series_directory_path)
-    )
+    dicom_series_files = get_series_dicom_files(dicom_series_directory_path)
     slices_number = len(dicom_series_files)
     dicom_series_reader = sitk.ImageSeriesReader()
     dicom_series_reader.SetFileNames(dicom_series_files)

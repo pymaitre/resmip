@@ -9,7 +9,10 @@ import SimpleITK as sitk
 
 from srmip import read_image, write_image
 from srmip.dicom_nifti_conversion.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
-from srmip.dicom_nifti_conversion.series import read_dicom_series
+from srmip.dicom_nifti_conversion.series import (
+    get_series_dicom_files,
+    read_dicom_series,
+)
 from srmip.image.image import Image
 
 from .utils import dicom_ct_path
@@ -91,3 +94,16 @@ def test_write_image_from_main(tmp_path):
     image_from_main = Image().read_image(tmp_path / "from_main")
 
     assert image_from_class == image_from_main
+
+
+def test_multiple_modalities_in_same_folder():
+    """Read dicom CT image with other modalities in the same directory."""
+    multiple_modalities_path = Path(__file__).parent / "Dicom" / "dicompyler_img"
+    input_image_files = get_series_dicom_files(multiple_modalities_path)
+    assert input_image_files == (str(multiple_modalities_path / "ct.0.dcm"),)
+
+
+def test_read_series_in_empty_folder(tmp_path):
+    """Read dicom CT image in an empty directory."""
+    input_image_files = get_series_dicom_files(tmp_path)
+    assert input_image_files == tuple()

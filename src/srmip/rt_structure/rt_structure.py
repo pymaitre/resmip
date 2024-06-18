@@ -191,7 +191,9 @@ class RTStructureSet(dict[str, RTStructure]):
                 regex=regex,
                 parallel=parallel,
             )
-            return RTStructureSet([RTStructure(x.image, name=x.name) for x in structures])
+            return RTStructureSet(
+                [RTStructure(x.image, name=x.name) for x in structures if x.name is not None]
+            )
         structures = []
         for f in filename:
             structures.append(RTStructure().read_image(f))

@@ -20,7 +20,7 @@ from .utils import dicom_ct_path
 
 def compare_dicom_pixels(image: Image, dicom_path: Path):
     """Compare dicom pixel values between slices."""
-    image_array = sitk.GetArrayFromImage(image)
+    image_array = image.numpy()
     min_instance_number = np.array(json.loads(image.metadata["slice_indexes"])).max()
     for dicom_file in dicom_path.glob("*.dcm"):
         dataset = pydicom.dcmread(dicom_file)

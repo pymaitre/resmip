@@ -111,9 +111,7 @@ def test_write_single_nifti_structure(extension, tmp_path):
     structure.write_image(rtst_path)
 
     saved_structure = sitk.ReadImage(rtst_path)
-    np.testing.assert_array_equal(
-        sitk.GetArrayFromImage(structure), sitk.GetArrayFromImage(saved_structure)
-    )
+    np.testing.assert_array_equal(structure.numpy(), sitk.GetArrayFromImage(saved_structure))
 
 
 @pytest.mark.parametrize("extension", ["nii", "nii.gz"])
@@ -130,9 +128,7 @@ def test_write_nifti_structure_set(extension, tmp_path):
     rtst.write_image([rtst_path])
 
     saved_structure = sitk.ReadImage(rtst_path)
-    np.testing.assert_array_equal(
-        sitk.GetArrayFromImage(structure), sitk.GetArrayFromImage(saved_structure)
-    )
+    np.testing.assert_array_equal(structure.numpy(), sitk.GetArrayFromImage(saved_structure))
 
 
 def test_write_dicom_structure(tmp_path):  # pylint: disable=R0914

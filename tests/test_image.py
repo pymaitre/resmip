@@ -56,7 +56,16 @@ def test_saved_nifti_file_pixels(tmp_path):
     nifti_file_path = tmp_path / "testfile.nii"
     image.write_image(nifti_file_path)
     sitk_image = sitk.ReadImage(nifti_file_path)
-    assert np.all(sitk.GetArrayFromImage(sitk_image) == sitk.GetArrayFromImage(image))
+    assert np.all(sitk.GetArrayFromImage(sitk_image) == image.numpy())
+
+
+def test_numpy():
+    """Test numpy array generation from image."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    assert isinstance(dicom_image.numpy(), np.ndarray)
+    # array shape (z_dim, y_dim, x_dim) (reversed from Image.GetSize())
+    assert dicom_image.numpy().shape == tuple(reversed(dicom_image.GetSize()))
+    assert np.all(dicom_image.numpy() == sitk.GetArrayFromImage(dicom_image))
 
 
 def test_saved_nifti_file_metadata(tmp_path):
@@ -78,7 +87,7 @@ def test_import_nifti_without_metadata(tmp_path):
     sitk.WriteImage(input_image, nifti_file_name)
     nifti_image = Image().read_image(nifti_file_name)
 
-    assert np.all(sitk.GetArrayFromImage(nifti_image) == sitk.GetArrayFromImage(input_image))
+    assert np.all(nifti_image.numpy() == input_image.numpy())
 
     # check image dimension
     assert int(nifti_image.metadata["dim[0]"]) == 3
@@ -114,7 +123,7 @@ def test_write_image(file_format, tmp_path):
         dicom_images = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(str(output_file_name))
         new_image = sitk.ReadImage(dicom_images, imageIO="GDCMImageIO")
 
-    assert np.all(sitk.GetArrayFromImage(new_image) == sitk.GetArrayFromImage(input_image))
+    assert np.all(sitk.GetArrayFromImage(new_image) == input_image.numpy())
 
 
 @pytest.mark.parametrize("file_format", ["dicom", "nifti"])
@@ -136,7 +145,7 @@ def test_read_image(file_format, tmp_path):
     elif file_format == "dicom":
         new_image_reference, _ = read_dicom_series(output_file_name)
 
-    assert np.all(sitk.GetArrayFromImage(new_image) == sitk.GetArrayFromImage(new_image_reference))
+    assert np.all(new_image.numpy() == sitk.GetArrayFromImage(new_image_reference))
 
 
 def test_default_read_image_metadata(tmp_path):

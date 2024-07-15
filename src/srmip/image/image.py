@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from typing import Dict
 
+import numpy as np
 import SimpleITK as sitk
 
 from srmip.dicom_nifti_conversion.series import read_dicom_series, write_dicom_series
@@ -46,6 +47,17 @@ class Image(sitk.Image):
         """
         filename = Path(filename)
         return filename.parent / f".{filename.stem}.json"
+
+    def numpy(self) -> np.ndarray:
+        """
+        Generate a numpy array of pixels from the image.
+
+        Wrapper of sitk.GetArrayFromImage().
+
+        :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
+        :rtype: np.array
+        """
+        return sitk.GetArrayFromImage(self)
 
     @staticmethod
     def read_image(filename: PathLike, read_metadata: bool = True) -> Image:

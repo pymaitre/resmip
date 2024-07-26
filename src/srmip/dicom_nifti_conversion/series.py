@@ -97,7 +97,7 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image
         if not isinstance(value, str):
             value = json.dumps(value.tolist())
             series_metadata[key] = value
-        dicom_series.SetMetaData(key, value)
+        dicom_series.SetMetaData(key, value.encode("unicode_escape").decode())
     return dicom_series, series_metadata
 
 

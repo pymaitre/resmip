@@ -60,7 +60,7 @@ class Image(sitk.Image):
             as defined the global `FORMAT_TO_TYPESTR` dictionary.
         :type dtype: str|npt.DTypeLike
         :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
-        :rtype: np.array
+        :rtype: np.ndarray
         """
         image_array = sitk.GetArrayFromImage(self)
         if dtype is not None:
@@ -78,7 +78,7 @@ class Image(sitk.Image):
             as defined the global `FORMAT_TO_TYPESTR` dictionary.
         :type dtype: str|npt.DTypeLike
         :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
-        :rtype: np.array
+        :rtype: np.ndarray
         """
         return self.__array__(dtype=dtype)
 

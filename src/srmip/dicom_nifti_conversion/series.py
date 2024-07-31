@@ -26,6 +26,7 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> Tuple[str]:
 
     Read series ids first and then read the modalities. This is done in order to exclude
     RT Dose files.
+
     :param dicom_series_directory_path: Path of the directory containing the Dicom Series.
     :type dicom_series_directory_path: PathLike
     :return: Tuple of all full paths of the dicom slices (empty if no series are found

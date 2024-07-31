@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Union
 
+import numpy as np
+import numpy.typing as npt
 import SimpleITK as sitk
 
 from srmip.dicom_nifti_conversion.series import read_dicom_series, write_dicom_series
@@ -46,6 +48,39 @@ class Image(sitk.Image):
         """
         filename = Path(filename)
         return filename.parent / f".{filename.stem}.json"
+
+    def __array__(self, dtype: Union[str, npt.DTypeLike] = None) -> np.ndarray:
+        """
+        Convert an image to a numpy array.
+
+        Wrapper of sitk.GetArrayFromImage().
+
+        :param dtype: The dtype to use for the numpy array.
+            If None, the default dtype of the image is used
+            as defined the global `FORMAT_TO_TYPESTR` dictionary.
+        :type dtype: str|npt.DTypeLike
+        :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
+        :rtype: np.ndarray
+        """
+        image_array = sitk.GetArrayFromImage(self)
+        if dtype is not None:
+            image_array = image_array.astype(dtype)
+        return image_array
+
+    def numpy(self, dtype: Union[str, npt.DTypeLike] = None) -> np.ndarray:
+        """
+        Generate a numpy array of pixels from the image.
+
+        Wrapper of sitk.GetArrayFromImage().
+
+        :param dtype: The dtype to use for the numpy array.
+            If None, the default dtype of the image is used
+            as defined the global `FORMAT_TO_TYPESTR` dictionary.
+        :type dtype: str|npt.DTypeLike
+        :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
+        :rtype: np.ndarray
+        """
+        return self.__array__(dtype=dtype)
 
     @staticmethod
     def read_image(filename: PathLike, read_metadata: bool = True) -> Image:

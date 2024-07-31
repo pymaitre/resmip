@@ -48,6 +48,7 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image
     """
     Read Dicom series from file.
 
+    Non-unicode characters in the dicom header are escaped into unicode sequences.
     :param dicom_series_directory_path: Path of the directory containing the Dicom Series.
     :type dicom_series_directory_path: PathLike
     :return: SimpleITK Image and metadata dictionary.
@@ -97,7 +98,7 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image
         if not isinstance(value, str):
             value = json.dumps(value.tolist())
             series_metadata[key] = value
-        dicom_series.SetMetaData(key, value)
+        dicom_series.SetMetaData(key, value.encode("unicode_escape").decode())
     return dicom_series, series_metadata
 
 

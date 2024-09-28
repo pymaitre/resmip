@@ -2,6 +2,7 @@
 
 import importlib.metadata as im
 
+from .dicom_nifti_conversion import DICOM_FIELDS  # noqa: F401
 from .image import Image
 from .rt_structure import RTStructure  # noqa: F401
 from .rt_structure import RTStructureSet  # noqa: F401

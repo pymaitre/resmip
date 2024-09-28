@@ -56,6 +56,24 @@ class Image(sitk.Image):
         """The original DICOM header key is not updated."""
         self.SetOrigin(value)
 
+    @property
+    def direction(self) -> tuple[float]:
+        """
+        Direction cosine matrix.
+
+        For more information, see here:
+        https://dicom.innolitics.com/ciods/rt-dose/image-plane/00200037
+        """
+        return self.GetDirection()
+
+    @direction.setter
+    def direction(self, value: tuple[float]):
+        self.SetDirection(value)
+        # add the spacing to metadata too (only xy direction)
+        self.metadata[DICOM_FIELDS["ImageOrientationPatient"]] = "\\".join(
+            [str(x) for x in value[:-3]]
+        )
+
     @staticmethod
     def metadata_file_name(filename: PathLike) -> Path:
         """

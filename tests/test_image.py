@@ -90,6 +90,23 @@ def test_image_origin_setter():
     assert dicom_image.origin == dicom_image.GetOrigin()
 
 
+def test_image_direction_getter():
+    """Test Image.direction()."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    assert dicom_image.direction == dicom_image.GetDirection()
+
+
+def test_image_direction_setter():
+    """Test Image.direction = value."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    dicom_direction = "0.0\\1.0\\0.0\\-1.0\\0.0\\0.0"
+    new_direction = tuple(float(value) for value in dicom_direction.split("\\")) + (0, 0, 1)
+    dicom_image.direction = new_direction
+    assert dicom_image.GetDirection() == new_direction
+    assert dicom_image.direction == dicom_image.GetDirection()
+    assert dicom_image.metadata[DICOM_FIELDS["ImageOrientationPatient"]] == dicom_direction
+
+
 def test_saved_nifti_file_pixels(tmp_path):
     """Check if the saved nifti file corresponds to the one read by SimpleITK."""
     image = Image().read_image(dicom_ct_path())

@@ -46,6 +46,16 @@ class Image(sitk.Image):
         self.metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join([str(x) for x in value[:2]])
         self.metadata[DICOM_FIELDS["SliceThickness"]] = str(value[2])
 
+    @property
+    def origin(self) -> tuple[float]:
+        """Coordinates of the top left voxel in mm (x, y, z)."""
+        return self.GetOrigin()
+
+    @origin.setter
+    def origin(self, value: tuple[float]):
+        """The original DICOM header key is not updated."""
+        self.SetOrigin(value)
+
     @staticmethod
     def metadata_file_name(filename: PathLike) -> Path:
         """

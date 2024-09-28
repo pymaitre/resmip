@@ -72,6 +72,24 @@ def test_image_spacing_setter():
     assert dicom_image.metadata[DICOM_FIELDS["SliceThickness"]] == str(z_spacing)
 
 
+def test_image_origin_getter():
+    """Test Image.origin()."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    assert dicom_image.origin == dicom_image.GetOrigin()
+
+
+def test_image_origin_setter():
+    """Test Image.origin = value."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    x_origin = 0.5
+    y_origin = -1.4
+    z_origin = 5.2
+    new_origin = (x_origin, y_origin, z_origin)
+    dicom_image.origin = new_origin
+    assert dicom_image.GetOrigin() == new_origin
+    assert dicom_image.origin == dicom_image.GetOrigin()
+
+
 def test_saved_nifti_file_pixels(tmp_path):
     """Check if the saved nifti file corresponds to the one read by SimpleITK."""
     image = Image().read_image(dicom_ct_path())

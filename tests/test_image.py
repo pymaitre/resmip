@@ -260,6 +260,24 @@ def test_write_image_without_metadata(tmp_path):
     assert new_image.metadata == reference_image.metadata
 
 
+def test_image_from_array():
+    """Test image creation from a numpy array."""
+    input_image = Image().read_image(dicom_ct_path())
+    new_image = Image().from_array(
+        input_image.numpy(),
+        spacing=input_image.spacing,
+        origin=input_image.origin,
+        direction=input_image.direction,
+        metadata=input_image.metadata,
+    )
+    assert new_image.GetSize() == input_image.GetSize()
+    assert new_image.spacing == input_image.spacing
+    assert new_image.origin == input_image.origin
+    assert new_image.direction == input_image.direction
+    assert np.all(new_image.numpy() == input_image.numpy())
+    assert new_image.metadata == input_image.metadata
+
+
 @pytest.mark.parametrize("scale", [0.5, 2])
 def test_image_resample(scale):
     """Test Image.resample()."""
@@ -273,3 +291,45 @@ def test_image_resample(scale):
     assert all(resampled_image.spacing == new_spacing)
     # mean image intensity values should be similar
     assert np.allclose(resampled_image.numpy().mean(), input_image.numpy().mean(), rtol=0.009)
+
+
+def test_image_pad_different_spacing():
+    """Test image padding with different voxel spacing."""
+    input_image = Image().read_image(dicom_ct_path())
+    reference_image = Image()
+    reference_image.spacing = (0.5, 1.2, 4.3)
+    assert input_image.spacing != reference_image.spacing
+    with pytest.raises(ValueError):
+        input_image.pad(reference_image)
+
+
+@pytest.mark.parametrize("left_shift", [-1, 0, 1])
+@pytest.mark.parametrize("right_shift", [-1, 0, 1])
+def test_image_pad(left_shift, right_shift):
+    """Test Image.pad()."""
+    image_spacing = (1, 1, 1)
+    image_origin = np.array((0, 0, 0))
+    reference_origin = image_origin + left_shift
+    image_direction = (1, 0, 0, 0, 1, 0, 0, 0, 1)
+    original_shape = (5, 5, 5)
+    reference_size = np.array(original_shape) + right_shift
+    original_array = np.zeros(original_shape)
+    point_coordinate = (2, 2, 2)
+    original_array[point_coordinate] = 1
+    original_image = Image().from_array(
+        original_array,
+        spacing=image_spacing,
+        origin=tuple(image_origin.tolist()),
+        direction=image_direction,
+    )
+    reference_image = Image().from_array(
+        np.zeros(reference_size),
+        spacing=image_spacing,
+        origin=tuple(reference_origin.tolist()),
+        direction=image_direction,
+    )
+    padded_image = original_image.pad(reference_image)
+    new_coordinate = np.array(point_coordinate) - left_shift
+
+    assert padded_image.numpy().shape == reference_image.numpy().shape
+    assert padded_image.numpy()[tuple(new_coordinate.tolist())] == 1

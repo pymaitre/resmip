@@ -74,6 +74,39 @@ class Image(sitk.Image):
             [str(x) for x in value[:-3]]
         )
 
+    @classmethod
+    def from_array(
+        cls,
+        array: np.ndarray,
+        spacing: tuple[float],
+        origin: tuple[float],
+        direction: tuple[float],
+        metadata: Optional[Dict[str, str]] = None,
+    ) -> Image:
+        """
+        Create a new image from a numpy array.
+
+        :param array: 3D array containing voxel values for the image (z, y, x).
+        :type array: np.ndarray
+        :param spacing: Voxel spacing for the image in mm (x, y, z).
+        :type spacing: tuple[float]
+        :param origin: Coordinates of the top left voxel in mm (x, y, z).
+        :type origin: tuple[float]
+        :param direction: Direction cosine matrix.
+        :type direction: tuple[float]
+        :param metadata: Metadata containing information from the DICOM header.
+        :type metadata: Optional[Dict[str, str]]
+        :return: New image
+        :rtype: Image
+        """
+        new_image = cls(sitk.GetImageFromArray(array))
+        if metadata is not None:
+            new_image.metadata = metadata
+        new_image.spacing = spacing
+        new_image.origin = origin
+        new_image.direction = direction
+        return new_image
+
     @staticmethod
     def metadata_file_name(filename: PathLike) -> Path:
         """
@@ -220,3 +253,61 @@ class Image(sitk.Image):
         )
         new_img.metadata[DICOM_FIELDS["SliceThickness"]] = str(new_img.spacing[2])
         return new_img
+
+    def pad(self, reference_image: Image, **kwargs) -> Image:
+        """
+        Pad the image on top of another image.
+
+        Uses the same notation as `numpy.pad`.
+        The image is shifted aligning its top-left voxel with the reference image.
+        The two images must have the same voxel spacing.
+        If the shifted image is cropped if it extends out of the reference image.
+
+        :param reference_image: Image used as reference for padding.
+        :type reference_image: Image
+        :return: New image with same shape and spacing of the reference.
+        :rtype: Image
+        """
+        if self.spacing != reference_image.spacing:
+            raise ValueError(
+                f"Both images must have the same voxel spacing. The image has {self.spacing},"
+                f"the reference image has {reference_image.spacing}."
+            )
+        xyz_lower_padding = np.array(
+            [
+                int(x)
+                for x in (np.array(self.origin) - np.array(reference_image.origin))
+                / reference_image.spacing
+            ]
+        )
+        xyz_upper_padding = (
+            np.array(reference_image.GetSize()) - np.array(self.GetSize()) - xyz_lower_padding
+        )
+
+        lower_boundary_crop = []
+        for i, padding_value in enumerate(xyz_lower_padding):
+            crop_value = 0
+            if padding_value < 0:
+                crop_value = -padding_value
+                xyz_lower_padding[i] = 0
+            lower_boundary_crop.append(crop_value)
+        upper_boundary_crop = []
+        for i, padding_value in enumerate(xyz_upper_padding):
+            crop_value = None
+            if padding_value < 0:
+                crop_value = padding_value
+                xyz_upper_padding[i] = 0
+            upper_boundary_crop.append(crop_value)
+        boundary_crop = []
+        for lower_bound, upper_bound in zip(lower_boundary_crop, upper_boundary_crop):
+            boundary_crop.append(slice(lower_bound, upper_bound))
+        img_arr = self.numpy()[tuple(np.flip(boundary_crop))]
+
+        xyz_padding = np.flip(np.stack([xyz_lower_padding, xyz_upper_padding], axis=1), axis=0)
+        new_arr = np.pad(img_arr, xyz_padding, **kwargs)
+        return Image.from_array(
+            new_arr,
+            spacing=reference_image.spacing,
+            origin=reference_image.origin,
+            direction=reference_image.direction,
+        )

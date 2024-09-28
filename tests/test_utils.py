@@ -28,5 +28,4 @@ def test_format_digit_string(is_digit, trailing_whitespaces, dots, leading_minus
         for i in indexes:
             test_strings[i] = "-" + test_strings[i]
 
-    print(test_strings)
     assert format_digit_string(test_strings[0]) == test_strings[1]

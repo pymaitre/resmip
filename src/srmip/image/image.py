@@ -261,7 +261,7 @@ class Image(sitk.Image):
         Uses the same notation as `numpy.pad`.
         The image is shifted aligning its top-left voxel with the reference image.
         The two images must have the same voxel spacing.
-        If the shifted image is cropped if it extends out of the reference image.
+        The shifted image is cropped if it extends out of the reference image.
 
         :param reference_image: Image used as reference for padding.
         :type reference_image: Image

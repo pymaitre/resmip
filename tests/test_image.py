@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import SimpleITK as sitk
 
+from srmip import DICOM_FIELDS
 from srmip.dicom_nifti_conversion.series import read_dicom_series
 from srmip.image.image import Image
 from srmip.utils import format_digit_string
@@ -48,6 +49,62 @@ def test_metadata_file_name(is_string, tmp_path):
         given_nifti_file_name = nifti_file_name
     metadata_file_name = Image().metadata_file_name(given_nifti_file_name)
     assert metadata_file_name == tmp_path / f".{nifti_file_name.stem}.json"
+
+
+def test_image_spacing_getter():
+    """Test Image.spacing()."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    assert dicom_image.spacing == dicom_image.GetSpacing()
+
+
+def test_image_spacing_setter():
+    """Test Image.spacing = value."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    x_spacing = 0.5
+    y_spacing = 1
+    z_spacing = 5.2
+    xy_spacing = f"{x_spacing}\\{y_spacing}"
+    new_spacing = (x_spacing, y_spacing, z_spacing)
+    dicom_image.spacing = new_spacing
+    assert dicom_image.GetSpacing() == new_spacing
+    assert dicom_image.spacing == dicom_image.GetSpacing()
+    assert dicom_image.metadata[DICOM_FIELDS["PixelSpacing"]] == xy_spacing
+    assert dicom_image.metadata[DICOM_FIELDS["SliceThickness"]] == str(z_spacing)
+
+
+def test_image_origin_getter():
+    """Test Image.origin()."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    assert dicom_image.origin == dicom_image.GetOrigin()
+
+
+def test_image_origin_setter():
+    """Test Image.origin = value."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    x_origin = 0.5
+    y_origin = -1.4
+    z_origin = 5.2
+    new_origin = (x_origin, y_origin, z_origin)
+    dicom_image.origin = new_origin
+    assert dicom_image.GetOrigin() == new_origin
+    assert dicom_image.origin == dicom_image.GetOrigin()
+
+
+def test_image_direction_getter():
+    """Test Image.direction()."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    assert dicom_image.direction == dicom_image.GetDirection()
+
+
+def test_image_direction_setter():
+    """Test Image.direction = value."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    dicom_direction = "0.0\\1.0\\0.0\\-1.0\\0.0\\0.0"
+    new_direction = tuple(float(value) for value in dicom_direction.split("\\")) + (0, 0, 1)
+    dicom_image.direction = new_direction
+    assert dicom_image.GetDirection() == new_direction
+    assert dicom_image.direction == dicom_image.GetDirection()
+    assert dicom_image.metadata[DICOM_FIELDS["ImageOrientationPatient"]] == dicom_direction
 
 
 def test_saved_nifti_file_pixels(tmp_path):
@@ -201,3 +258,78 @@ def test_write_image_without_metadata(tmp_path):
     reference_image = Image().read_image(reference_output_file_name)
     new_image = Image().read_image(output_file_name)
     assert new_image.metadata == reference_image.metadata
+
+
+def test_image_from_array():
+    """Test image creation from a numpy array."""
+    input_image = Image().read_image(dicom_ct_path())
+    new_image = Image().from_array(
+        input_image.numpy(),
+        spacing=input_image.spacing,
+        origin=input_image.origin,
+        direction=input_image.direction,
+        metadata=input_image.metadata,
+    )
+    assert new_image.GetSize() == input_image.GetSize()
+    assert new_image.spacing == input_image.spacing
+    assert new_image.origin == input_image.origin
+    assert new_image.direction == input_image.direction
+    assert np.all(new_image.numpy() == input_image.numpy())
+    assert new_image.metadata == input_image.metadata
+
+
+@pytest.mark.parametrize("scale", [0.5, 2])
+def test_image_resample(scale):
+    """Test Image.resample()."""
+    input_image = Image().read_image(dicom_ct_path())
+    new_spacing = np.array(input_image.spacing) / scale
+    resampled_image = input_image.resample(new_spacing.tolist())
+    assert np.all(
+        np.array(resampled_image.GetSize())
+        == (np.array(input_image.GetSize()) * scale + 1e-14).round().astype(int)
+    )
+    assert all(resampled_image.spacing == new_spacing)
+    # mean image intensity values should be similar
+    assert np.allclose(resampled_image.numpy().mean(), input_image.numpy().mean(), rtol=0.009)
+
+
+def test_image_pad_different_spacing():
+    """Test image padding with different voxel spacing."""
+    input_image = Image().read_image(dicom_ct_path())
+    reference_image = Image()
+    reference_image.spacing = (0.5, 1.2, 4.3)
+    assert input_image.spacing != reference_image.spacing
+    with pytest.raises(ValueError):
+        input_image.pad(reference_image)
+
+
+@pytest.mark.parametrize("left_shift", [-1, 0, 1])
+@pytest.mark.parametrize("right_shift", [-1, 0, 1])
+def test_image_pad(left_shift, right_shift):
+    """Test Image.pad()."""
+    image_spacing = (1, 1, 1)
+    image_origin = np.array((0, 0, 0))
+    reference_origin = image_origin + left_shift
+    image_direction = (1, 0, 0, 0, 1, 0, 0, 0, 1)
+    original_shape = (5, 5, 5)
+    reference_size = np.array(original_shape) + right_shift
+    original_array = np.zeros(original_shape)
+    point_coordinate = (2, 2, 2)
+    original_array[point_coordinate] = 1
+    original_image = Image().from_array(
+        original_array,
+        spacing=image_spacing,
+        origin=tuple(image_origin.tolist()),
+        direction=image_direction,
+    )
+    reference_image = Image().from_array(
+        np.zeros(reference_size),
+        spacing=image_spacing,
+        origin=tuple(reference_origin.tolist()),
+        direction=image_direction,
+    )
+    padded_image = original_image.pad(reference_image)
+    new_coordinate = np.array(point_coordinate) - left_shift
+
+    assert padded_image.numpy().shape == reference_image.numpy().shape
+    assert padded_image.numpy()[tuple(new_coordinate.tolist())] == 1

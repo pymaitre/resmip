@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -49,7 +49,7 @@ class Image(sitk.Image):
         filename = Path(filename)
         return filename.parent / f".{filename.stem}.json"
 
-    def __array__(self, dtype: Union[str, npt.DTypeLike] = None) -> np.ndarray:
+    def __array__(self, dtype: Optional[Union[str, npt.DTypeLike]] = None) -> np.ndarray:
         """
         Convert an image to a numpy array.
 
@@ -58,7 +58,7 @@ class Image(sitk.Image):
         :param dtype: The dtype to use for the numpy array.
             If None, the default dtype of the image is used
             as defined the global `FORMAT_TO_TYPESTR` dictionary.
-        :type dtype: str|npt.DTypeLike
+        :type dtype: str | npt.DTypeLike | None
         :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         :rtype: np.ndarray
         """
@@ -67,7 +67,7 @@ class Image(sitk.Image):
             image_array = image_array.astype(dtype)
         return image_array
 
-    def numpy(self, dtype: Union[str, npt.DTypeLike] = None) -> np.ndarray:
+    def numpy(self, dtype: Optional[Union[str, npt.DTypeLike]] = None) -> np.ndarray:
         """
         Generate a numpy array of pixels from the image.
 
@@ -76,7 +76,7 @@ class Image(sitk.Image):
         :param dtype: The dtype to use for the numpy array.
             If None, the default dtype of the image is used
             as defined the global `FORMAT_TO_TYPESTR` dictionary.
-        :type dtype: str|npt.DTypeLike
+        :type dtype: str | npt.DTypeLike | None
         :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         :rtype: np.ndarray
         """

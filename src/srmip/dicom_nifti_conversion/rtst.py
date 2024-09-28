@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Dict, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import matplotlib
 import numpy as np
@@ -41,7 +41,7 @@ def check_if_valid_structure(
     If the structure is invalid, print more information and return false.
 
     :param struct_index: ROI Number of the RT Structure.
-    :type struct_index: int|pydcm.valuerep.IS
+    :type struct_index: int | pydcm.valuerep.IS
     :param struct_point_sequence: dictionary containing the sequence of points of the RT Structure.
         - key: string representing ROI Number
         - value: pydcm.dataset.Dataset containing RT Structure data (including slice polygons)
@@ -150,8 +150,8 @@ def convert_single_structure(  # pylint: disable=too-many-locals
 def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     rtst_path: Path,
     reference_image: sitk.Image,
-    structure_names: Union[str, list[str]] = None,
-    spacing_override: Union[Tuple[float], list[float]] = None,
+    structure_names: Optional[Union[str, list[str]]] = None,
+    spacing_override: Optional[Union[Tuple[float], list[float]]] = None,
     parallel: bool = False,
     regex: bool = False,
 ) -> list[DicomStructure]:
@@ -165,9 +165,9 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     :param structure_names: structure name or list of structure names to convert.
         Other structures will not be converted.
         If set to None, all structures found will be converted.
-    :type structure_names: str|list[str]
+    :type structure_names: str | list[str] | None
     :param spacing_override: The spacing to override. Defaults to None.
-    :type spacing_override: Tuple[float]|list[float]]
+    :type spacing_override: Tuple[float] | list[float]] | None
     :param parallel: read RT Structures in parallel.
     :type parallel: bool
     :param regex: if set to true, structure names are searched as regular expression pattern,

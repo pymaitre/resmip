@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import SimpleITK as sitk
 
@@ -60,8 +60,8 @@ class RTStructure(Image):
     def read_image(
         filename: PathLike,
         read_metadata: bool = True,
-        structure_name: str = None,
-        reference_image: Image = None,
+        structure_name: Optional[str] = None,
+        reference_image: Optional[Image] = None,
     ) -> RTStructure:
         """
         Read RT Structure from file.
@@ -77,10 +77,10 @@ class RTStructure(Image):
         :type read_metadata: bool
         :param structure_name: Name of the RT Structure (case-sensitive).
             Required for dicom files. Optional for other files (if set to None, use filename).
-        :type structure_name: str
+        :type structure_name: str | None
         :param reference_image: 3D image used as reference for dicom Structures
             (not used for other formats).
-        :type reference_image: Image
+        :type reference_image: Image | None
         :return: RT Structure.
         :rtype: RTStructure
         """
@@ -102,8 +102,8 @@ class RTStructure(Image):
         self,
         filename: PathLike,
         write_metadata: bool = False,
-        file_format: str = None,
-        reference_image_path: PathLike = None,
+        file_format: Optional[str] = None,
+        reference_image_path: Optional[PathLike] = None,
     ) -> None:
         """
         Save RT Structure file.
@@ -118,10 +118,10 @@ class RTStructure(Image):
             (not applicable for dicom files). Currently not used.
         :param file_format: Format of the rt structure saved. If None,
             infer it from filename.
-        :type file_format: str
+        :type file_format: str | None
         :param reference_image_path: Path of the reference dicom image.
             Ignored when saving in formats other than dicom.
-        :type reference_image_path: PathLike
+        :type reference_image_path: PathLike | None
         """
         # Create an RT Structure Set and save it
         if file_format is None:
@@ -130,7 +130,7 @@ class RTStructure(Image):
             return self.write_nondicom(filename, file_format)
         return RTStructureSet([self]).write_image(filename, file_format, reference_image_path)
 
-    def write_nondicom(self, filename: PathLike, file_format: str = None) -> None:
+    def write_nondicom(self, filename: PathLike, file_format: Optional[str] = None) -> None:
         """
         Save RT Structure for formats other than dicom.
 
@@ -139,7 +139,7 @@ class RTStructure(Image):
         :type filename: PathLike
         :param file_format: Format of the rt structure saved. If None,
             infer it from filename.
-        :type file_format: str
+        :type file_format: str | None
         """
         filename = Path(filename)
         if filename.is_dir():
@@ -152,7 +152,7 @@ class RTStructure(Image):
 class RTStructureSet(dict[str, RTStructure]):
     """RT Structure Set (dictionary of [str, RTStructure])."""
 
-    def __init__(self, structures: list[RTStructure] = None):
+    def __init__(self, structures: Optional[list[RTStructure]] = None):
         """Create a dictionary with the given RT Structures."""
         if structures is None:
             structures = []
@@ -161,9 +161,9 @@ class RTStructureSet(dict[str, RTStructure]):
     @staticmethod
     def read_image(
         filename: Union[PathLike, list[PathLike]],
-        structure_names: list[str] = None,
+        structure_names: Optional[list[str]] = None,
         regex: bool = False,
-        reference_image: Image = None,
+        reference_image: Optional[Image] = None,
         parallel: bool = True,
     ) -> RTStructureSet:
         """
@@ -173,14 +173,16 @@ class RTStructureSet(dict[str, RTStructure]):
         :param structure_names: Names of the structures to be read.
             Used for reading only specific structures in a dicom files,
             can also be a regular expression.
-        :type structure_names: list[str]
+        :type structure_names: list[str] | None
         :param regex: Whether to consider `structure_names` as a regular expression or not.
         :type regex: bool
         :param parallel: Whether to read structures in parallel or not.
         :type parallel: bool
         :param reference_image: 3D image used as reference for dicom Structures
             (not used for other formats).
-        :type reference_image: Image
+        :type reference_image: Image | None
+        :return: RT Structure Set.
+        :rtype: RTStructureSet
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
@@ -202,8 +204,8 @@ class RTStructureSet(dict[str, RTStructure]):
     def write_image(
         self,
         filename: Union[PathLike, list[PathLike]],
-        file_format: str = None,
-        reference_image_path: PathLike = None,
+        file_format: Optional[str] = None,
+        reference_image_path: Optional[PathLike] = None,
     ) -> None:
         """
         Save RT Structure Set file(s).
@@ -216,12 +218,10 @@ class RTStructureSet(dict[str, RTStructure]):
         :type filename: PathLike|list[PathLike]
         :param file_format: Format of the rt structure saved. If None,
             infer it from filename.
-        :type file_format: str
+        :type file_format: str | None
         :param reference_image_path: Path of the reference dicom image.
             Ignored when saving in formats other than dicom.
-        :type reference_image_path: PathLike
-        :return: RT Structure Set.
-        :rtype: RTStructureSet
+        :type reference_image_path: PathLike | None
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)

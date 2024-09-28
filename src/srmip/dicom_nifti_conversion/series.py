@@ -50,6 +50,7 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image
     Read Dicom series from file.
 
     Non-unicode characters in the dicom header are escaped into unicode sequences.
+
     :param dicom_series_directory_path: Path of the directory containing the Dicom Series.
     :type dicom_series_directory_path: PathLike
     :return: SimpleITK Image and metadata dictionary.

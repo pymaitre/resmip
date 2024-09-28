@@ -106,13 +106,12 @@ def convert_single_structure(  # pylint: disable=too-many-locals
             struct_point_sequence[struct_index].ContourSequence[sl].ContourData, dtype=float
         ).reshape(-1, 3)
 
-        point_arr = np.array(
-            [reference_image.TransformPhysicalPointToIndex(i) for i in contour_data]
-        ).T
+        contour_vertices = (
+            contour_data - reference_image.GetOrigin()
+        ) / reference_image.GetSpacing()
 
-        [x_vertex_arr_image, y_vertex_arr_image] = point_arr[[0, 1]]
-        z_index = point_arr[2][0]
-        if np.any(point_arr[2] != z_index):
+        z_index = contour_vertices[0, 2]
+        if np.any(contour_vertices[:, 2] != z_index):
             logger.debug("Error: axial slice index varies in contour. Skipping Contour.")
             logger.debug("Structure:   %s", struct_name)
             logger.debug("Slice index: %d", z_index)
@@ -124,11 +123,12 @@ def convert_single_structure(  # pylint: disable=too-many-locals
             logger.debug("Structure:   %s", struct_name)
             logger.debug("Slice index: %d", z_index)
             continue
+        z_index = int(z_index.round())
 
         slice_arr = np.zeros(image_blank.shape[-2:], dtype=np.uint8)
 
         filled_indices_x, filled_indices_y = polygon(
-            x_vertex_arr_image, y_vertex_arr_image, shape=slice_arr.shape
+            contour_vertices[:, 0], contour_vertices[:, 1], shape=slice_arr.shape
         )
         slice_arr[filled_indices_y, filled_indices_x] = 1
 

@@ -12,7 +12,6 @@ import matplotlib
 import numpy as np
 import pydicom as pydcm
 import SimpleITK as sitk
-from platipy.dicom.io import rtstruct_to_nifti
 from rt_utils import RTStructBuilder
 from skimage.draw import polygon
 
@@ -103,17 +102,12 @@ def convert_single_structure(  # pylint: disable=too-many-locals
     for sl in range(  # pylint: disable=consider-using-enumerate
         len(struct_point_sequence[struct_index].ContourSequence)
     ):
-        contour_data = rtstruct_to_nifti.fix_missing_data(
-            struct_point_sequence[struct_index].ContourSequence[sl].ContourData
-        )
-
-        struct_slice_contour_data = np.array(contour_data, dtype=np.double)
-        vertex_arr_physical = struct_slice_contour_data.reshape(
-            struct_slice_contour_data.shape[0] // 3, 3
-        )
+        contour_data = np.array(
+            struct_point_sequence[struct_index].ContourSequence[sl].ContourData, dtype=float
+        ).reshape(-1, 3)
 
         point_arr = np.array(
-            [reference_image.TransformPhysicalPointToIndex(i) for i in vertex_arr_physical]
+            [reference_image.TransformPhysicalPointToIndex(i) for i in contour_data]
         ).T
 
         [x_vertex_arr_image, y_vertex_arr_image] = point_arr[[0, 1]]

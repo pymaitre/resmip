@@ -258,3 +258,18 @@ def test_write_image_without_metadata(tmp_path):
     reference_image = Image().read_image(reference_output_file_name)
     new_image = Image().read_image(output_file_name)
     assert new_image.metadata == reference_image.metadata
+
+
+@pytest.mark.parametrize("scale", [0.5, 2])
+def test_image_resample(scale):
+    """Test Image.resample()."""
+    input_image = Image().read_image(dicom_ct_path())
+    new_spacing = np.array(input_image.spacing) / scale
+    resampled_image = input_image.resample(new_spacing.tolist())
+    assert np.all(
+        np.array(resampled_image.GetSize())
+        == (np.array(input_image.GetSize()) * scale + 1e-14).round().astype(int)
+    )
+    assert all(resampled_image.spacing == new_spacing)
+    # mean image intensity values should be similar
+    assert np.allclose(resampled_image.numpy().mean(), input_image.numpy().mean(), rtol=0.009)

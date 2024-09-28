@@ -184,3 +184,39 @@ class Image(sitk.Image):
         if write_metadata:
             serialized_metadata = json.dumps(self.metadata)
             self.metadata_file_name(filename).write_text(serialized_metadata)
+
+    def resample(
+        self, new_spacing: Union[list, tuple, np.ndarray], interpolator: int = sitk.sitkLinear
+    ) -> Image:
+        """
+        Resample the image with a new voxel spacing (in mm).
+
+        :param new_spacing: New voxel spacing of the resampled image (x, y, z) in mm.
+        :type new_spacing: Union[list, tuple, np.ndarray]
+        :param interpolator: Interpolation method used for image resampling.
+        :type interpolator: int
+        :return: Resampled image.
+        :rtype: Image
+        """
+        if isinstance(new_spacing, (list, tuple)):
+            new_spacing = np.array(new_spacing)
+        resampler = sitk.ResampleImageFilter()
+        resampler.SetInterpolator(interpolator)
+        resampler.SetOutputDirection(self.direction)
+        resampler.SetOutputOrigin(self.origin)
+        resampler.SetOutputSpacing(new_spacing.tolist())
+
+        orig_size = np.array(self.GetSize(), dtype=int)
+        orig_spacing = self.spacing
+        new_size = orig_size * (orig_spacing / new_spacing)
+        new_size = np.ceil(new_size).astype(int)  # Image dimensions are in integers
+        new_size = [int(s) for s in new_size]
+        resampler.SetSize(new_size)
+
+        new_img = Image(resampler.Execute(self))
+        new_img.metadata = self.metadata
+        new_img.metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join(
+            [str(x) for x in new_img.spacing[:2]]
+        )
+        new_img.metadata[DICOM_FIELDS["SliceThickness"]] = str(new_img.spacing[2])
+        return new_img

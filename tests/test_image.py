@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import SimpleITK as sitk
 
+from srmip import DICOM_FIELDS
 from srmip.dicom_nifti_conversion.series import read_dicom_series
 from srmip.image.image import Image
 from srmip.utils import format_digit_string
@@ -48,6 +49,27 @@ def test_metadata_file_name(is_string, tmp_path):
         given_nifti_file_name = nifti_file_name
     metadata_file_name = Image().metadata_file_name(given_nifti_file_name)
     assert metadata_file_name == tmp_path / f".{nifti_file_name.stem}.json"
+
+
+def test_image_spacing_getter():
+    """Test Image.spacing()."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    assert dicom_image.spacing == dicom_image.GetSpacing()
+
+
+def test_image_spacing_setter():
+    """Test Image.spacing = value."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    x_spacing = 0.5
+    y_spacing = 1
+    z_spacing = 5.2
+    xy_spacing = f"{x_spacing}\\{y_spacing}"
+    new_spacing = (x_spacing, y_spacing, z_spacing)
+    dicom_image.spacing = new_spacing
+    assert dicom_image.GetSpacing() == new_spacing
+    assert dicom_image.spacing == dicom_image.GetSpacing()
+    assert dicom_image.metadata[DICOM_FIELDS["PixelSpacing"]] == xy_spacing
+    assert dicom_image.metadata[DICOM_FIELDS["SliceThickness"]] == str(z_spacing)
 
 
 def test_saved_nifti_file_pixels(tmp_path):

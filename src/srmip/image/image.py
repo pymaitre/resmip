@@ -9,6 +9,7 @@ import numpy as np
 import numpy.typing as npt
 import SimpleITK as sitk
 
+from srmip import DICOM_FIELDS
 from srmip.dicom_nifti_conversion.series import read_dicom_series, write_dicom_series
 from srmip.utils import PathLike, format_digit_string
 
@@ -32,6 +33,18 @@ class Image(sitk.Image):
     @metadata.setter
     def metadata(self, value):
         self._metadata = value
+
+    @property
+    def spacing(self) -> tuple[float]:
+        """Voxel spacing in mm (x, y, z)."""
+        return self.GetSpacing()
+
+    @spacing.setter
+    def spacing(self, value: tuple[float]):
+        self.SetSpacing(value)
+        # add the spacing to metadata too
+        self.metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join([str(x) for x in value[:2]])
+        self.metadata[DICOM_FIELDS["SliceThickness"]] = str(value[2])
 
     @staticmethod
     def metadata_file_name(filename: PathLike) -> Path:

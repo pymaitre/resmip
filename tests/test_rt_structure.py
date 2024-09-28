@@ -8,7 +8,7 @@ import SimpleITK as sitk
 from srmip import Image
 from srmip.rt_structure.rt_structure import RTStructure, RTStructureSet
 
-from .utils import dicom_ct_path, dicom_rtst_path
+from .utils import dicom_ct_path, dicom_rtst_path, ibsi_rtst_path
 
 TEST_RTST_SIZE = (204, 201, 60)
 """Size of the test RT Structure."""
@@ -267,3 +267,14 @@ def test_read_nifti_structure_set(extension, tmp_path):
 
     saved_rtst = RTStructureSet().read_image([rtst_path])
     assert saved_rtst == rtst
+
+
+def test_dicom_nifti_ibsi_conversion():
+    """Test if the DICOM->nifti conversion is IBSI compliant."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    rtst = RTStructureSet().read_image(
+        dicom_rtst_path(), structure_names=[structure_name], reference_image=image
+    )[structure_name]
+    reference_rtst = RTStructure().read_image(ibsi_rtst_path())
+    assert np.all(rtst.numpy() == reference_rtst.numpy())

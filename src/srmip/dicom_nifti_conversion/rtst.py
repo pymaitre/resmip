@@ -66,7 +66,7 @@ def check_if_valid_structure(
     return True
 
 
-def convert_single_structure(  # pylint: disable=too-many-locals
+def convert_single_structure(
     reference_image: sitk.Image,
     struct_point_sequence: Dict[str, pydcm.dataset.Dataset],
     struct_ds: pydcm.dataset.Dataset,
@@ -99,9 +99,7 @@ def convert_single_structure(  # pylint: disable=too-many-locals
 
     # Track in case something goes wrong in here we will skip the contour
     skip_contour = False
-    for sl in range(  # pylint: disable=consider-using-enumerate
-        len(struct_point_sequence[struct_index].ContourSequence)
-    ):
+    for sl, _ in enumerate(struct_point_sequence[struct_index].ContourSequence):
         contour_data = np.array(
             struct_point_sequence[struct_index].ContourSequence[sl].ContourData, dtype=float
         ).reshape(-1, 3)

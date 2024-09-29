@@ -118,8 +118,10 @@ def convert_single_structure(  # pylint: disable=too-many-locals
             skip_contour = True
             break
 
-        if z_index >= reference_image.GetSize()[2]:
-            logger.debug("Warning: Slice index greater than image size. Skipping slice.")
+        if z_index >= reference_image.GetSize()[2] or z_index < 0:
+            logger.debug(
+                "Warning: Slice index greater than image size or less than zero. Skipping slice."
+            )
             logger.debug("Structure:   %s", struct_name)
             logger.debug("Slice index: %d", z_index)
             continue

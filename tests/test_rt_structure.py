@@ -269,6 +269,14 @@ def test_read_nifti_structure_set(extension, tmp_path):
     assert saved_rtst == rtst
 
 
+def test_read_nifti_structure_set_all_structures():
+    """Read all structures from DICOM rtst file."""
+    image = Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    rtst = RTStructureSet().read_image(dicom_rtst_path(), reference_image=image)
+    assert tuple(rtst.keys()) == (structure_name,)
+
+
 def test_dicom_nifti_ibsi_conversion():
     """Test if the DICOM->nifti conversion is IBSI compliant."""
     image = Image().read_image(dicom_ct_path())

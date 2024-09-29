@@ -127,14 +127,10 @@ def convert_single_structure(  # pylint: disable=too-many-locals
             continue
         z_index = int(z_index.round())
 
-        slice_arr = np.zeros(image_blank.shape[-2:], dtype=np.uint8)
-
         filled_indices_x, filled_indices_y = polygon(
-            contour_vertices[:, 0], contour_vertices[:, 1], shape=slice_arr.shape
+            contour_vertices[:, 0], contour_vertices[:, 1], shape=image_blank.shape[1:]
         )
-        slice_arr[filled_indices_y, filled_indices_x] = 1
-
-        image_blank[z_index] += slice_arr
+        image_blank[z_index, filled_indices_y, filled_indices_x] = 1
 
     if not skip_contour:
         struct_image = sitk.GetImageFromArray(1 * (image_blank > 0))

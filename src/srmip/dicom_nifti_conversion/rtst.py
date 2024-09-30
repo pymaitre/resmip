@@ -140,8 +140,8 @@ def convert_single_structure(
 def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     rtst_path: Path,
     reference_image: sitk.Image,
-    structure_names: Optional[Union[str, list[str]]] = None,
-    spacing_override: Optional[Union[Tuple[float], list[float]]] = None,
+    structure_names: Optional[Union[str, List[str]]] = None,
+    spacing_override: Optional[Union[Tuple[float], List[float]]] = None,
     parallel: bool = False,
     regex: bool = False,
 ) -> list[DicomStructure]:

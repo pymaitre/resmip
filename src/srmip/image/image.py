@@ -177,7 +177,6 @@ class Image(sitk.Image):
         if filename.is_dir():
             sitk_image, series_metadata = read_dicom_series(filename)
         else:
-            # new_image = Image(sitk.ReadImage(filename))
             sitk_image = sitk.ReadImage(filename)
             if read_metadata and Image().metadata_file_name(filename).exists():
                 serialized_metadata = Image().metadata_file_name(filename).read_text()

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -35,29 +35,29 @@ class Image(sitk.Image):
         self._metadata = value
 
     @property
-    def spacing(self) -> tuple[float]:
+    def spacing(self) -> Tuple[float]:
         """Voxel spacing in mm (x, y, z)."""
         return self.GetSpacing()
 
     @spacing.setter
-    def spacing(self, value: tuple[float]):
+    def spacing(self, value: Tuple[float]):
         self.SetSpacing(value)
         # add the spacing to metadata too
         self.metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join([str(x) for x in value[:2]])
         self.metadata[DICOM_FIELDS["SliceThickness"]] = str(value[2])
 
     @property
-    def origin(self) -> tuple[float]:
+    def origin(self) -> Tuple[float]:
         """Coordinates of the top left voxel in mm (x, y, z)."""
         return self.GetOrigin()
 
     @origin.setter
-    def origin(self, value: tuple[float]):
+    def origin(self, value: Tuple[float]):
         """The original DICOM header key is not updated."""
         self.SetOrigin(value)
 
     @property
-    def direction(self) -> tuple[float]:
+    def direction(self) -> Tuple[float]:
         """
         Direction cosine matrix.
 
@@ -67,7 +67,7 @@ class Image(sitk.Image):
         return self.GetDirection()
 
     @direction.setter
-    def direction(self, value: tuple[float]):
+    def direction(self, value: Tuple[float]):
         self.SetDirection(value)
         # add the spacing to metadata too (only xy direction)
         self.metadata[DICOM_FIELDS["ImageOrientationPatient"]] = "\\".join(
@@ -78,9 +78,9 @@ class Image(sitk.Image):
     def from_array(
         cls,
         array: np.ndarray,
-        spacing: tuple[float],
-        origin: tuple[float],
-        direction: tuple[float],
+        spacing: Tuple[float],
+        origin: Tuple[float],
+        direction: Tuple[float],
         metadata: Optional[Dict[str, str]] = None,
     ) -> Image:
         """
@@ -177,7 +177,6 @@ class Image(sitk.Image):
         if filename.is_dir():
             sitk_image, series_metadata = read_dicom_series(filename)
         else:
-            # new_image = Image(sitk.ReadImage(filename))
             sitk_image = sitk.ReadImage(filename)
             if read_metadata and Image().metadata_file_name(filename).exists():
                 serialized_metadata = Image().metadata_file_name(filename).read_text()

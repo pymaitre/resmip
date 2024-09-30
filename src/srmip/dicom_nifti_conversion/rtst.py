@@ -6,13 +6,12 @@ from dataclasses import dataclass
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import matplotlib
 import numpy as np
 import pydicom as pydcm
 import SimpleITK as sitk
-from platipy.dicom.io import rtstruct_to_nifti
 from rt_utils import RTStructBuilder
 from skimage.draw import polygon
 
@@ -67,7 +66,7 @@ def check_if_valid_structure(
     return True
 
 
-def convert_single_structure(  # pylint: disable=too-many-locals
+def convert_single_structure(
     reference_image: sitk.Image,
     struct_point_sequence: Dict[str, pydcm.dataset.Dataset],
     struct_ds: pydcm.dataset.Dataset,
@@ -100,45 +99,36 @@ def convert_single_structure(  # pylint: disable=too-many-locals
 
     # Track in case something goes wrong in here we will skip the contour
     skip_contour = False
-    for sl in range(  # pylint: disable=consider-using-enumerate
-        len(struct_point_sequence[struct_index].ContourSequence)
-    ):
-        contour_data = rtstruct_to_nifti.fix_missing_data(
-            struct_point_sequence[struct_index].ContourSequence[sl].ContourData
-        )
+    for sl, _ in enumerate(struct_point_sequence[struct_index].ContourSequence):
+        contour_data = np.array(
+            struct_point_sequence[struct_index].ContourSequence[sl].ContourData, dtype=float
+        ).reshape(-1, 3)
 
-        struct_slice_contour_data = np.array(contour_data, dtype=np.double)
-        vertex_arr_physical = struct_slice_contour_data.reshape(
-            struct_slice_contour_data.shape[0] // 3, 3
-        )
+        contour_vertices = (
+            contour_data - reference_image.GetOrigin()
+        ) / reference_image.GetSpacing()
 
-        point_arr = np.array(
-            [reference_image.TransformPhysicalPointToIndex(i) for i in vertex_arr_physical]
-        ).T
-
-        [x_vertex_arr_image, y_vertex_arr_image] = point_arr[[0, 1]]
-        z_index = point_arr[2][0]
-        if np.any(point_arr[2] != z_index):
+        z_index = contour_vertices[0, 2]
+        if np.any(contour_vertices[:, 2] != z_index):
             logger.debug("Error: axial slice index varies in contour. Skipping Contour.")
             logger.debug("Structure:   %s", struct_name)
             logger.debug("Slice index: %d", z_index)
             skip_contour = True
             break
 
-        if z_index >= reference_image.GetSize()[2]:
-            logger.debug("Warning: Slice index greater than image size. Skipping slice.")
+        if z_index >= reference_image.GetSize()[2] or z_index < 0:
+            logger.debug(
+                "Warning: Slice index greater than image size or less than zero. Skipping slice."
+            )
             logger.debug("Structure:   %s", struct_name)
             logger.debug("Slice index: %d", z_index)
             continue
-
-        slice_arr = np.zeros(image_blank.shape[-2:], dtype=np.uint8)
+        z_index = int(z_index.round())
 
         filled_indices_x, filled_indices_y = polygon(
-            x_vertex_arr_image, y_vertex_arr_image, shape=slice_arr.shape
+            contour_vertices[:, 0], contour_vertices[:, 1], shape=image_blank.shape[1:]
         )
-        slice_arr[filled_indices_y, filled_indices_x] = 1
-
-        image_blank[z_index] += slice_arr
+        image_blank[z_index, filled_indices_y, filled_indices_x] = 1
 
     if not skip_contour:
         struct_image = sitk.GetImageFromArray(1 * (image_blank > 0))
@@ -150,8 +140,8 @@ def convert_single_structure(  # pylint: disable=too-many-locals
 def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     rtst_path: Path,
     reference_image: sitk.Image,
-    structure_names: Optional[Union[str, list[str]]] = None,
-    spacing_override: Optional[Union[Tuple[float], list[float]]] = None,
+    structure_names: Optional[Union[str, List[str]]] = None,
+    spacing_override: Optional[Union[Tuple[float], List[float]]] = None,
     parallel: bool = False,
     regex: bool = False,
 ) -> list[DicomStructure]:
@@ -176,8 +166,6 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     :return: list of matching RTStructure (nifti) objects.
     :rtype: list[DicomStructure]
     """
-    # if rtst_path.is_dir():
-    #     rtst_path = list(rtst_path.iterdir())[0]
     dicom_struct = pydcm.dcmread(rtst_path, force=True)
 
     if spacing_override:

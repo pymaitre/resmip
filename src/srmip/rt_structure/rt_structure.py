@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import SimpleITK as sitk
 
@@ -152,7 +152,7 @@ class RTStructure(Image):
 class RTStructureSet(dict[str, RTStructure]):
     """RT Structure Set (dictionary of [str, RTStructure])."""
 
-    def __init__(self, structures: Optional[list[RTStructure]] = None):
+    def __init__(self, structures: Optional[List[RTStructure]] = None):
         """Create a dictionary with the given RT Structures."""
         if structures is None:
             structures = []
@@ -160,8 +160,8 @@ class RTStructureSet(dict[str, RTStructure]):
 
     @staticmethod
     def read_image(
-        filename: Union[PathLike, list[PathLike]],
-        structure_names: Optional[list[str]] = None,
+        filename: Union[PathLike, List[PathLike]],
+        structure_names: Optional[List[str]] = None,
         regex: bool = False,
         reference_image: Optional[Image] = None,
         parallel: bool = True,
@@ -203,7 +203,7 @@ class RTStructureSet(dict[str, RTStructure]):
 
     def write_image(
         self,
-        filename: Union[PathLike, list[PathLike]],
+        filename: Union[PathLike, List[PathLike]],
         file_format: Optional[str] = None,
         reference_image_path: Optional[PathLike] = None,
     ) -> None:

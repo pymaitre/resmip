@@ -144,7 +144,7 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     spacing_override: Optional[Union[Tuple[float], List[float]]] = None,
     parallel: bool = False,
     regex: bool = False,
-) -> list[DicomStructure]:
+) -> List[DicomStructure]:
     """
     Read DICOM ST Structure Set file and convert it into a list of RTStructure (nifti) objects.
 

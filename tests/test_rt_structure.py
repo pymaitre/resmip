@@ -5,7 +5,7 @@ import pydicom
 import pytest
 import SimpleITK as sitk
 
-from srmip import Image
+import srmip
 from srmip.rt_structure.rt_structure import RTStructure, RTStructureSet
 
 from .utils import dicom_ct_path, dicom_rtst_path, ibsi_rtst_path
@@ -18,7 +18,7 @@ TEST_RTST_SPACING = (0.97699999809265, 0.97699999809265, 2.9999999999998486)
 
 def test_read_single_dicom_structure():
     """Read a dicom RT Structure from file."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     rtst = RTStructure().read_image(
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
@@ -30,9 +30,27 @@ def test_read_single_dicom_structure():
     np.testing.assert_allclose(rtst.GetSpacing(), TEST_RTST_SPACING)
 
 
+def test_read_single_dicom_structure_function():
+    """Read a dicom RT Structure from file using the function in __init__.py."""
+    image = srmip.Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    rtst = srmip.read_structure(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+    reference_rtst = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+    assert rtst.name == reference_rtst.name
+    assert rtst.GetSize() == reference_rtst.GetSize()
+    assert rtst.spacing == reference_rtst.spacing
+    assert rtst.origin == reference_rtst.origin
+    assert rtst.direction == reference_rtst.direction
+    assert np.all(rtst.numpy() == reference_rtst.numpy())
+
+
 def test_read_single_dicom_structure_wrong_name():
     """Read a dicom RT Structure from file, with a wrong name."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "gtv-1"
     with pytest.raises(IndexError):
         _ = RTStructure().read_image(
@@ -57,7 +75,7 @@ def test_read_single_dicom_structure_without_structure_name():
 
     A value error should be raised.
     """
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     with pytest.raises(ValueError):
         _ = RTStructure().read_image(dicom_rtst_path(), reference_image=image)
 
@@ -66,7 +84,7 @@ def test_read_single_dicom_structure_without_structure_name():
 @pytest.mark.parametrize("extension", ["nii", "nii.gz"])
 def test_read_single_nifti_structure(use_structure_name, extension, tmp_path):
     """Read a nifti RT Structure with or without specifying a structure name."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     rtst = RTStructure().read_image(
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
@@ -86,7 +104,7 @@ def test_read_single_nifti_structure(use_structure_name, extension, tmp_path):
 
 def test_create_structure_set_from_structure():
     """Create a RT Structure Set from a single RT Structure."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     structure = RTStructure().read_image(
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
@@ -101,7 +119,7 @@ def test_create_structure_set_from_structure():
 @pytest.mark.parametrize("extension", ["nii", "nii.gz"])
 def test_write_single_nifti_structure(extension, tmp_path):
     """Create a RT Structure Set from a single RT Structure."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     structure = RTStructure().read_image(
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
@@ -117,7 +135,7 @@ def test_write_single_nifti_structure(extension, tmp_path):
 @pytest.mark.parametrize("extension", ["nii", "nii.gz"])
 def test_write_nifti_structure_set(extension, tmp_path):
     """Create a RT Structure Set from a single RT Structure."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     structure = RTStructure().read_image(
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
@@ -133,7 +151,7 @@ def test_write_nifti_structure_set(extension, tmp_path):
 
 def test_write_dicom_structure(tmp_path):  # pylint: disable=R0914
     """Create a RT Structure Set from a single RT Structure."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     structure = RTStructure().read_image(
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
@@ -190,7 +208,7 @@ def test_write_dicom_structure(tmp_path):  # pylint: disable=R0914
 
 def test_write_dicom_structure_set_without_reference(tmp_path):
     """Create a RT Structure Set from a single RT Structure without a reference image."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     structure = RTStructure().read_image(
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
@@ -204,7 +222,7 @@ def test_write_dicom_structure_set_without_reference(tmp_path):
 
 def test_write_dicom_structure_set(tmp_path):
     """Create a dicom RT Structure Set from a single structure."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     structure = RTStructure().read_image(
         dicom_rtst_path(), structure_name=structure_name, reference_image=image
@@ -228,7 +246,7 @@ def test_write_dicom_structure_set(tmp_path):
 
 def test_read_dicom_structure_set():
     """Read a dicom rtst file."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     rtst = RTStructureSet().read_image(
         dicom_rtst_path(), structure_names=[structure_name], reference_image=image
@@ -237,10 +255,31 @@ def test_read_dicom_structure_set():
     assert rtst[structure_name].name == structure_name
 
 
+def test_read_dicom_structure_set_function():
+    """Read a dicom rtst file using the function in __init__.py."""
+    image = srmip.Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    rtst = srmip.read_structure_set(
+        dicom_rtst_path(), structure_names=[structure_name], reference_image=image
+    )
+    reference_rtst = RTStructureSet().read_image(
+        dicom_rtst_path(), structure_names=[structure_name], reference_image=image
+    )
+    assert len(rtst) == len(reference_rtst)
+    structure = rtst[structure_name]
+    reference_structure = reference_rtst[structure_name]
+    assert structure.name == reference_structure.name
+    assert structure.GetSize() == reference_structure.GetSize()
+    assert structure.spacing == reference_structure.spacing
+    assert structure.origin == reference_structure.origin
+    assert structure.direction == reference_structure.direction
+    assert np.all(structure.numpy() == reference_structure.numpy())
+
+
 @pytest.mark.parametrize("regex", [True, False])
 def test_read_dicom_structure_set_regex(regex):
     """Read a dicom rtst file with a regular expression match."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = r"[A-Z]TV-\d+"
     rtst = RTStructureSet().read_image(
         dicom_rtst_path(), structure_names=[structure_name], reference_image=image, regex=regex
@@ -256,7 +295,7 @@ def test_read_dicom_structure_set_regex(regex):
 @pytest.mark.parametrize("extension", ["nii", "nii.gz"])
 def test_read_nifti_structure_set(extension, tmp_path):
     """Read multiple nifti rtst files."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     rtst = RTStructureSet().read_image(
         dicom_rtst_path(), structure_names=[structure_name], reference_image=image
@@ -271,7 +310,7 @@ def test_read_nifti_structure_set(extension, tmp_path):
 
 def test_read_nifti_structure_set_all_structures():
     """Read all structures from DICOM rtst file."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     rtst = RTStructureSet().read_image(dicom_rtst_path(), reference_image=image)
     assert tuple(rtst.keys()) == (structure_name,)
@@ -279,7 +318,7 @@ def test_read_nifti_structure_set_all_structures():
 
 def test_dicom_nifti_ibsi_conversion():
     """Test if the DICOM->nifti conversion is IBSI compliant."""
-    image = Image().read_image(dicom_ct_path())
+    image = srmip.Image().read_image(dicom_ct_path())
     structure_name = "GTV-1"
     rtst = RTStructureSet().read_image(
         dicom_rtst_path(), structure_names=[structure_name], reference_image=image

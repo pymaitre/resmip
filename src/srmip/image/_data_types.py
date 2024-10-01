@@ -37,5 +37,7 @@ def _sitk_image_dtype(dtype: ImageDTypeLike):
     numpy_dtype = getattr(np, np.dtype(dtype).name)
     try:
         return conversion_map[numpy_dtype]
-    except KeyError:
-        raise ValueError(f"The provided data type ({dtype}) is not supported as a SimpleITK type.")
+    except KeyError as e:
+        raise ValueError(
+            f"The provided data type ({dtype}) is not supported as a SimpleITK type."
+        ) from e

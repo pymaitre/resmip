@@ -11,6 +11,7 @@ import SimpleITK as sitk
 
 from srmip import DICOM_FIELDS
 from srmip.dicom_nifti_conversion.series import read_dicom_series, write_dicom_series
+from srmip.image._data_types import ImageDTypeLike, _sitk_image_dtype
 from srmip.utils import PathLike, format_digit_string
 
 
@@ -155,6 +156,21 @@ class Image(sitk.Image):
         :rtype: np.ndarray
         """
         return self.__array__(dtype=dtype)
+
+    def astype(self, dtype: ImageDTypeLike) -> Image:
+        """
+        Convert pixel array type to the specified value, by casting a new image.
+
+        :param dtype: The dtype to use for the numpy array.
+            If None, the default dtype of the image is used
+            as defined the global `FORMAT_TO_TYPESTR` dictionary.
+        :type dtype: ImageDTypeLike
+        :return: new image with specified data type.
+        :rtype: Image
+        """
+        new_image = Image(sitk.Cast(self, _sitk_image_dtype(dtype)))
+        new_image.metadata = self.metadata
+        return new_image
 
     @staticmethod
     def read_image(filename: PathLike, read_metadata: bool = True) -> Image:

@@ -116,13 +116,18 @@ def test_saved_nifti_file_pixels(tmp_path):
     assert np.all(sitk.GetArrayFromImage(sitk_image) == image.numpy())
 
 
-def test_numpy():
+@pytest.mark.parametrize("dtype", [None, np.int64])
+def test_numpy(dtype):
     """Test numpy array generation from image."""
     dicom_image = Image.read_image(dicom_ct_path())
-    assert isinstance(dicom_image.numpy(), np.ndarray)
+    if dtype is None:
+        image_array = dicom_image.numpy()
+    else:
+        image_array = dicom_image.numpy(dtype)
+    assert isinstance(image_array, np.ndarray)
     # array shape (z_dim, y_dim, x_dim) (reversed from Image.GetSize())
-    assert dicom_image.numpy().shape == tuple(reversed(dicom_image.GetSize()))
-    assert np.all(dicom_image.numpy() == sitk.GetArrayFromImage(dicom_image))
+    assert image_array.shape == tuple(reversed(dicom_image.GetSize()))
+    assert np.all(image_array == sitk.GetArrayFromImage(dicom_image))
 
 
 def test_saved_nifti_file_metadata(tmp_path):
@@ -333,3 +338,62 @@ def test_image_pad(left_shift, right_shift):
 
     assert padded_image.numpy().shape == reference_image.numpy().shape
     assert padded_image.numpy()[tuple(new_coordinate.tolist())] == 1
+
+
+@pytest.mark.parametrize(
+    "dtype",
+    [
+        {"image": sitk.sitkInt16, "array": np.int16},
+        {"image": sitk.sitkInt32, "array": np.int32},
+        {"image": sitk.sitkFloat32, "array": np.float32},
+        {"image": sitk.sitkFloat64, "array": np.float64},
+        {"image": sitk.sitkComplexFloat64, "array": np.complex128},
+    ],
+)
+def test_image_astype_sitk(dtype):
+    """Test image type casting with sitk types."""
+    input_image = Image().read_image(dicom_ct_path())
+    image_array = input_image.numpy()
+
+    assert (
+        input_image.astype(dtype["image"]).numpy().dtype == image_array.astype(dtype["array"]).dtype
+    )
+    assert np.all(input_image.astype(dtype["image"]).numpy() == image_array)
+
+
+@pytest.mark.parametrize(
+    "dtype",
+    [np.int16, np.int32, np.float32, np.float64, np.complex128],
+)
+def test_image_astype_numpy(dtype):
+    """Test image type casting with numpy types."""
+    input_image = Image().read_image(dicom_ct_path())
+    image_array = input_image.numpy()
+
+    assert input_image.astype(dtype).numpy().dtype == image_array.astype(dtype).dtype
+    assert np.all(input_image.astype(dtype).numpy() == image_array)
+
+
+@pytest.mark.parametrize(
+    "dtype",
+    [int, float, complex],
+)
+def test_image_astype_native(dtype):
+    """Test image type casting with native Python types."""
+    input_image = Image().read_image(dicom_ct_path())
+    image_array = input_image.numpy()
+
+    assert input_image.astype(dtype).numpy().dtype == image_array.astype(dtype).dtype
+    assert np.all(input_image.astype(dtype).numpy() == image_array)
+
+
+@pytest.mark.parametrize(
+    "dtype",
+    [np.float16],
+)
+def test_image_astype_numpy_unsupported(dtype):
+    """Test image type casting with unsupported numpy types."""
+    input_image = Image().read_image(dicom_ct_path())
+
+    with pytest.raises(ValueError):
+        input_image.astype(dtype)

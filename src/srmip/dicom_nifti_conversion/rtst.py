@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Union
 
 import matplotlib
 import numpy as np
@@ -141,10 +141,9 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     rtst_path: Path,
     reference_image: sitk.Image,
     structure_names: Optional[Union[str, List[str]]] = None,
-    spacing_override: Optional[Union[Tuple[float], List[float]]] = None,
     parallel: bool = False,
     regex: bool = False,
-) -> list[DicomStructure]:
+) -> List[DicomStructure]:
     """
     Read DICOM ST Structure Set file and convert it into a list of RTStructure (nifti) objects.
 
@@ -156,8 +155,6 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
         Other structures will not be converted.
         If set to None, all structures found will be converted.
     :type structure_names: str | list[str] | None
-    :param spacing_override: The spacing to override. Defaults to None.
-    :type spacing_override: Tuple[float] | list[float]] | None
     :param parallel: read RT Structures in parallel.
     :type parallel: bool
     :param regex: if set to true, structure names are searched as regular expression pattern,
@@ -167,16 +164,6 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     :rtype: list[DicomStructure]
     """
     dicom_struct = pydcm.dcmread(rtst_path, force=True)
-
-    if spacing_override:
-        current_spacing = list(reference_image.GetSpacing())
-        new_spacing = tuple(  # pylint: disable=consider-using-generator
-            [
-                current_spacing[k] if spacing_override[k] == 0 else spacing_override[k]
-                for k in range(3)
-            ]
-        )
-        reference_image.SetSpacing(new_spacing)
 
     struct_point_sequence = {cs.ReferencedROINumber: cs for cs in dicom_struct.ROIContourSequence}
     structure_sets = []

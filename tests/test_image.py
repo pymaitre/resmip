@@ -389,7 +389,7 @@ def test_image_astype_native(dtype):
 
 @pytest.mark.parametrize(
     "dtype",
-    [np.float16, np.float128],
+    [np.float16, np.longdouble],
 )
 def test_image_astype_numpy_unsupported(dtype):
     """Test image type casting with unsupported numpy types."""

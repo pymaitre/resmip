@@ -325,3 +325,12 @@ def test_dicom_nifti_ibsi_conversion():
     )[structure_name]
     reference_rtst = RTStructure().read_image(ibsi_rtst_path())
     assert np.all(rtst.numpy() == reference_rtst.numpy())
+
+
+def test_rtstruct_resample():
+    """Test RTStructure.resample()."""
+    structure = RTStructure.read_image(ibsi_rtst_path())
+    resampled_structure = structure.resample((0.8, 0.8, 0.8))
+    volume = structure.numpy().sum() * np.prod(structure.spacing)
+    resampled_volume = resampled_structure.numpy().sum() * np.prod(resampled_structure.spacing)
+    assert np.allclose(resampled_volume, volume, rtol=0.006)

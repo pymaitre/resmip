@@ -45,6 +45,38 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> Tuple[str]:
     return tuple()
 
 
+def get_spacing_from_dicom_header(
+    dicom_series_reader: sitk.ImageSeriesReader, slices_number: int
+) -> Tuple[float]:
+    """
+    Read correctly-rounded voxel spacing from the DICOM header.
+
+    :param dicom_series_reader: ITK DICOM reader for series.
+    :type dicom_series_reader: sitk.ImageSeriesReader
+    :param slices_number: Number of slices for the DICOM series.
+    :type slices_number: int
+    :return: (x, y, z) voxel spacing in mm.
+    :rtype: tuple[float]
+    """
+    z_spacing = None
+    xy_spacing = None
+    for i in range(slices_number):
+        slice_xy_spacing = [
+            float(spacing)
+            for spacing in dicom_series_reader.GetMetaData(i, DICOM_FIELDS["PixelSpacing"]).split(
+                "\\"
+            )
+        ]
+        slice_z_spacing = float(dicom_series_reader.GetMetaData(i, DICOM_FIELDS["SliceThickness"]))
+        if z_spacing is None:
+            z_spacing = slice_z_spacing
+        if xy_spacing is None:
+            xy_spacing = slice_xy_spacing
+        assert z_spacing == slice_z_spacing, "Nonuniform slice spacing detected"
+        assert xy_spacing == slice_xy_spacing, "Nonuniform xy spacing detected"
+    return tuple(slice_xy_spacing + [slice_z_spacing])
+
+
 def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image, Dict[str, str]]:
     """
     Read Dicom series from file.
@@ -101,6 +133,10 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image
             value = json.dumps(value.tolist())
             series_metadata[key] = value
         dicom_series.SetMetaData(key, value.encode("unicode_escape").decode())
+
+    dicom_spacing = get_spacing_from_dicom_header(dicom_series_reader, slices_number)
+    dicom_series.SetSpacing(dicom_spacing)
+
     return dicom_series, series_metadata
 
 

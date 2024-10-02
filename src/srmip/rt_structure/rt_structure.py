@@ -1,14 +1,18 @@
 """RT Structure class."""
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import List, Optional, Union
 
+import numpy as np
 import SimpleITK as sitk
 
 from srmip import Image
 from srmip.dicom_nifti_conversion.rtst import read_dicom_rtstruct, write_dicom_rtstruct
 from srmip.utils import PathLike
+
+logger = logging.getLogger(__name__)
 
 
 def get_structure_name_from_filename(filename: Path) -> str:
@@ -147,6 +151,40 @@ class RTStructure(Image):
             filename = filename / f"{self.name}{file_format}"
         filename.parent.mkdir(parents=True, exist_ok=True)
         sitk.WriteImage(self, filename)
+
+    def resample(
+        self,
+        new_spacing: Union[list, tuple, np.ndarray],
+        interpolator: int = sitk.sitkNearestNeighbor,
+        default_pixel_value: float = 0,
+    ) -> RTStructure:
+        """
+        Wrapper of srmip.Image.resample, using the appropriate interpolator.
+
+        Resample the image with a new voxel spacing (in mm).
+
+        :param new_spacing: New voxel spacing of the resampled image (x, y, z) in mm.
+        :type new_spacing: Union[list, tuple, np.ndarray]
+        :param interpolator: Interpolation method used for image resampling.
+            Only nearest neighbors should be used for RT structures.
+        :type interpolator: int
+        :param default_pixel_value: Default value for pixel intensity.
+        :type default_pixel_value: float
+        :return: Resampled image.
+        :rtype: Image
+        """
+        if interpolator != sitk.sitkNearestNeighbor:
+            logger.warning(
+                "Only sitk.sitkNearestNeighbor should be used when resampling RT structures."
+            )
+        resampled_image = super().resample(
+            new_spacing=new_spacing,
+            interpolator=interpolator,
+            default_pixel_value=default_pixel_value,
+        )
+        resampled_structure = RTStructure(resampled_image, name=self.name)
+        resampled_structure.metadata = self.metadata
+        return resampled_structure
 
 
 class RTStructureSet(dict[str, RTStructure]):

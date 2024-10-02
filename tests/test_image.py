@@ -288,13 +288,20 @@ def test_image_resample(scale):
     """Test Image.resample()."""
     input_image = Image().read_image(dicom_ct_path())
     new_spacing = np.array(input_image.spacing) / scale
-    resampled_image = input_image.resample(new_spacing.tolist())
+    if scale <= 1:
+        resampled_image = input_image.resample(new_spacing.tolist())
+    else:
+        # When zooming in, sampling is very dependent
+        # on the interpolator and on the fill value.
+        resampled_image = input_image.resample(
+            new_spacing.tolist(), interpolator=sitk.sitkBSpline, default_pixel_value=-400
+        )
     assert np.all(
         np.array(resampled_image.GetSize())
         == (np.array(input_image.GetSize()) * scale + 1e-14).round().astype(int)
     )
     assert all(resampled_image.spacing == new_spacing)
-    # mean image intensity values should be similar
+    # Mean image intensity values should be similar
     assert np.allclose(resampled_image.numpy().mean(), input_image.numpy().mean(), rtol=0.009)
 
 

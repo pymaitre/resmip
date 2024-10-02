@@ -234,7 +234,10 @@ class Image(sitk.Image):
             self.metadata_file_name(filename).write_text(serialized_metadata)
 
     def resample(
-        self, new_spacing: Union[list, tuple, np.ndarray], interpolator: int = sitk.sitkLinear
+        self,
+        new_spacing: Union[list, tuple, np.ndarray],
+        interpolator: int = sitk.sitkLinear,
+        default_pixel_value: float = 0,
     ) -> Image:
         """
         Resample the image with a new voxel spacing (in mm).
@@ -243,6 +246,8 @@ class Image(sitk.Image):
         :type new_spacing: Union[list, tuple, np.ndarray]
         :param interpolator: Interpolation method used for image resampling.
         :type interpolator: int
+        :param default_pixel_value: Default value for pixel intensity.
+        :type default_pixel_value: float
         :return: Resampled image.
         :rtype: Image
         """
@@ -250,6 +255,7 @@ class Image(sitk.Image):
             new_spacing = np.array(new_spacing)
         resampler = sitk.ResampleImageFilter()
         resampler.SetInterpolator(interpolator)
+        resampler.SetDefaultPixelValue(default_pixel_value)
         resampler.SetOutputDirection(self.direction)
         resampler.SetOutputOrigin(self.origin)
         resampler.SetOutputSpacing(new_spacing.tolist())

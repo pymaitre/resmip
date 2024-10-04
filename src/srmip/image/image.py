@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Iterable, Optional, Tuple, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -235,7 +235,7 @@ class Image(sitk.Image):
 
     def resample(
         self,
-        new_spacing: Union[list, tuple, np.ndarray],
+        new_spacing: Iterable,
         interpolator: int = sitk.sitkLinear,
         default_pixel_value: float = 0,
     ) -> Image:
@@ -243,7 +243,7 @@ class Image(sitk.Image):
         Resample the image with a new voxel spacing (in mm).
 
         :param new_spacing: New voxel spacing of the resampled image (x, y, z) in mm.
-        :type new_spacing: Union[list, tuple, np.ndarray]
+        :type new_spacing: Iterable
         :param interpolator: Interpolation method used for image resampling.
         :type interpolator: int
         :param default_pixel_value: Default value for pixel intensity.

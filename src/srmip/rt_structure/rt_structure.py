@@ -3,9 +3,8 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Dict, Iterable, List, Optional, Union
 
-import numpy as np
 import SimpleITK as sitk
 
 from srmip import Image
@@ -154,7 +153,7 @@ class RTStructure(Image):
 
     def resample(
         self,
-        new_spacing: Union[list, tuple, np.ndarray],
+        new_spacing: Iterable,
         interpolator: int = sitk.sitkNearestNeighbor,
         default_pixel_value: float = 0,
     ) -> RTStructure:
@@ -164,7 +163,7 @@ class RTStructure(Image):
         Resample the image with a new voxel spacing (in mm).
 
         :param new_spacing: New voxel spacing of the resampled image (x, y, z) in mm.
-        :type new_spacing: Union[list, tuple, np.ndarray]
+        :type new_spacing: Iterable
         :param interpolator: Interpolation method used for image resampling.
             Only nearest neighbors should be used for RT structures.
         :type interpolator: int
@@ -187,7 +186,7 @@ class RTStructure(Image):
         return resampled_structure
 
 
-class RTStructureSet(dict[str, RTStructure]):
+class RTStructureSet(Dict[str, RTStructure]):
     """RT Structure Set (dictionary of [str, RTStructure])."""
 
     def __init__(self, structures: Optional[List[RTStructure]] = None):

@@ -115,11 +115,6 @@ First of all, a reference dicom image is required. When dealing with nifti image
     # Save RT Structure Set
     dicom_rtst.write_image(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory)
 
-.. testoutput:: python
-    :hide:
-
-    Writing file to ...
-
 ..
     Cleanup block below
 

@@ -254,4 +254,4 @@ def write(
             origin=mask.GetOrigin(),
         )
 
-    rtstruct.save(str(save_path))
+    rtstruct.save(save_path)

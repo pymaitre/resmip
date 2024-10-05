@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+from pathlib import Path
 from typing import List, Tuple, Union
 
 import cv2
@@ -11,6 +13,8 @@ import rt_utils
 import rt_utils.ds_helper
 import rt_utils.image_helper
 import rt_utils.utils
+
+logger = logging.getLogger(__name__)
 
 
 def create_contour(series_slice: pydicom.Dataset, contour_data: np.ndarray) -> pydicom.Dataset:
@@ -115,3 +119,8 @@ class RTStruct(rt_utils.RTStruct):
         self.ds.RTROIObservationsSequence.append(
             rt_utils.ds_helper.create_rtroi_observation(roi_data)
         )
+
+    def save(self, file_path: Path) -> None:
+        """Saves the RTStruct with the specified name / location."""
+        logger.info("Writing file to %s", file_path)
+        self.ds.save_as(file_path)

@@ -10,7 +10,7 @@ import numpy as np
 import pydicom
 import SimpleITK as sitk
 
-from srmip.dicom_nifti_conversion.constants import (
+from srmip.dicom_utils.constants import (
     DICOM_FIELDS,
     SERIES_DEPENDENT_FIELDS,
     SLICE_DEPENDENT_FIELDS,

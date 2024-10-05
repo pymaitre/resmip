@@ -10,7 +10,7 @@ import numpy.typing as npt
 import SimpleITK as sitk
 
 from srmip import DICOM_FIELDS
-from srmip.dicom_nifti_conversion.series import read_dicom_series, write_dicom_series
+from srmip.dicom_utils.series import read_dicom_series, write_dicom_series
 from srmip.image._data_types import ImageDTypeLike, _sitk_image_dtype
 from srmip.utils import PathLike, format_digit_string
 

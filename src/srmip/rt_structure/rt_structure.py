@@ -8,7 +8,7 @@ from typing import Dict, Iterable, List, Optional, Union
 import SimpleITK as sitk
 
 from srmip import Image
-from srmip.dicom_nifti_conversion.rtst import read_dicom_rtstruct, write_dicom_rtstruct
+from srmip.dicom_utils.rtst import read_dicom_rtstruct, write_dicom_rtstruct
 from srmip.utils import PathLike
 
 logger = logging.getLogger(__name__)

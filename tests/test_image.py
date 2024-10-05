@@ -5,7 +5,7 @@ import pytest
 import SimpleITK as sitk
 
 from srmip import DICOM_FIELDS
-from srmip.dicom_nifti_conversion.series import read_dicom_series
+from srmip.dicom_utils.series import read_dicom_series
 from srmip.image.image import Image
 from srmip.utils import format_digit_string
 

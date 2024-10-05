@@ -7,8 +7,8 @@ from typing import Dict, Iterable, List, Optional, Union
 
 import SimpleITK as sitk
 
+import srmip.dicom_utils.rtst as dicom_rtst
 from srmip import Image
-from srmip.dicom_utils.rtst import read_dicom_rtstruct, write_dicom_rtstruct
 from srmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
@@ -93,7 +93,7 @@ class RTStructure(Image):
                 raise ValueError("Must specify a structure name for dicom RT Structures.")
             if reference_image is None:
                 raise ValueError("Must specify a reference image for dicom RT Structures.")
-            sitk_image = read_dicom_rtstruct(filename, reference_image, structure_name)[0]
+            sitk_image = dicom_rtst.read(filename, reference_image, structure_name)[0]
             new_rt_structure = RTStructure(sitk_image.image, name=sitk_image.name)
             return new_rt_structure
         if structure_name is None:
@@ -223,7 +223,7 @@ class RTStructureSet(Dict[str, RTStructure]):
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
-            structures = read_dicom_rtstruct(
+            structures = dicom_rtst.read(
                 filename,
                 reference_image=reference_image,
                 structure_names=structure_names,
@@ -262,7 +262,7 @@ class RTStructureSet(Dict[str, RTStructure]):
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
-            write_dicom_rtstruct(self, filename, reference_image_path)
+            dicom_rtst.write(self, filename, reference_image_path)
             return
         filename = [Path(f) for f in filename]
         assert len(filename) == len(self)

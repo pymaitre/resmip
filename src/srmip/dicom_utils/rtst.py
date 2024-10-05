@@ -137,7 +137,7 @@ def convert_single_structure(
     return DicomStructure(None, None)
 
 
-def read_dicom_rtstruct(  # pylint: disable=too-many-locals
+def read(  # pylint: disable=too-many-locals
     rtst_path: Path,
     reference_image: sitk.Image,
     structure_names: Optional[Union[str, List[str]]] = None,
@@ -203,7 +203,7 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     return structure_sets
 
 
-def write_dicom_rtstruct(
+def write(
     rt_structures: dict[str, sitk.Image],
     save_path: PathLike,
     dcm_series_path: PathLike,

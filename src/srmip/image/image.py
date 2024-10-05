@@ -9,8 +9,8 @@ import numpy as np
 import numpy.typing as npt
 import SimpleITK as sitk
 
+import srmip.dicom_utils.series as dicom_series
 from srmip import DICOM_FIELDS
-from srmip.dicom_utils.series import read_dicom_series, write_dicom_series
 from srmip.image._data_types import ImageDTypeLike, _sitk_image_dtype
 from srmip.utils import PathLike, format_digit_string
 
@@ -191,7 +191,7 @@ class Image(sitk.Image):
         """
         filename = Path(filename)
         if filename.is_dir():
-            sitk_image, series_metadata = read_dicom_series(filename)
+            sitk_image, series_metadata = dicom_series.read(filename)
         else:
             sitk_image = sitk.ReadImage(filename)
             if read_metadata and Image().metadata_file_name(filename).exists():
@@ -225,7 +225,7 @@ class Image(sitk.Image):
         if not filename.exists() and filename.suffix == "":
             filename.mkdir(parents=True, exist_ok=True)
         if filename.is_dir():
-            write_dicom_series(self, self.metadata, filename)
+            dicom_series.write(self, self.metadata, filename)
             return
         filename.parent.mkdir(parents=True, exist_ok=True)
         sitk.WriteImage(self, filename)

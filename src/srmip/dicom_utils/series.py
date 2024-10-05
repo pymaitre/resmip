@@ -77,7 +77,7 @@ def get_spacing_from_dicom_header(
     return tuple(slice_xy_spacing + [slice_z_spacing])
 
 
-def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image, Dict[str, str]]:
+def read(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image, Dict[str, str]]:
     """
     Read Dicom series from file.
 
@@ -140,9 +140,7 @@ def read_dicom_series(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image
     return dicom_series, series_metadata
 
 
-def write_dicom_series(
-    image: sitk.Image, input_metadata: Dict[str, str], save_path: PathLike
-) -> None:
+def write(image: sitk.Image, input_metadata: Dict[str, str], save_path: PathLike) -> None:
     """
     Save the image as a Dicom series.
 

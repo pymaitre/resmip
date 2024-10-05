@@ -7,9 +7,9 @@ import numpy as np
 import pydicom
 import SimpleITK as sitk
 
+import srmip.dicom_utils.series as dicom_series
 from srmip import read_image, write_image
 from srmip.dicom_utils.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
-from srmip.dicom_utils.series import get_series_dicom_files, read_dicom_series
 from srmip.image.image import Image
 
 from .utils import dicom_ct_path
@@ -32,7 +32,7 @@ def compare_dicom_pixels(image: Image, dicom_path: Path):
 
 def test_dicom_image_pixel_array():
     """Check if the pixel grid read by SimpleITK corresponds to the one in the Dicom files."""
-    image, image_metadata = read_dicom_series(dicom_ct_path())
+    image, image_metadata = dicom_series.read(dicom_ct_path())
     image_array = sitk.GetArrayFromImage(image) + 1000
     new_image = Image(sitk.GetImageFromArray(image_array))
     new_image.metadata = image_metadata
@@ -96,11 +96,11 @@ def test_write_image_from_main(tmp_path):
 def test_multiple_modalities_in_same_folder():
     """Read dicom CT image with other modalities in the same directory."""
     multiple_modalities_path = Path(__file__).parent / "Dicom" / "dicompyler_img"
-    input_image_files = get_series_dicom_files(multiple_modalities_path)
+    input_image_files = dicom_series.get_series_dicom_files(multiple_modalities_path)
     assert input_image_files == (str(multiple_modalities_path / "ct.0.dcm"),)
 
 
 def test_read_series_in_empty_folder(tmp_path):
     """Read dicom CT image in an empty directory."""
-    input_image_files = get_series_dicom_files(tmp_path)
+    input_image_files = dicom_series.get_series_dicom_files(tmp_path)
     assert input_image_files == tuple()

@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 import SimpleITK as sitk
 
+import srmip.dicom_utils.series as dicom_series
 from srmip import DICOM_FIELDS
-from srmip.dicom_utils.series import read_dicom_series
 from srmip.image.image import Image
 from srmip.utils import format_digit_string
 
@@ -205,7 +205,7 @@ def test_read_image(file_format, tmp_path):
     if file_format == "nifti":
         new_image_reference = sitk.ReadImage(output_file_name, imageIO="NiftiImageIO")
     elif file_format == "dicom":
-        new_image_reference, _ = read_dicom_series(output_file_name)
+        new_image_reference, _ = dicom_series.read(output_file_name)
 
     assert np.all(new_image.numpy() == sitk.GetArrayFromImage(new_image_reference))
 

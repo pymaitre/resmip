@@ -1,5 +1,7 @@
 """Wrapper module for rt_utils, used when converting nifti files to DICOM."""
 
+from __future__ import annotations
+
 from typing import List, Tuple, Union
 
 import cv2
@@ -66,6 +68,13 @@ def create_roi_contour(
 class RTStruct(rt_utils.RTStruct):
     """Wrapper class of rt_utils.RTStruct."""
 
+    @classmethod
+    def create_new(cls, dicom_series_path: str) -> RTStruct:
+        """Create new RTStruct given the path of the referenced DICOM series."""
+        series_data = rt_utils.image_helper.load_sorted_image_series(dicom_series_path)
+        ds = rt_utils.ds_helper.create_rtstruct_dataset(series_data)
+        return cls(series_data, ds)
+
     def add_roi(
         self,
         mask: np.ndarray,
@@ -106,14 +115,3 @@ class RTStruct(rt_utils.RTStruct):
         self.ds.RTROIObservationsSequence.append(
             rt_utils.ds_helper.create_rtroi_observation(roi_data)
         )
-
-
-class RTStructBuilder(rt_utils.RTStructBuilder):
-    """Wrapper class of rt_utils.RTStructBuilder."""
-
-    @staticmethod
-    def create_new(dicom_series_path: str) -> RTStruct:
-        """Method to generate a new rt struct from a DICOM series."""
-        series_data = rt_utils.image_helper.load_sorted_image_series(dicom_series_path)
-        ds = rt_utils.ds_helper.create_rtstruct_dataset(series_data)
-        return RTStruct(series_data, ds)

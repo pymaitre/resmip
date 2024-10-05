@@ -16,7 +16,7 @@ import SimpleITK as sitk
 # from rt_utils import RTStructBuilder
 from skimage.draw import polygon
 
-from srmip.dicom_utils.rt_utils_wrapper import RTStructBuilder
+from srmip.dicom_utils.rt_utils_wrapper import RTStruct
 from srmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
@@ -232,7 +232,7 @@ def write(
         raise ValueError("The path of the reference dicom series must be specified.")
     dcm_series_path = Path(dcm_series_path)
 
-    rtstruct = RTStructBuilder.create_new(dicom_series_path=str(dcm_series_path))
+    rtstruct = RTStruct.create_new(dicom_series_path=str(dcm_series_path))
 
     for mask_name in rt_structures:
         # Use a hash of the name to get the color from the supplied color map

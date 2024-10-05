@@ -204,6 +204,7 @@ def test_write_dicom_structure(tmp_path):  # pylint: disable=R0914
         rtst_path, structure_name=structure_name, reference_image=image
     )
     assert original_mask == saved_mask
+    assert np.all(original_mask.numpy() == saved_mask.numpy())
 
 
 def test_write_dicom_structure_set_without_reference(tmp_path):

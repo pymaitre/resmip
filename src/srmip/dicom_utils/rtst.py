@@ -12,9 +12,11 @@ import matplotlib
 import numpy as np
 import pydicom as pydcm
 import SimpleITK as sitk
-from rt_utils import RTStructBuilder
+
+# from rt_utils import RTStructBuilder
 from skimage.draw import polygon
 
+from srmip.dicom_utils.rt_utils_wrapper import RTStructBuilder
 from srmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
@@ -244,6 +246,12 @@ def write(
 
         bool_arr = sitk.GetArrayFromImage(mask) != 0
         bool_arr = np.transpose(bool_arr, (1, 2, 0))
-        rtstruct.add_roi(mask=bool_arr, color=color, name=mask_name)
+        rtstruct.add_roi(
+            mask=bool_arr,
+            color=color,
+            name=mask_name,
+            spacing=mask.GetSpacing(),
+            origin=mask.GetOrigin(),
+        )
 
     rtstruct.save(str(save_path))

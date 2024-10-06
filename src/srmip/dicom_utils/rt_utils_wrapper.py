@@ -145,7 +145,7 @@ class ROIData:
                 cv2.CHAIN_APPROX_NONE,
             )[0]
             # Add the first point after the last one, in order to fully
-            # close the polygon otherwise, in case of contours with holes,
+            # close the polygon, otherwise, in case of contours with holes,
             # a small slice on the xy plane would be skipped
             corrected_polygons = tuple(
                 np.concatenate((poly, [poly[0]]), axis=0) for poly in polygons

@@ -200,15 +200,18 @@ class RTStruct(rt_utils.RTStruct):
 
         if mask.GetSpacing() != reference_spacing:
             raise ValueError(
-                f"The mask spacing ({mask.GetSpacing()}) is different than the reference series spacing ({reference_spacing})."
+                f"The mask spacing ({mask.GetSpacing()}) is different "
+                f"than the reference series spacing ({reference_spacing})."
             )
         if mask.GetOrigin() != tuple(reference_origin):
             raise ValueError(
-                f"The mask origin ({mask.GetOrigin()}) is different than the reference series origin ({reference_origin})."
+                f"The mask origin ({mask.GetOrigin()}) is different "
+                f"than the reference series origin ({reference_origin})."
             )
         if mask.GetDirection()[:-3] != tuple(reference_direction):
             raise ValueError(
-                f"The mask origin ({mask.GetDirection()[:-3]}) is different than the reference series origin ({reference_direction})."
+                f"The mask origin ({mask.GetDirection()[:-3]}) is different "
+                f"than the reference series origin ({reference_direction})."
             )
 
     def save(self, file_path: Path) -> None:

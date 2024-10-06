@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Tuple, Union
@@ -49,7 +50,10 @@ def get_slice_positioning(dicom_slice: pydicom.Dataset) -> Dict[str, Tuple[float
     except KeyError as e:
         raise KeyError(f"Missing Slice Thickness in the slice {series_instance_uid}.") from e
     try:
-        slice_xy_spacing = str(dicom_slice["PixelSpacing"].value)
+        # Add the leading zero if missing
+        slice_xy_spacing = re.sub(
+            r"([^0])(\.\d+)", r"\g<1>0\g<2>", str(dicom_slice["PixelSpacing"].value)
+        )
     except KeyError as e:
         raise KeyError(f"Missing Pixel Spacing in the slice {series_instance_uid}.") from e
     try:

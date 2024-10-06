@@ -224,6 +224,7 @@ def test_write_dicom_structure_with_hole(tmp_path):
     structure = RTStructure().read_image(
         rtst_path, structure_name=structure_name, reference_image=image
     )
+    assert structure.numpy().sum() == reference_structure.numpy().sum()
     assert np.all(structure.numpy() == reference_structure.numpy())
 
 

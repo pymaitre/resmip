@@ -135,11 +135,18 @@ class ROIData:
             roi_slice = mask_array[:, :, i]
             if np.all(roi_slice == 0):
                 continue
-            contour_points = cv2.findContours(
+            polygons = cv2.findContours(
                 roi_slice.astype(np.uint8),
                 cv2.RETR_TREE,
                 cv2.CHAIN_APPROX_NONE,
-            )[0][0][:, 0, :]
+            )[0]
+            # Add the first point after the last one, in order to fully
+            # close the polygon otherwise, in case of contours with holes,
+            # a small slice on the xy plane would be skipped
+            corrected_polygons = tuple(
+                np.concatenate((poly, [poly[0]]), axis=0) for poly in polygons
+            )
+            contour_points = np.concatenate(corrected_polygons, axis=0)[:, 0, :]
             dicom_contour_points = np.concatenate(
                 (contour_points, np.ones((contour_points.shape[0], 1)) * i), axis=1
             ).astype(float)
@@ -174,6 +181,7 @@ class RTStruct:
     """Wrapper class of rt_utils.RTStruct."""
 
     def __init__(self, series_data: List[pydicom.Dataset], ds: pydicom.FileDataset):
+        """Instantiate the RT structure set file builder."""
         self.series_data = series_data
         self.ds = ds
         self.frame_of_reference_uid = ds.ReferencedFrameOfReferenceSequence[-1].FrameOfReferenceUID
@@ -193,6 +201,7 @@ class RTStruct:
         description: str = "",
         roi_generation_algorithm: Union[str, int] = "",
     ):
+        """Add contour to the RT structure set file."""
         self.validate_mask(mask)
         roi_number = len(self.ds.StructureSetROISequence) + 1
         roi_data = ROIData(

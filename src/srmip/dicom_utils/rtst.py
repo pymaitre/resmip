@@ -244,14 +244,10 @@ def write(
         if not isinstance(mask, sitk.Image):
             mask = sitk.ReadImage(str(mask))
 
-        bool_arr = sitk.GetArrayFromImage(mask) != 0
-        bool_arr = np.transpose(bool_arr, (1, 2, 0))
         rtstruct.add_roi(
-            mask=bool_arr,
+            mask=mask,
             color=color,
             name=mask_name,
-            spacing=mask.GetSpacing(),
-            origin=mask.GetOrigin(),
         )
 
     rtstruct.save(save_path)

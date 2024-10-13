@@ -6,6 +6,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
@@ -18,6 +19,34 @@ import rt_utils.image_helper
 import SimpleITK as sitk
 
 logger = logging.getLogger(__name__)
+
+
+class ROIGenerationAlgorithm(Enum):
+    """
+    ROI Generation Algorithm.
+
+    For more information see here:
+    https://dicom.innolitics.com/ciods/rt-structure-set/structure-set/30060020/30060036
+    """
+
+    null = 0
+    automatic = 1
+    semiautomatic = 2
+    manual = 3
+
+
+ROI_GENERATION_ALGORITHM = {
+    ROIGenerationAlgorithm.null: "",
+    ROIGenerationAlgorithm.automatic: "AUTOMATIC",
+    ROIGenerationAlgorithm.semiautomatic: "SEMIAUTOMATIC",
+    ROIGenerationAlgorithm.manual: "MANUAL",
+}
+"""
+Type of algorithm used to generate ROI.
+
+For more information see here:
+https://dicom.innolitics.com/ciods/rt-structure-set/structure-set/30060020/30060036
+"""
 
 
 def create_contour(series_slice: pydicom.Dataset, contour_data: np.ndarray) -> pydicom.Dataset:
@@ -94,7 +123,7 @@ class ROIData:
     """Color of the RT structure."""
     description: str = ""
     """ROI description."""
-    roi_generation_algorithm: Union[str, int] = ""
+    roi_generation_algorithm: Union[str, ROIGenerationAlgorithm] = ROIGenerationAlgorithm.null
     """
     Supported values:
         - ""
@@ -102,6 +131,11 @@ class ROIData:
         - "SEMIAUTOMATIC"
         - "MANUAL"
     """
+
+    def __post_init__(self):
+        """Cast ROI Generation Algorithm as string."""
+        if isinstance(self.roi_generation_algorithm, ROIGenerationAlgorithm):
+            self.roi_generation_algorithm = ROI_GENERATION_ALGORITHM[self.roi_generation_algorithm]
 
     def structure_set_roi(self) -> pydicom.Dataset:
         """Create the Structure Set ROI for the structure."""
@@ -203,7 +237,7 @@ class RTStruct:
         color: Union[str, List[int]] = None,
         name: str = None,
         description: str = "",
-        roi_generation_algorithm: Union[str, int] = "",
+        roi_generation_algorithm: Union[str, ROIGenerationAlgorithm] = ROIGenerationAlgorithm.null,
     ):
         """Add contour to the RT structure set file."""
         self.validate_mask(mask)

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pydicom
 
-from srmip.dicom_nifti_conversion.constants import DICOM_FIELDS
+from srmip.dicom_utils.constants import DICOM_FIELDS
 
 
 def dicom_ct_path() -> Path:

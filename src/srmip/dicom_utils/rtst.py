@@ -12,9 +12,11 @@ import matplotlib
 import numpy as np
 import pydicom as pydcm
 import SimpleITK as sitk
-from rt_utils import RTStructBuilder
+
+# from rt_utils import RTStructBuilder
 from skimage.draw import polygon
 
+from srmip.dicom_utils.rt_utils_wrapper import RTStruct
 from srmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
@@ -137,7 +139,7 @@ def convert_single_structure(
     return DicomStructure(None, None)
 
 
-def read_dicom_rtstruct(  # pylint: disable=too-many-locals
+def read(  # pylint: disable=too-many-locals
     rtst_path: Path,
     reference_image: sitk.Image,
     structure_names: Optional[Union[str, List[str]]] = None,
@@ -203,7 +205,7 @@ def read_dicom_rtstruct(  # pylint: disable=too-many-locals
     return structure_sets
 
 
-def write_dicom_rtstruct(
+def write(
     rt_structures: dict[str, sitk.Image],
     save_path: PathLike,
     dcm_series_path: PathLike,
@@ -230,7 +232,7 @@ def write_dicom_rtstruct(
         raise ValueError("The path of the reference dicom series must be specified.")
     dcm_series_path = Path(dcm_series_path)
 
-    rtstruct = RTStructBuilder.create_new(dicom_series_path=str(dcm_series_path))
+    rtstruct = RTStruct.create_new(dicom_series_path=str(dcm_series_path))
 
     for mask_name in rt_structures:
         # Use a hash of the name to get the color from the supplied color map
@@ -242,8 +244,10 @@ def write_dicom_rtstruct(
         if not isinstance(mask, sitk.Image):
             mask = sitk.ReadImage(str(mask))
 
-        bool_arr = sitk.GetArrayFromImage(mask) != 0
-        bool_arr = np.transpose(bool_arr, (1, 2, 0))
-        rtstruct.add_roi(mask=bool_arr, color=color, name=mask_name)
+        rtstruct.add_roi(
+            mask=mask,
+            color=color,
+            name=mask_name,
+        )
 
-    rtstruct.save(str(save_path))
+    rtstruct.save(save_path)

@@ -8,7 +8,12 @@ import SimpleITK as sitk
 import srmip
 from srmip.rt_structure.rt_structure import RTStructure, RTStructureSet
 
-from .utils import dicom_ct_path, dicom_rtst_path, ibsi_rtst_path
+from .utils import (
+    dicom_ct_path,
+    dicom_rtst_path,
+    dicom_rtst_path_with_hole,
+    ibsi_rtst_path,
+)
 
 TEST_RTST_SIZE = (204, 201, 60)
 """Size of the test RT Structure."""
@@ -204,6 +209,23 @@ def test_write_dicom_structure(tmp_path):  # pylint: disable=R0914
         rtst_path, structure_name=structure_name, reference_image=image
     )
     assert original_mask == saved_mask
+    assert np.all(original_mask.numpy() == saved_mask.numpy())
+
+
+def test_write_dicom_structure_with_hole(tmp_path):
+    """Write a structure with a hole inside."""
+    image = srmip.Image().read_image(dicom_ct_path())
+    structure_name = "GTV-3"
+    reference_structure = RTStructure().read_image(
+        dicom_rtst_path_with_hole(), structure_name=structure_name, reference_image=image
+    )
+    rtst_path = tmp_path / "rtst.dcm"
+    reference_structure.write_image(rtst_path, reference_image_path=dicom_ct_path())
+    structure = RTStructure().read_image(
+        rtst_path, structure_name=structure_name, reference_image=image
+    )
+    assert structure.numpy().sum() == reference_structure.numpy().sum()
+    assert np.all(structure.numpy() == reference_structure.numpy())
 
 
 def test_write_dicom_structure_set_without_reference(tmp_path):

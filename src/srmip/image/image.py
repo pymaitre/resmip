@@ -172,8 +172,8 @@ class Image(sitk.Image):
         new_image.metadata = self.metadata
         return new_image
 
-    @staticmethod
-    def read_image(filename: PathLike, read_metadata: bool = True) -> Image:
+    @classmethod
+    def read_image(cls, filename: PathLike, read_metadata: bool = True) -> Image:
         """
         Load image file (and metadata).
 
@@ -203,7 +203,7 @@ class Image(sitk.Image):
                 value = sitk_image.GetMetaData(key)
                 value = format_digit_string(value)
                 series_metadata[key] = value
-        new_image = Image(sitk_image)
+        new_image = cls(sitk_image)
         new_image.metadata = series_metadata
         return new_image
 

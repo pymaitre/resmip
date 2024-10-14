@@ -59,8 +59,9 @@ class RTStructure(Image):
     def name(self, value):
         self._name = value
 
-    @staticmethod
+    @classmethod
     def read_image(
+        cls,
         filename: PathLike,
         read_metadata: bool = True,
         structure_name: Optional[str] = None,
@@ -94,11 +95,11 @@ class RTStructure(Image):
             if reference_image is None:
                 raise ValueError("Must specify a reference image for dicom RT Structures.")
             sitk_image = dicom_rtst.read(filename, reference_image, structure_name)[0]
-            new_rt_structure = RTStructure(sitk_image.image, name=sitk_image.name)
+            new_rt_structure = cls(sitk_image.image, name=sitk_image.name)
             return new_rt_structure
         if structure_name is None:
             structure_name = get_structure_name_from_filename(filename)
-        new_rt_structure = RTStructure(Image().read_image(filename), name=structure_name)
+        new_rt_structure = cls(Image().read_image(filename), name=structure_name)
         return new_rt_structure
 
     def write_image(
@@ -195,8 +196,9 @@ class RTStructureSet(Dict[str, RTStructure]):
             structures = []
         self.update({structure.name: structure for structure in structures})
 
-    @staticmethod
+    @classmethod
     def read_image(
+        cls,
         filename: Union[PathLike, List[PathLike]],
         structure_names: Optional[List[str]] = None,
         regex: bool = False,
@@ -230,13 +232,13 @@ class RTStructureSet(Dict[str, RTStructure]):
                 regex=regex,
                 parallel=parallel,
             )
-            return RTStructureSet(
+            return cls(
                 [RTStructure(x.image, name=x.name) for x in structures if x.name is not None]
             )
         structures = []
         for f in filename:
             structures.append(RTStructure().read_image(f))
-        return RTStructureSet(structures)
+        return cls(structures)
 
     def write_image(
         self,

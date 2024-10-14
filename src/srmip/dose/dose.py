@@ -14,8 +14,9 @@ logger = logging.getLogger(__name__)
 class Dose(Image):
     """RT Dose (wrapper of srmip.Image)."""
 
-    @staticmethod
+    @classmethod
     def read_image(
+        cls,
         filename: PathLike,
         read_metadata: bool = True,
         reference_image: Optional[Image] = None,
@@ -41,8 +42,8 @@ class Dose(Image):
         :return: RT Dose.
         :rtype: Dose
         """
-        image = Image.read_image(filename=filename, read_metadata=read_metadata)
-        new_dose = Dose(image)
+        image = super().read_image(filename=filename, read_metadata=read_metadata)
+        new_dose = cls(image)
         new_dose.metadata = image.metadata
         if reference_image is None:
             logger.warning("No reference image has been provided for the RT Dose.")

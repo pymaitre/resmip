@@ -182,7 +182,7 @@ class ROIData:
             # close the polygon, otherwise, in case of contours with holes,
             # a small slice on the xy plane would be skipped
             corrected_polygons = tuple(
-                np.concatenate((poly, [poly[0]]), axis=0) for poly in polygons
+                np.concatenate((poly, [poly[0], polygons[0][0]]), axis=0) for poly in polygons
             )
             contour_points = np.concatenate(corrected_polygons, axis=0)[:, 0, :]
             dicom_contour_points = np.concatenate(

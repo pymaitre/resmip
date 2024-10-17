@@ -27,6 +27,7 @@ def test_read_dose_without_reference(caplog):
     assert dose.origin == ORIGINAL_DOSE_ORIGIN
     assert dose.spacing == ORIGINAL_DOSE_SPACING
     assert len(dose.metadata) > 0
+    assert isinstance(dose, Dose)
 
 
 def test_read_dose_with_reference():
@@ -37,3 +38,4 @@ def test_read_dose_with_reference():
     assert dose.origin == image.origin
     assert dose.spacing == image.spacing
     assert len(dose.metadata) > 0
+    assert isinstance(dose, Dose)

@@ -183,7 +183,6 @@ class RTStructure(Image):
             default_pixel_value=default_pixel_value,
         )
         resampled_structure = RTStructure(resampled_image, name=self.name)
-        resampled_structure.metadata = self.metadata
         return resampled_structure
 
 

@@ -25,6 +25,10 @@ class Image(sitk.Image):
         """Call sitk.Image constructor and create an empty dictionary for the header."""
         super().__init__(*args)
         self._metadata = {}
+        # Copy metadata when creating an image from an existing one
+        if len(args) > 0:
+            if isinstance(args[0], Image):
+                self._metadata = args[0].metadata
 
     @property
     def metadata(self) -> Dict[str, str]:

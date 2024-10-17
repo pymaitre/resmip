@@ -44,10 +44,9 @@ class Dose(Image):
         """
         image = super().read_image(filename=filename, read_metadata=read_metadata)
         new_dose = cls(image)
-        new_dose.metadata = image.metadata
         if reference_image is None:
             logger.warning("No reference image has been provided for the RT Dose.")
             return new_dose
         new_dose = new_dose.resample(new_spacing=reference_image.spacing)
         new_dose = new_dose.pad(reference_image=reference_image)
-        return new_dose
+        return cls(new_dose)

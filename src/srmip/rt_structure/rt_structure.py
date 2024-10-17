@@ -134,13 +134,18 @@ class RTStructure(Image):
             return self.write_nondicom(filename, file_format)
         return RTStructureSet([self]).write_image(filename, file_format, reference_image_path)
 
-    def write_nondicom(self, filename: PathLike, file_format: Optional[str] = None) -> None:
+    def write_nondicom(
+        self, filename: PathLike, write_metadata: bool = False, file_format: Optional[str] = None
+    ) -> None:
         """
         Save RT Structure for formats other than dicom.
 
         :param filename: Name of the file. If filename is a directory,
             use a the structure's name.
         :type filename: PathLike
+        :param write_metadata: If true, save the json file with metadata
+            (not applicable for dicom files).
+        :type write_metadata: bool
         :param file_format: Format of the rt structure saved. If None,
             infer it from filename.
         :type file_format: str | None

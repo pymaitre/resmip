@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Dict, Iterable, Optional, Tuple, Union
 
@@ -13,6 +14,8 @@ import srmip.dicom_utils.series as dicom_series
 from srmip import DICOM_FIELDS
 from srmip.image._data_types import ImageDTypeLike, _sitk_image_dtype
 from srmip.utils import PathLike, format_digit_string
+
+logger = logging.getLogger(__name__)
 
 
 class Image(sitk.Image):
@@ -232,6 +235,19 @@ class Image(sitk.Image):
             dicom_series.write(self, self.metadata, filename)
             return
         filename.parent.mkdir(parents=True, exist_ok=True)
+        self.write_nondicom(filename=filename, write_metadata=write_metadata)
+
+    def write_nondicom(self, filename: PathLike, write_metadata: bool = True) -> None:
+        """
+        Save image file (and metadata) to non-DICOM formats using ITK.
+
+        :param filename: Name of the file. If filename is a directory,
+            the writer assumes to write a Dicom series.
+        :type filename: PathLike
+        :param write_metadata: If true, save the json file with metadata
+            (not applicable for dicom files).
+        :type write_metadata: bool
+        """
         sitk.WriteImage(self, filename)
         if write_metadata:
             serialized_metadata = json.dumps(self.metadata)
@@ -336,3 +352,72 @@ class Image(sitk.Image):
             origin=reference_image.origin,
             direction=reference_image.direction,
         )
+
+    def __add__(self, value: Union[int, float]) -> Image:
+        """
+        Add constant value to pixel data.
+
+        :param value: Value to be added to pixel data.
+        :type value: int | float
+        :return: Image with constant value added to pixel data.
+        :rtype: Image
+        """
+        if isinstance(value, float):
+            logger.debug("Casting image type to float")
+            current_image = self.astype(float)
+            transformed_image = Image(super(Image, current_image).__add__(value))
+        else:
+            transformed_image = Image(super().__add__(value))
+        transformed_image.metadata = self.metadata
+        return transformed_image
+
+    def __sub__(self, value: Union[int, float]) -> Image:
+        """
+        Subtract constant value to pixel data.
+
+        :param value: Value to be subtracted to pixel data.
+        :type value: int | float
+        :return: Image with constant value subtracted to pixel data.
+        :rtype: Image
+        """
+        if isinstance(value, float):
+            logger.debug("Casting image type to float")
+            current_image = self.astype(float)
+            transformed_image = Image(super(Image, current_image).__sub__(value))
+        else:
+            transformed_image = Image(super().__sub__(value))
+        transformed_image.metadata = self.metadata
+        return transformed_image
+
+    def __mul__(self, value: Union[int, float]) -> Image:
+        """
+        Multiply constant value to pixel data.
+
+        :param value: Value to be multiplied to pixel data.
+        :type value: int | float
+        :return: Image with constant value multiplied to pixel data.
+        :rtype: Image
+        """
+        if isinstance(value, float):
+            logger.debug("Casting image type to float")
+            current_image = self.astype(float)
+            transformed_image = Image(super(Image, current_image).__mul__(value))
+        else:
+            transformed_image = Image(super().__mul__(value))
+        transformed_image.metadata = self.metadata
+        return transformed_image
+
+    def __truediv__(self, value: Union[int, float]) -> Image:
+        """
+        Multiply constant value to pixel data.
+
+        :param value: Value to be multiplied to pixel data.
+        :type value: int | float
+        :return: Image with constant value multiplied to pixel data.
+        :rtype: Image
+        """
+        logger.debug("Casting image type to float")
+        current_image = self.astype(float)
+        transformed_image = Image(super(Image, current_image).__truediv__(value))
+        transformed_image.metadata = self.metadata
+        return transformed_image

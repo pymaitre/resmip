@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    srmip.dicom_utils
+   srmip.dose
    srmip.image
    srmip.rt_structure
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Optional
 
 from srmip.image import Image
@@ -50,3 +51,37 @@ class Dose(Image):
         new_dose = new_dose.resample(new_spacing=reference_image.spacing)
         new_dose = new_dose.pad(reference_image=reference_image)
         return cls(new_dose)
+
+    def write_image(
+        self,
+        filename: PathLike,
+        write_metadata: bool = False,
+        file_format: Optional[str] = None,
+        # reference_image_path: Optional[PathLike] = None,
+    ) -> None:
+        """
+        Save RT Dose file.
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+
+        Currently only non-DICOM file formats are supported
+
+        :param filename: Name of the file to be saved.
+        :type filename: PathLike
+        :param write_metadata: If true, write the json file with metadata
+            (not applicable for dicom files). Currently not used.
+        :param file_format: Format of the rt dose saved. If None,
+            infer it from filename.
+        :type file_format: str | None
+        :param reference_image_path: Path of the reference dicom image.
+            Ignored when saving in formats other than dicom.
+        :type reference_image_path: PathLike | None
+        """
+        filename = Path(filename)
+        if file_format is None:
+            file_format = filename.suffix
+        filename.parent.mkdir(parents=True, exist_ok=True)
+        if file_format != ".dcm":
+            return self.write_nondicom(filename)
+        raise NotImplementedError("Saving to DICOM RT Dose is currently not supported.")

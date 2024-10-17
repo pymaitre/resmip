@@ -4,6 +4,8 @@
 import logging
 from pathlib import Path
 
+import numpy as np
+
 from srmip.dose.dose import Dose
 from srmip.image.image import Image
 
@@ -39,3 +41,14 @@ def test_read_dose_with_reference():
     assert dose.spacing == image.spacing
     assert len(dose.metadata) > 0
     assert isinstance(dose, Dose)
+
+
+def test_write_dose_nifti(tmp_path):
+    """Write dose to nifti file."""
+    image = Image.read_image(REFERENCE_DICOM_IMAGE_PATH)
+    dose = Dose.read_image(REFERENCE_DICOM_DOSE_PATH, reference_image=image)
+    nifti_dose_path = tmp_path / "dose.nii.gz"
+    dose.write_image(nifti_dose_path)
+
+    nifti_dose = Dose.read_image(nifti_dose_path)
+    assert np.all(nifti_dose.numpy() == dose.numpy())

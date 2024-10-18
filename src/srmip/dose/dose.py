@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from srmip.image import Image
 from srmip.utils import PathLike
@@ -85,3 +85,47 @@ class Dose(Image):
         if file_format != ".dcm":
             return self.write_nondicom(filename)
         raise NotImplementedError("Saving to DICOM RT Dose is currently not supported.")
+
+    def __add__(self, value: Union[int, float]) -> Dose:
+        """
+        Add constant value to dose pixel data.
+
+        :param value: Value to be added to pixel data.
+        :type value: int | float
+        :return: Dose with constant value added to pixel data.
+        :rtype: Dose
+        """
+        return Dose(super().__add__(value))
+
+    def __sub__(self, value: Union[int, float]) -> Dose:
+        """
+        Subtract constant value to dose pixel data.
+
+        :param value: Value to be subtracted to pixel data.
+        :type value: int | float
+        :return: Dose with constant value subtracted to pixel data.
+        :rtype: Dose
+        """
+        return Dose(super().__sub__(value))
+
+    def __mul__(self, value: Union[int, float]) -> Dose:
+        """
+        Multiply constant value to dose pixel data.
+
+        :param value: Value to be multiplied to pixel data.
+        :type value: int | float
+        :return: Dose with constant value multiplied to pixel data.
+        :rtype: Dose
+        """
+        return Dose(super().__mul__(value))
+
+    def __truediv__(self, value: Union[int, float]) -> Dose:
+        """
+        Multiply constant value to dose pixel data.
+
+        :param value: Value to be multiplied to pixel data.
+        :type value: int | float
+        :return: Dose with constant value multiplied to pixel data.
+        :rtype: Dose
+        """
+        return Dose(super().__truediv__(value))

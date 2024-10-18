@@ -12,7 +12,7 @@ import SimpleITK as sitk
 
 import srmip.dicom_utils.series as dicom_series
 from srmip import DICOM_FIELDS
-from srmip.image._data_types import ImageDTypeLike, _sitk_image_dtype
+from srmip.image._data_types import ImageDTypeLike, _is_unsigned, _sitk_image_dtype
 from srmip.utils import PathLike, format_digit_string
 
 logger = logging.getLogger(__name__)
@@ -362,12 +362,18 @@ class Image(sitk.Image):
         :return: Image with constant value added to pixel data.
         :rtype: Image
         """
+        current_image = self
         if isinstance(value, float):
-            logger.debug("Casting image type to float")
+            logger.debug("Casting image type to float.")
             current_image = self.astype(float)
-            transformed_image = Image(super(Image, current_image).__add__(value))
-        else:
-            transformed_image = Image(super().__add__(value))
+        if value < 0:
+            if _is_unsigned(current_image.GetPixelID()):
+                logger.warning(
+                    "Adding a negative value when image "
+                    "type is unsigned, make sure to cast it to a signed type "
+                    "if pixel values become negative."
+                )
+        transformed_image = Image(super(Image, current_image).__add__(value))
         transformed_image.metadata = self.metadata
         return transformed_image
 
@@ -380,12 +386,17 @@ class Image(sitk.Image):
         :return: Image with constant value subtracted to pixel data.
         :rtype: Image
         """
+        current_image = self
         if isinstance(value, float):
             logger.debug("Casting image type to float")
             current_image = self.astype(float)
-            transformed_image = Image(super(Image, current_image).__sub__(value))
-        else:
-            transformed_image = Image(super().__sub__(value))
+        if _is_unsigned(current_image.GetPixelID()):
+            logger.warning(
+                "Subtracting value when image "
+                "type is unsigned, make sure to cast it to a signed type "
+                "if pixel values become negative."
+            )
+        transformed_image = Image(super(Image, current_image).__sub__(value))
         transformed_image.metadata = self.metadata
         return transformed_image
 
@@ -398,12 +409,18 @@ class Image(sitk.Image):
         :return: Image with constant value multiplied to pixel data.
         :rtype: Image
         """
+        current_image = self
         if isinstance(value, float):
             logger.debug("Casting image type to float")
             current_image = self.astype(float)
-            transformed_image = Image(super(Image, current_image).__mul__(value))
-        else:
-            transformed_image = Image(super().__mul__(value))
+        if value < 0:
+            if _is_unsigned(current_image.GetPixelID()):
+                logger.warning(
+                    "Multipying a negative value when image "
+                    "type is unsigned, make sure to cast it to a signed type "
+                    "if pixel values become negative."
+                )
+        transformed_image = Image(super(Image, current_image).__mul__(value))
         transformed_image.metadata = self.metadata
         return transformed_image
 

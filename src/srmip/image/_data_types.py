@@ -10,7 +10,7 @@ ImageDTypeLike = Union[str, int, npt.DTypeLike]
 """Data types used for images."""
 
 
-def _sitk_image_dtype(dtype: ImageDTypeLike):
+def _sitk_image_dtype(dtype: ImageDTypeLike) -> int:
     """
     Convert dtype to one of the supported sitk values.
 
@@ -41,3 +41,22 @@ def _sitk_image_dtype(dtype: ImageDTypeLike):
         raise ValueError(
             f"The provided data type ({dtype}) is not supported as a SimpleITK type."
         ) from e
+
+
+def _is_unsigned(dtype: ImageDTypeLike) -> bool:
+    """Whether the type is unsigned or not."""
+    usigned_types_map = {
+        sitk.sitkInt8: False,
+        sitk.sitkUInt8: True,
+        sitk.sitkInt16: False,
+        sitk.sitkUInt16: True,
+        sitk.sitkInt32: False,
+        sitk.sitkUInt32: True,
+        sitk.sitkInt64: False,
+        sitk.sitkUInt64: True,
+        sitk.sitkFloat32: False,
+        sitk.sitkFloat64: False,
+        sitk.sitkComplexFloat32: False,
+        sitk.sitkComplexFloat64: False,
+    }
+    return usigned_types_map[_sitk_image_dtype(dtype)]

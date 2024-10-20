@@ -6,6 +6,9 @@ import logging
 from pathlib import Path
 from typing import Optional, Union
 
+import pydicom
+import pydicom.errors
+
 from srmip.image import Image
 from srmip.utils import PathLike
 
@@ -14,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 class Dose(Image):
     """RT Dose (wrapper of srmip.Image)."""
+
+    _scaling: float
+    """Dose Grid Scaling."""
 
     @classmethod
     def read_image(
@@ -45,12 +51,29 @@ class Dose(Image):
         """
         image = super().read_image(filename=filename, read_metadata=read_metadata)
         new_dose = cls(image)
+        try:
+            dicom_header = pydicom.dcmread(filename)
+            try:
+                dose_scaling = dicom_header["DoseGridScaling"]
+            except KeyError as e:
+                raise KeyError(
+                    "Missing DoseGridScaling in the DICOM header, "
+                    "but it is required in DICOM RT Dose files."
+                ) from e
+            scaling = float(dose_scaling.value)
+        except pydicom.errors.InvalidDicomError:
+            logger.info(
+                "%s is not a valid DICOM file. Assuming that Dose Scaling is equal to 1.",
+                filename,
+            )
+            scaling = 1
+        new_dose._scaling = scaling
         if reference_image is None:
             logger.warning("No reference image has been provided for the RT Dose.")
             return new_dose
         new_dose = new_dose.resample(new_spacing=reference_image.spacing)
         new_dose = new_dose.pad(reference_image=reference_image)
-        return cls(new_dose)
+        return cls(new_dose) * scaling
 
     def write_image(
         self,
@@ -85,6 +108,15 @@ class Dose(Image):
         if file_format != ".dcm":
             return self.write_nondicom(filename)
         raise NotImplementedError("Saving to DICOM RT Dose is currently not supported.")
+
+    @property
+    def scaling(self) -> float:
+        """
+        Dose Grid Scaling.
+
+        https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e
+        """
+        return self._scaling
 
     def __add__(self, value: Union[int, float]) -> Dose:
         """

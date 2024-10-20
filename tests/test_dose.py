@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+import pydicom
 import pytest
 
 from srmip.dose.dose import Dose
@@ -42,6 +43,19 @@ def test_read_dose_with_reference():
     assert dose.spacing == image.spacing
     assert len(dose.metadata) > 0
     assert isinstance(dose, Dose)
+
+
+def test_read_dose_without_scaling(tmp_path):
+    """Read DICOM RT Dose without DoseGridScaling."""
+    header = pydicom.dcmread(REFERENCE_DICOM_DOSE_PATH)
+    del header[0x3004, 0x000E]
+    assert [0x3004, 0x000E] not in header
+    modified_dicom_dose_path = tmp_path / "dose.dcm"
+    header.save_as(modified_dicom_dose_path)
+
+    image = Image.read_image(REFERENCE_DICOM_IMAGE_PATH)
+    with pytest.raises(KeyError):
+        Dose.read_image(modified_dicom_dose_path, reference_image=image)
 
 
 def test_write_dose_nifti(tmp_path):

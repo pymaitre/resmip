@@ -190,6 +190,50 @@ class RTStructure(Image):
         resampled_structure = RTStructure(resampled_image, name=self.name)
         return resampled_structure
 
+    def __add__(self, value: Union[int, float]) -> RTStructure:
+        """
+        Add constant value to structure pixel data.
+
+        :param value: Value to be added to pixel data.
+        :type value: int | float
+        :return: RTStructure with constant value added to pixel data.
+        :rtype: RTStructure
+        """
+        raise NotImplementedError("This operation is currently " "not supported for RT Structures.")
+
+    def __sub__(self, value: Union[int, float]) -> RTStructure:
+        """
+        Subtract constant value to structure pixel data.
+
+        :param value: Value to be subtracted to pixel data.
+        :type value: int | float
+        :return: RTStructure with constant value subtracted to pixel data.
+        :rtype: RTStructure
+        """
+        raise NotImplementedError("This operation is currently " "not supported for RT Structures.")
+
+    def __mul__(self, value: Union[int, float]) -> RTStructure:
+        """
+        Multiply constant value to structure pixel data.
+
+        :param value: Value to be multiplied to pixel data.
+        :type value: int | float
+        :return: RTStructure with constant value multiplied to pixel data.
+        :rtype: RTStructure
+        """
+        raise NotImplementedError("This operation is currently " "not supported for RT Structures.")
+
+    def __truediv__(self, value: Union[int, float]) -> RTStructure:
+        """
+        Multiply constant value to structure pixel data.
+
+        :param value: Value to be multiplied to pixel data.
+        :type value: int | float
+        :return: RTStructure with constant value multiplied to pixel data.
+        :rtype: RTStructure
+        """
+        raise NotImplementedError("This operation is currently " "not supported for RT Structures.")
+
 
 class RTStructureSet(Dict[str, RTStructure]):
     """RT Structure Set (dictionary of [str, RTStructure])."""

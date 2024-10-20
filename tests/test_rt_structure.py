@@ -356,3 +356,12 @@ def test_rtstruct_resample():
     volume = structure.numpy().sum() * np.prod(structure.spacing)
     resampled_volume = resampled_structure.numpy().sum() * np.prod(resampled_structure.spacing)
     assert np.allclose(resampled_volume, volume, rtol=0.006)
+
+
+@pytest.mark.parametrize("operation", ["__add__", "__sub__", "__mul__", "__truediv__"])
+def test_rtstruct_add_sub_mul_truediv(operation):
+    """Arithmetic operators on RT structures are not implemented."""
+    structure = RTStructure.read_image(ibsi_rtst_path())
+    factor = 0.5
+    with pytest.raises(NotImplementedError):
+        getattr(structure, operation)(factor)

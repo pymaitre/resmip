@@ -199,7 +199,7 @@ class RTStructure(Image):
         :return: RTStructure with constant value added to pixel data.
         :rtype: RTStructure
         """
-        raise NotImplementedError("This operation is currently " "not supported for RT Structures.")
+        raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
     def __sub__(self, value: Union[int, float]) -> RTStructure:
         """
@@ -210,7 +210,7 @@ class RTStructure(Image):
         :return: RTStructure with constant value subtracted to pixel data.
         :rtype: RTStructure
         """
-        raise NotImplementedError("This operation is currently " "not supported for RT Structures.")
+        raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
     def __mul__(self, value: Union[int, float]) -> RTStructure:
         """
@@ -221,7 +221,7 @@ class RTStructure(Image):
         :return: RTStructure with constant value multiplied to pixel data.
         :rtype: RTStructure
         """
-        raise NotImplementedError("This operation is currently " "not supported for RT Structures.")
+        raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
     def __truediv__(self, value: Union[int, float]) -> RTStructure:
         """
@@ -232,7 +232,7 @@ class RTStructure(Image):
         :return: RTStructure with constant value multiplied to pixel data.
         :rtype: RTStructure
         """
-        raise NotImplementedError("This operation is currently " "not supported for RT Structures.")
+        raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
 
 class RTStructureSet(Dict[str, RTStructure]):

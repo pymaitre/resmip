@@ -104,3 +104,15 @@ def test_read_series_in_empty_folder(tmp_path):
     """Read dicom CT image in an empty directory."""
     input_image_files = dicom_series.get_series_dicom_files(tmp_path)
     assert input_image_files == tuple()
+
+
+def test_spacing_single_slice_series(caplog):
+    """Test voxel spacing for series with only one z slice."""
+    image_path = Path(__file__).parent / "Dicom" / "dicompyler_img"
+    image = Image().read_image(image_path)
+    sitk_image = sitk.ReadImage(str(image_path / "ct.0.dcm"))
+    assert image.metadata[DICOM_FIELDS["Modality"]] == "CT"
+    assert sitk_image.GetSpacing() == image.spacing
+    for record in caplog.records:
+        assert record.levelname == "WARNING"
+    assert "Only 1 slice detected. Setting z voxel spacing to 1 mm." in caplog.text

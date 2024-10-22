@@ -3,6 +3,7 @@
 import importlib.metadata as im
 
 from .dicom_utils import DICOM_FIELDS  # noqa: F401
+from .dose import Dose  # noqa: F401
 from .image import Image
 from .rt_structure import RTStructure, RTStructureSet
 

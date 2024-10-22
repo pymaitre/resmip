@@ -404,3 +404,43 @@ def test_image_astype_numpy_unsupported(dtype):
 
     with pytest.raises(ValueError):
         input_image.astype(dtype)
+
+
+@pytest.mark.parametrize("factor", [-1, 0.2, 5])
+def test_image_sum(factor):
+    """Add constant factor to image pixels."""
+    input_image = Image().read_image(dicom_ct_path())
+    summed_image = input_image + factor
+    assert isinstance(summed_image, Image)
+    assert np.all(summed_image.numpy() == input_image.numpy() + factor)
+    assert len(summed_image.metadata) == len(input_image.metadata)
+
+
+@pytest.mark.parametrize("factor", [-1, 0.2, 5])
+def test_image_subtract(factor):
+    """Remove constant factor to image pixels."""
+    input_image = Image().read_image(dicom_ct_path())
+    summed_image = input_image - factor
+    assert isinstance(summed_image, Image)
+    assert np.all(summed_image.numpy() == input_image.numpy() - factor)
+    assert len(summed_image.metadata) == len(input_image.metadata)
+
+
+@pytest.mark.parametrize("factor", [-1, 0.2, 5])
+def test_image_multiply(factor):
+    """Multiply constant factor to image pixels."""
+    input_image = Image().read_image(dicom_ct_path())
+    summed_image = input_image * factor
+    assert isinstance(summed_image, Image)
+    assert np.all(summed_image.numpy() == input_image.numpy() * factor)
+    assert len(summed_image.metadata) == len(input_image.metadata)
+
+
+@pytest.mark.parametrize("factor", [-1, 0.2, 5])
+def test_image_divide(factor):
+    """Divide constant factor to image pixels."""
+    input_image = Image().read_image(dicom_ct_path())
+    summed_image = input_image / factor
+    assert isinstance(summed_image, Image)
+    assert np.all(summed_image.numpy() == input_image.numpy() / factor)
+    assert len(summed_image.metadata) == len(input_image.metadata)

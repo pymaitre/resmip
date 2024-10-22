@@ -59,8 +59,9 @@ class RTStructure(Image):
     def name(self, value):
         self._name = value
 
-    @staticmethod
+    @classmethod
     def read_image(
+        cls,
         filename: PathLike,
         read_metadata: bool = True,
         structure_name: Optional[str] = None,
@@ -94,11 +95,11 @@ class RTStructure(Image):
             if reference_image is None:
                 raise ValueError("Must specify a reference image for dicom RT Structures.")
             sitk_image = dicom_rtst.read(filename, reference_image, structure_name)[0]
-            new_rt_structure = RTStructure(sitk_image.image, name=sitk_image.name)
+            new_rt_structure = cls(sitk_image.image, name=sitk_image.name)
             return new_rt_structure
         if structure_name is None:
             structure_name = get_structure_name_from_filename(filename)
-        new_rt_structure = RTStructure(Image().read_image(filename), name=structure_name)
+        new_rt_structure = cls(Image().read_image(filename), name=structure_name)
         return new_rt_structure
 
     def write_image(
@@ -133,13 +134,18 @@ class RTStructure(Image):
             return self.write_nondicom(filename, file_format)
         return RTStructureSet([self]).write_image(filename, file_format, reference_image_path)
 
-    def write_nondicom(self, filename: PathLike, file_format: Optional[str] = None) -> None:
+    def write_nondicom(
+        self, filename: PathLike, write_metadata: bool = False, file_format: Optional[str] = None
+    ) -> None:
         """
         Save RT Structure for formats other than dicom.
 
         :param filename: Name of the file. If filename is a directory,
             use a the structure's name.
         :type filename: PathLike
+        :param write_metadata: If true, save the json file with metadata
+            (not applicable for dicom files).
+        :type write_metadata: bool
         :param file_format: Format of the rt structure saved. If None,
             infer it from filename.
         :type file_format: str | None
@@ -182,8 +188,51 @@ class RTStructure(Image):
             default_pixel_value=default_pixel_value,
         )
         resampled_structure = RTStructure(resampled_image, name=self.name)
-        resampled_structure.metadata = self.metadata
         return resampled_structure
+
+    def __add__(self, value: Union[int, float]) -> RTStructure:
+        """
+        Add constant value to structure pixel data.
+
+        :param value: Value to be added to pixel data.
+        :type value: int | float
+        :return: RTStructure with constant value added to pixel data.
+        :rtype: RTStructure
+        """
+        raise NotImplementedError("This operation is currently not supported for RT Structures.")
+
+    def __sub__(self, value: Union[int, float]) -> RTStructure:
+        """
+        Subtract constant value to structure pixel data.
+
+        :param value: Value to be subtracted to pixel data.
+        :type value: int | float
+        :return: RTStructure with constant value subtracted to pixel data.
+        :rtype: RTStructure
+        """
+        raise NotImplementedError("This operation is currently not supported for RT Structures.")
+
+    def __mul__(self, value: Union[int, float]) -> RTStructure:
+        """
+        Multiply constant value to structure pixel data.
+
+        :param value: Value to be multiplied to pixel data.
+        :type value: int | float
+        :return: RTStructure with constant value multiplied to pixel data.
+        :rtype: RTStructure
+        """
+        raise NotImplementedError("This operation is currently not supported for RT Structures.")
+
+    def __truediv__(self, value: Union[int, float]) -> RTStructure:
+        """
+        Multiply constant value to structure pixel data.
+
+        :param value: Value to be multiplied to pixel data.
+        :type value: int | float
+        :return: RTStructure with constant value multiplied to pixel data.
+        :rtype: RTStructure
+        """
+        raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
 
 class RTStructureSet(Dict[str, RTStructure]):
@@ -195,8 +244,9 @@ class RTStructureSet(Dict[str, RTStructure]):
             structures = []
         self.update({structure.name: structure for structure in structures})
 
-    @staticmethod
+    @classmethod
     def read_image(
+        cls,
         filename: Union[PathLike, List[PathLike]],
         structure_names: Optional[List[str]] = None,
         regex: bool = False,
@@ -230,13 +280,13 @@ class RTStructureSet(Dict[str, RTStructure]):
                 regex=regex,
                 parallel=parallel,
             )
-            return RTStructureSet(
+            return cls(
                 [RTStructure(x.image, name=x.name) for x in structures if x.name is not None]
             )
         structures = []
         for f in filename:
             structures.append(RTStructure().read_image(f))
-        return RTStructureSet(structures)
+        return cls(structures)
 
     def write_image(
         self,

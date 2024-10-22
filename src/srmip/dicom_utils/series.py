@@ -58,8 +58,8 @@ def get_spacing_from_dicom_header(
     :return: (x, y, z) voxel spacing in mm.
     :rtype: tuple[float]
     """
-    z_spacing = None
     xy_spacing = None
+    z_values = []
     for i in range(slices_number):
         slice_xy_spacing = [
             float(spacing)
@@ -67,13 +67,19 @@ def get_spacing_from_dicom_header(
                 "\\"
             )
         ]
-        slice_z_spacing = float(dicom_series_reader.GetMetaData(i, DICOM_FIELDS["SliceThickness"]))
-        if z_spacing is None:
-            z_spacing = slice_z_spacing
+
+        slice_z = [
+            float(z)
+            for z in dicom_series_reader.GetMetaData(i, DICOM_FIELDS["ImagePositionPatient"]).split(
+                "\\"
+            )
+        ][2]
+        z_values.append(float(slice_z))
         if xy_spacing is None:
             xy_spacing = slice_xy_spacing
-        assert z_spacing == slice_z_spacing, "Nonuniform slice spacing detected"
         assert xy_spacing == slice_xy_spacing, "Nonuniform xy spacing detected"
+    z_values = np.round(np.array(z_values), decimals=2)
+    slice_z_spacing = (z_values.max() - z_values.min()) / (len(z_values) - 1)
     return tuple(slice_xy_spacing + [slice_z_spacing])
 
 

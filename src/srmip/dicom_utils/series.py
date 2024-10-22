@@ -51,6 +51,8 @@ def get_spacing_from_dicom_header(
     """
     Read correctly-rounded voxel spacing from the DICOM header.
 
+    If the series has only one slice, the z spacing is set to 1 mm.
+
     :param dicom_series_reader: ITK DICOM reader for series.
     :type dicom_series_reader: sitk.ImageSeriesReader
     :param slices_number: Number of slices for the DICOM series.
@@ -79,7 +81,11 @@ def get_spacing_from_dicom_header(
             xy_spacing = slice_xy_spacing
         assert xy_spacing == slice_xy_spacing, "Nonuniform xy spacing detected"
     z_values = np.round(np.array(z_values), decimals=2)
-    slice_z_spacing = (z_values.max() - z_values.min()) / (len(z_values) - 1)
+    if len(z_values) > 1:
+        slice_z_spacing = (z_values.max() - z_values.min()) / (len(z_values) - 1)
+    else:
+        logger.warning("Only 1 slice detected. Setting z voxel spacing to 1 mm.")
+        slice_z_spacing = 1
     return tuple(slice_xy_spacing + [slice_z_spacing])
 
 

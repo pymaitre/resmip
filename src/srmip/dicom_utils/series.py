@@ -80,7 +80,7 @@ def get_spacing_from_dicom_header(
         if xy_spacing is None:
             xy_spacing = slice_xy_spacing
         assert xy_spacing == slice_xy_spacing, "Nonuniform xy spacing detected"
-    z_values = np.round(np.array(z_values), decimals=2)
+    z_values = np.array(z_values).round(decimals=2)
     if len(z_values) > 1:
         slice_z_spacing = (z_values.max() - z_values.min()) / (len(z_values) - 1)
     else:

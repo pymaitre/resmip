@@ -261,6 +261,7 @@ class RTStruct:
         reference_spacing = None
         reference_origin = None
         reference_direction = None
+        z_values = []
         for dicom_slice in self.series_data:
             slice_positioning = get_slice_positioning(dicom_slice)
             if reference_spacing is None:
@@ -269,6 +270,7 @@ class RTStruct:
                 reference_origin = slice_positioning["origin"]
             if reference_direction is None:
                 reference_direction = slice_positioning["direction"]
+            z_values.append(slice_positioning["origin"][2])
             reference_origin[2] = min(reference_origin[2], slice_positioning["origin"][2])
             assert (
                 reference_spacing == slice_positioning["spacing"]
@@ -279,6 +281,13 @@ class RTStruct:
             assert (
                 reference_direction == slice_positioning["direction"]
             ), "Nonuniform image direction in the referenced series."
+        z_values = np.array(z_values).round(decimals=2)
+        if len(z_values) > 1:
+            z_spacing = (z_values.max() - z_values.min()) / (len(z_values) - 1)
+        else:
+            z_spacing = 1
+
+        reference_spacing = (reference_spacing[:2]) + (z_spacing,)
 
         if mask.GetSpacing() != reference_spacing:
             raise ValueError(

@@ -7,6 +7,11 @@ Dicom RT Structure Sets
 Import a Dicom RT Structure Set
 -------------------------------
 
+.. note::
+
+    The DICOM images and structures used in this tutorial can be found in
+    ``tests/Dicom/IBSI1_CT_phantom`` (``CT_00000`` and ``RTst_00000/DCM_RS_00060.dcm``).
+
 Dicom RT Structure Sets can be imported with `srmip` after having imported the referenced series:
 
 .. testcode:: python
@@ -51,7 +56,7 @@ Read only desired Structures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order to speed-up the conversion of dicom RT Structures to nifti, a structure name (or list of structure names)
-can be passed to `read_image()`. The conversion is single-threaded by default, but it can be done in parallel.
+can be passed to ``read_image()``. The conversion is single-threaded by default, but it can be done in parallel.
 
 .. testcode:: python
 

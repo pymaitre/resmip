@@ -7,6 +7,10 @@ Dicom Series (CT/MR/PET)
 Import a Dicom series
 ---------------------
 
+.. note::
+
+    The DICOM images used in this tutorial can be found in ``tests/Dicom/IBSI1_CT_phantom/CT_00000``.
+
 Any Dicom series (e.g.: CT) can be imported with srmip using the ``read_image`` method from the ``Image`` class.
 
 .. testcode:: python

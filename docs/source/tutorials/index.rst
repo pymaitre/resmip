@@ -10,3 +10,4 @@ Tutorials on how to use srmip.
 
     dicom_series
     dicom_rtstruct
+    image_processing

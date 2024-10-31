@@ -186,7 +186,7 @@ def read(  # pylint: disable=too-many-locals
     else:
         matched_dicom_structures = dicom_structures
     if len(matched_dicom_structures) == 0:
-        logger.warning("Not matching structures found.")
+        logger.warning("No matching structures found.")
     if parallel is True:
         num_threads = max(len(matched_dicom_structures), 1)
         with ThreadPool(num_threads) as p:

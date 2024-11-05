@@ -12,8 +12,6 @@ import matplotlib
 import numpy as np
 import pydicom as pydcm
 import SimpleITK as sitk
-
-# from rt_utils import RTStructBuilder
 from skimage.draw import polygon
 
 from srmip.dicom_utils.rt_utils_wrapper import RTStruct

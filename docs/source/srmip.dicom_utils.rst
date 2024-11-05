@@ -12,14 +12,6 @@ srmip.dicom\_utils.constants module
    :undoc-members:
    :show-inheritance:
 
-srmip.dicom\_utils.dicom\_to\_nifti module
-------------------------------------------
-
-.. automodule:: srmip.dicom_utils.dicom_to_nifti
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 srmip.dicom\_utils.rt\_utils\_wrapper module
 --------------------------------------------
 

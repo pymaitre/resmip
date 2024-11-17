@@ -365,3 +365,28 @@ def test_rtstruct_add_sub_mul_truediv(operation):
     factor = 0.5
     with pytest.raises(NotImplementedError):
         getattr(structure, operation)(factor)
+
+
+@pytest.mark.parametrize("set_description", [True, False])
+def test_write_dicom_structure_set_description(set_description, tmp_path):
+    """Create a dicom RT Structure Set setting the series description."""
+    image = srmip.Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    structure = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+
+    rtst_path = tmp_path / "rtst.dcm"
+    if set_description:
+        reference_description = "Structure_Description"
+        structure.write_image(
+            rtst_path,
+            reference_image_path=dicom_ct_path(),
+            series_description=reference_description,
+        )
+    else:
+        reference_description = ""
+        structure.write_image(rtst_path, reference_image_path=dicom_ct_path())
+    series_description = pydicom.dcmread(rtst_path)["SeriesDescription"].value
+    print(series_description)
+    assert series_description == reference_description

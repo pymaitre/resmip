@@ -10,13 +10,13 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
-import cv2
 import numpy as np
 import pydicom
 import rt_utils
 import rt_utils.ds_helper
 import rt_utils.image_helper
 import SimpleITK as sitk
+import skimage.measure
 
 logger = logging.getLogger(__name__)
 
@@ -173,18 +173,16 @@ class ROIData:
             roi_slice = mask_array[:, :, i]
             if np.all(roi_slice == 0):
                 continue
-            polygons = cv2.findContours(
-                roi_slice.astype(np.uint8),
-                cv2.RETR_TREE,
-                cv2.CHAIN_APPROX_NONE,
-            )[0]
+            polygons = tuple(
+                np.array(poly) for poly in skimage.measure.find_contours(roi_slice.astype(np.uint8))
+            )
             # Add the first point after the last one, in order to fully
             # close the polygon, otherwise, in case of contours with holes,
             # a small slice on the xy plane would be skipped
             corrected_polygons = tuple(
                 np.concatenate((poly, [poly[0], polygons[0][0]]), axis=0) for poly in polygons
             )
-            contour_points = np.concatenate(corrected_polygons, axis=0)[:, 0, :]
+            contour_points = np.flip(np.concatenate(corrected_polygons, axis=0), axis=1)
             dicom_contour_points = np.concatenate(
                 (contour_points, np.ones((contour_points.shape[0], 1)) * i), axis=1
             ).astype(float)

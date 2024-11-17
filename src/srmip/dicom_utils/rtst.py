@@ -208,6 +208,7 @@ def write(
     save_path: PathLike,
     dcm_series_path: PathLike,
     color_map: matplotlib.colors.Colormap = matplotlib.colormaps.get_cmap("rainbow"),
+    series_description: str = "",
 ) -> None:
     """
     Write RT Structures to dicom file.
@@ -223,6 +224,9 @@ def write(
     :param color_map: Colormap to use for output. Defaults to
         matplotlib.colormaps.get_cmap("rainbow").
     :type color_map: matplotlib.colors.Colormap
+    :param series_description: Series Description for the saved DICOM
+        RT Structure Set.
+    :type series_description: str
     """
     logger.info("Will convert the following masks to RTStruct:")
     save_path = Path(save_path)
@@ -230,7 +234,9 @@ def write(
         raise ValueError("The path of the reference dicom series must be specified.")
     dcm_series_path = Path(dcm_series_path)
 
-    rtstruct = RTStruct.create_new(dicom_series_path=str(dcm_series_path))
+    rtstruct = RTStruct.create_new(
+        dicom_series_path=str(dcm_series_path), series_description=series_description
+    )
 
     for mask_name in rt_structures:
         # Use a hash of the name to get the color from the supplied color map

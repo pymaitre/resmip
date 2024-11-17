@@ -17,6 +17,7 @@ import rt_utils.ds_helper
 import rt_utils.image_helper
 import SimpleITK as sitk
 import skimage.measure
+from pydicom.uid import generate_uid
 
 logger = logging.getLogger(__name__)
 
@@ -213,6 +214,35 @@ class ROIData:
             logger.info("ROI mask is empty")
 
 
+def add_study_and_series_information(
+    ds: pydicom.FileDataset, series_data: List[pydicom.Dataset], **kwargs
+):
+    """Add study information to the DICOM header."""
+    reference_ds = series_data[0]  # All elements in series should have the same data
+    series_description = kwargs.get("series_description", "")
+    ds.StudyDate = reference_ds.StudyDate
+    ds.SeriesDate = getattr(reference_ds, "SeriesDate", "")
+    ds.StudyTime = reference_ds.StudyTime
+    ds.SeriesTime = getattr(reference_ds, "SeriesTime", "")
+    ds.StudyDescription = getattr(reference_ds, "StudyDescription", "")
+    ds.SeriesDescription = series_description
+    ds.StudyInstanceUID = reference_ds.StudyInstanceUID
+    ds.SeriesInstanceUID = generate_uid()  # TODO: find out if random generation is ok
+    ds.StudyID = reference_ds.StudyID
+    ds.SeriesNumber = (
+        "1"  # TODO: find out if we can just use 1 (Should be fine since its a new series)
+    )
+
+
+def create_rtstruct_dataset(series_data: List[pydicom.Dataset], **kwargs) -> pydicom.FileDataset:
+    """Create the DICOM header template for the RT Structure Set."""
+    ds = rt_utils.ds_helper.generate_base_dataset()
+    add_study_and_series_information(ds, series_data, **kwargs)
+    rt_utils.ds_helper.add_patient_information(ds, series_data)
+    rt_utils.ds_helper.add_refd_frame_of_ref_sequence(ds, series_data)
+    return ds
+
+
 class RTStruct:
     """Wrapper class of rt_utils.RTStruct."""
 
@@ -223,10 +253,10 @@ class RTStruct:
         self.frame_of_reference_uid = ds.ReferencedFrameOfReferenceSequence[-1].FrameOfReferenceUID
 
     @classmethod
-    def create_new(cls, dicom_series_path: str) -> RTStruct:
+    def create_new(cls, dicom_series_path: str, **kwargs) -> RTStruct:
         """Create new RTStruct given the path of the referenced DICOM series."""
         series_data = rt_utils.image_helper.load_sorted_image_series(dicom_series_path)
-        ds = rt_utils.ds_helper.create_rtstruct_dataset(series_data)
+        ds = create_rtstruct_dataset(series_data, **kwargs)
         return cls(series_data, ds)
 
     def add_roi(

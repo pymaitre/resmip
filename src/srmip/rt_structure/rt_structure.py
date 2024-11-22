@@ -108,6 +108,7 @@ class RTStructure(Image):
         write_metadata: bool = False,
         file_format: Optional[str] = None,
         reference_image_path: Optional[PathLike] = None,
+        series_description: str = "",
     ) -> None:
         """
         Save RT Structure file.
@@ -126,13 +127,18 @@ class RTStructure(Image):
         :param reference_image_path: Path of the reference dicom image.
             Ignored when saving in formats other than dicom.
         :type reference_image_path: PathLike | None
+        :param series_description: Series Description for the saved DICOM
+            RT Structure Set. Non used for other formats.
+        :type series_description: str
         """
         # Create an RT Structure Set and save it
         if file_format is None:
             file_format = Path(filename).suffix
         if file_format != ".dcm":
             return self.write_nondicom(filename, file_format)
-        return RTStructureSet([self]).write_image(filename, file_format, reference_image_path)
+        return RTStructureSet([self]).write_image(
+            filename, file_format, reference_image_path, series_description=series_description
+        )
 
     def write_nondicom(
         self, filename: PathLike, write_metadata: bool = False, file_format: Optional[str] = None
@@ -293,6 +299,7 @@ class RTStructureSet(Dict[str, RTStructure]):
         filename: Union[PathLike, List[PathLike]],
         file_format: Optional[str] = None,
         reference_image_path: Optional[PathLike] = None,
+        series_description: str = "",
     ) -> None:
         """
         Save RT Structure Set file(s).
@@ -309,10 +316,15 @@ class RTStructureSet(Dict[str, RTStructure]):
         :param reference_image_path: Path of the reference dicom image.
             Ignored when saving in formats other than dicom.
         :type reference_image_path: PathLike | None
+        :param series_description: Series Description for the saved DICOM
+            RT Structure Set. Non used for other formats.
+        :type series_description: str
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
-            dicom_rtst.write(self, filename, reference_image_path)
+            dicom_rtst.write(
+                self, filename, reference_image_path, series_description=series_description
+            )
             return
         filename = [Path(f) for f in filename]
         assert len(filename) == len(self)

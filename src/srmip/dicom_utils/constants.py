@@ -1,4 +1,5 @@
 """Constant values present in Dicom headers."""
+
 from bidict import bidict
 
 SLICE_DEPENDENT_FIELDS = [

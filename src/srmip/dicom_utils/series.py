@@ -1,6 +1,5 @@
 """Read and write dicom files."""
 
-
 import json
 import logging
 from pathlib import Path

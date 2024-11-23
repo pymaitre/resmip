@@ -78,7 +78,6 @@ Regular expressions are supported too.
 
     dict_keys(['GTV-1'])
 
-
 Save a Dicom RT Structure Set
 -----------------------------
 
@@ -119,6 +118,20 @@ First of all, a reference dicom image is required. When dealing with nifti image
     dicom_image.write_image(dicom_ct_destination_directory)
     # Save RT Structure Set
     dicom_rtst.write_image(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory)
+
+Customize DICOM output
+^^^^^^^^^^^^^^^^^^^^^^
+
+Set ``SeriesDescription``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``SeriesDescription`` for the saved DICOM RT Structure Set can be customized with
+the ``series_description`` keyword:
+
+.. testcode:: python
+
+    # Save RT Structure Set with SeriesDescription
+    dicom_rtst.write_image(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory, series_description = "CustomSeriesDescription")
 
 ..
     Cleanup block below

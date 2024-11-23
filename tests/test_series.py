@@ -97,7 +97,7 @@ def test_multiple_modalities_in_same_folder():
     """Read dicom CT image with other modalities in the same directory."""
     multiple_modalities_path = Path(__file__).parent / "Dicom" / "dicompyler_img"
     input_image_files = dicom_series.get_series_dicom_files(multiple_modalities_path)
-    assert input_image_files == (str(multiple_modalities_path / "ct.0.dcm"),)
+    assert input_image_files == (multiple_modalities_path / "ct.0.dcm",)
 
 
 def test_read_series_in_empty_folder(tmp_path):

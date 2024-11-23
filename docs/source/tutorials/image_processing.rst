@@ -86,9 +86,10 @@ The origin can be changed with the following code:
 
 .. warning::
 
-    Changing the origin of the image, causes a shift of the pixel data.
-    This can cause unexpected behaviours when overlapping the image with
-    other images (e.g.: segmentations) and when they are saved to file.
+    Changing the origin of the image, causes a shift of the pixel data,
+    effectively translating the whole image. This can cause unexpected
+    behaviours when overlapping the image with other images (e.g.: segmentations)
+    and when they are saved to file.
 
     If the intent of changing the origin is to translate the image, use
     ``Image.pad(...)`` instead, if applicable.

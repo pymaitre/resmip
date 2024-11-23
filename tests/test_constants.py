@@ -1,6 +1,5 @@
 """Test module for constants.py"""
 
-
 from pathlib import Path
 
 import pydicom

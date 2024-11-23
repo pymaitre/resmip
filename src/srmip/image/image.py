@@ -1,4 +1,5 @@
 """Image object containing pixel array and metadata."""
+
 from __future__ import annotations
 
 import json

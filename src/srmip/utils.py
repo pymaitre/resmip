@@ -1,4 +1,5 @@
 """Functions any data types used globally."""
+
 import os
 import re
 from typing import Union

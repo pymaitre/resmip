@@ -19,7 +19,7 @@ from srmip.utils import PathLike, format_digit_string
 logger = logging.getLogger(__name__)
 
 
-def get_series_dicom_files(dicom_series_directory_path: PathLike) -> Tuple[str]:
+def get_series_dicom_files(dicom_series_directory_path: PathLike) -> Tuple[Path]:
     """
     Get the list of dicom files of the series to be read.
 
@@ -29,8 +29,9 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> Tuple[str]:
     :param dicom_series_directory_path: Path of the directory containing the Dicom Series.
     :type dicom_series_directory_path: PathLike
     :return: Tuple of all full paths of the dicom slices (empty if no series are found
-        in the directory).
-    :type: Tuple[str]
+        in the directory). The elements are casted from `str` to `Path` in order to return
+        correct paths on Windows.
+    :type: Tuple[Path]
     """
     series_ids = sitk.ImageSeriesReader().GetGDCMSeriesIDs(str(dicom_series_directory_path))
     for series_id in series_ids:
@@ -39,7 +40,7 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> Tuple[str]:
         )
         ds = pydicom.dcmread(dicom_series_files[0])
         if ds["Modality"].value != "RTDOSE":
-            return dicom_series_files
+            return tuple(Path(file_path) for file_path in dicom_series_files)
     logger.warning("No Series can be found, make sure your restrictions are not too strong")
     return tuple()
 

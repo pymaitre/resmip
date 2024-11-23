@@ -29,7 +29,7 @@ optional = true
 
 [tool.poetry.group.test.dependencies]
 prospector = "^1.10.3"
-pytest = "^7.4.3"
+pytest = "^8.3.3"
 pytest-cov = "^5.0.0"
 
 [build-system]

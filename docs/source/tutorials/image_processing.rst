@@ -16,7 +16,7 @@ Image processing
     from srmip.image import Image
 
 
-    dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "siemens_mprage_0_dcm"
+    dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "IBSI1_CT_phantom" / "CT_00000"
     image = Image.read_image(dicom_ct_directory)
 
 Voxel spacing
@@ -30,7 +30,7 @@ After reading an image, its voxel spacing in mm is stored in the ``spacing`` pro
 
 .. testoutput:: python
 
-    (1.0, 1.0, 0.9241545893719807)
+    (0.97699999809265, 0.97699999809265, 3.0)
 
 The image can be resampled to a different spacing with the following code:
 
@@ -53,8 +53,8 @@ As a consequence, the size of the image changes accordingly:
 
 .. testoutput:: python
 
-    Original image size: (224, 224, 208)
-    Resampled image size: (448, 448, 385)
+    Original image size: (204, 201, 60)
+    Resampled image size: (399, 393, 360)
 
 Image origin
 ------------
@@ -68,7 +68,7 @@ property as a (x,y,z) tuple.
 
 .. testoutput:: python
 
-    (-106.14937655628, -165.42824882477, -65.187102036914)
+    (-174.39450073242, -79.625503540039, -100.40000152587)
 
 The origin can be changed with the following code:
 
@@ -93,3 +93,20 @@ The origin can be changed with the following code:
 
     If the intent of changing the origin is to translate the image, use
     ``Image.pad(...)`` instead, if applicable.
+
+Image orientation
+-----------------
+
+Image orientation can be accessed from the ``direction`` property:
+
+.. testcode:: python
+
+    print(image.direction)
+
+.. testoutput:: python
+
+    (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
+
+The resulting tuple is the direction cosine matrix.
+For more information refer to SimpleITK documentation:
+https://simpleitk.readthedocs.io/en/master/fundamentalConcepts.html#images

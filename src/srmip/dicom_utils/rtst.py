@@ -204,7 +204,7 @@ def read(  # pylint: disable=too-many-locals
 
 
 def write(
-    rt_structures: dict[str, sitk.Image],
+    rt_structures: Dict[str, sitk.Image],
     save_path: PathLike,
     dcm_series_path: PathLike,
     color_map: matplotlib.colors.Colormap = matplotlib.colormaps.get_cmap("rainbow"),

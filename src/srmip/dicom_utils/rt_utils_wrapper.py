@@ -108,6 +108,27 @@ def get_slice_positioning(dicom_slice: pydicom.Dataset) -> Dict[str, Tuple[float
     }
 
 
+def get_contour_from_slice_mask(slice_mask: np.ndarray) -> np.ndarray:
+    """
+    Convert the slice mask to a polygon contour.
+
+    :param slice_mask: Mask of the slice to be converted, of shape (x_dim, y_dim).
+    :type slice_mask: np.ndarray
+    :return: Polygon vertices (as x, y tuples) of the mask contour, of shape (n_points, 2).
+    :rtype: np.ndarray
+    """
+    polygons = tuple(
+        np.array(poly) for poly in skimage.measure.find_contours(slice_mask.astype(np.uint8))
+    )
+    # Add the first point after the last one, in order to fully
+    # close the polygon, otherwise, in case of contours with holes,
+    # a small slice on the xy plane would be skipped
+    corrected_polygons = tuple(
+        np.concatenate((poly, [poly[0], polygons[0][0]]), axis=0) for poly in polygons
+    )
+    return np.flip(np.concatenate(corrected_polygons, axis=0), axis=1)
+
+
 @dataclass
 class ROIData:
     """ROI data used for the DICOM header."""
@@ -174,16 +195,7 @@ class ROIData:
             roi_slice = mask_array[:, :, i]
             if np.all(roi_slice == 0):
                 continue
-            polygons = tuple(
-                np.array(poly) for poly in skimage.measure.find_contours(roi_slice.astype(np.uint8))
-            )
-            # Add the first point after the last one, in order to fully
-            # close the polygon, otherwise, in case of contours with holes,
-            # a small slice on the xy plane would be skipped
-            corrected_polygons = tuple(
-                np.concatenate((poly, [poly[0], polygons[0][0]]), axis=0) for poly in polygons
-            )
-            contour_points = np.flip(np.concatenate(corrected_polygons, axis=0), axis=1)
+            contour_points = get_contour_from_slice_mask(roi_slice)
             dicom_contour_points = np.concatenate(
                 (contour_points, np.ones((contour_points.shape[0], 1)) * i), axis=1
             ).astype(float)

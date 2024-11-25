@@ -21,9 +21,21 @@ source .venv/bin/activate
 From within the environment run:
 ``` bash
 pip install poetry
-poetry install (for developers)
-poetry install --no-root (for users)
+poetry install --no-root
 ```
+
+#### For development
+
+This library support pre-commit hook scripts (https://pre-commit.com/).
+`pre-commit` can be installed using pip.
+It is also recommended to install extra dependencies:
+
+``` bash
+pip install poetry pre-commit
+poetry install --with docs,test
+pre-commit install
+```
+
 
 ## Usage
 

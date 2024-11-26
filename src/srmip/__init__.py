@@ -2,7 +2,11 @@
 
 import importlib.metadata as im
 
-from .dicom_utils import DICOM_FIELDS, get_contour_from_slice_mask  # noqa: F401
+from .dicom_utils import (  # noqa: F401
+    DICOM_FIELDS,
+    get_contour_from_slice_mask,
+    get_polygon_contours_from_slice_mask,
+)
 from .dose import Dose  # noqa: F401
 from .image import Image
 from .rt_structure import RTStructure, RTStructureSet

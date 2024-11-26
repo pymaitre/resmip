@@ -108,6 +108,26 @@ def get_slice_positioning(dicom_slice: pydicom.Dataset) -> Dict[str, Tuple[float
     }
 
 
+def get_polygon_contours_from_slice_mask(slice_mask: np.ndarray) -> Tuple[np.ndarray]:
+    """
+    Convert the slice mask to a collection of polygon contours.
+
+    :param slice_mask: Mask of the slice to be converted, of shape (x_dim, y_dim).
+    :type slice_mask: np.ndarray
+    :return: Tuple of polygon vertices (as x, y tuples) of the mask contour, of shape (n_points, 2).
+        The length of the tuple is the number of polygons in the slice.
+    :rtype: Tuple[np.ndarray]
+    """
+    polygons = tuple(
+        np.flip(np.array(poly), axis=1)
+        for poly in skimage.measure.find_contours(slice_mask.astype(np.uint8))
+    )
+    # Add the first point after the last one, in order to fully
+    # close the polygon, otherwise, in case of contours with holes,
+    # a small slice on the xy plane would be skipped
+    return tuple(np.concatenate((poly, [poly[0]])) for poly in polygons)
+
+
 def get_contour_from_slice_mask(slice_mask: np.ndarray) -> np.ndarray:
     """
     Convert the slice mask to a polygon contour.
@@ -117,16 +137,13 @@ def get_contour_from_slice_mask(slice_mask: np.ndarray) -> np.ndarray:
     :return: Polygon vertices (as x, y tuples) of the mask contour, of shape (n_points, 2).
     :rtype: np.ndarray
     """
-    polygons = tuple(
-        np.array(poly) for poly in skimage.measure.find_contours(slice_mask.astype(np.uint8))
-    )
-    # Add the first point after the last one, in order to fully
-    # close the polygon, otherwise, in case of contours with holes,
-    # a small slice on the xy plane would be skipped
+    polygons = get_polygon_contours_from_slice_mask(slice_mask)
+    # Connect each polygon with the first point of the first polygon,
+    # in order to fully separate them
     corrected_polygons = tuple(
-        np.concatenate((poly, [poly[0], polygons[0][0]]), axis=0) for poly in polygons
+        np.concatenate((poly, [polygons[0][0]]), axis=0) for poly in polygons
     )
-    return np.flip(np.concatenate(corrected_polygons, axis=0), axis=1)
+    return np.concatenate(corrected_polygons, axis=0)
 
 
 @dataclass

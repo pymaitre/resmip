@@ -388,5 +388,4 @@ def test_write_dicom_structure_set_description(set_description, tmp_path):
         reference_description = ""
         structure.write_image(rtst_path, reference_image_path=dicom_ct_path())
     series_description = pydicom.dcmread(rtst_path)["SeriesDescription"].value
-    print(series_description)
     assert series_description == reference_description

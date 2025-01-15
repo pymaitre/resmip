@@ -1,5 +1,6 @@
 """Test module for rt_utils_wrapper.py."""
 
+import json
 import logging
 
 import numpy as np
@@ -7,7 +8,12 @@ import pydicom
 import pytest
 
 import srmip
-from srmip.dicom_utils.rt_utils_wrapper import ROIData, RTStruct, get_slice_positioning
+from srmip.dicom_utils.rt_utils_wrapper import (
+    ROIData,
+    RTStruct,
+    add_leading_zero_spacing,
+    get_slice_positioning,
+)
 
 from .utils import dicom_ct_path, dicom_rtst_path
 
@@ -121,3 +127,19 @@ def test_get_slice_positioning_missing_key(key):
     del dicom_slice[key]
     with pytest.raises(KeyError):
         get_slice_positioning(dicom_slice)
+
+
+@pytest.mark.parametrize(
+    "spacing_value_1",
+    ["0.9790265", "1.9790265", ".9790265", "10.9790265"],
+)
+@pytest.mark.parametrize(
+    "spacing_value_2",
+    ["0.9790265", "1.9790265", ".9790265", "10.9790265"],
+)
+def test_add_leading_zero_spacing(spacing_value_1, spacing_value_2):
+    """Test the function for adding leading zeros to pixel spacing."""
+    old_spacing = f"[{spacing_value_1}, {spacing_value_2}]"
+    old_spacing_f = f"[{float(spacing_value_1)}, {float(spacing_value_2)}]"
+    new_spacing = add_leading_zero_spacing(old_spacing)
+    assert str([float(value) for value in json.loads(new_spacing)]) == old_spacing_f

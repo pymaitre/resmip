@@ -69,6 +69,18 @@ def create_contour(series_slice: pydicom.Dataset, contour_data: np.ndarray) -> p
     return contour
 
 
+def add_leading_zero_spacing(header_spacing: str) -> str:
+    """
+    Add leading zero to pixel spacing, if missing.
+
+    :param header_spacing: Pixel spacing read from the DICOM header.
+    :type header_spacing: str
+    :return: Pixel spacing string with leading zeros added.
+    :rtype: str
+    """
+    return re.sub(r"([^\d])(\.\d+)", r"\g<1>0\g<2>", header_spacing)
+
+
 def get_slice_positioning(dicom_slice: pydicom.Dataset) -> Dict[str, Tuple[float]]:
     """Get voxel spacing, origin and direction from a DICOM slice."""
     try:
@@ -80,10 +92,7 @@ def get_slice_positioning(dicom_slice: pydicom.Dataset) -> Dict[str, Tuple[float
     except KeyError as e:
         raise KeyError(f"Missing Slice Thickness in the slice {series_instance_uid}.") from e
     try:
-        # Add the leading zero if missing
-        slice_xy_spacing = re.sub(
-            r"([^0])(\.\d+)", r"\g<1>0\g<2>", str(dicom_slice["PixelSpacing"].value)
-        )
+        slice_xy_spacing = add_leading_zero_spacing(str(dicom_slice["PixelSpacing"].value))
     except KeyError as e:
         raise KeyError(f"Missing Pixel Spacing in the slice {series_instance_uid}.") from e
     try:

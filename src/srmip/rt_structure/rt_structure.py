@@ -263,7 +263,9 @@ class RTStructureSet(Dict[str, RTStructure]):
         """
         Read RT Structure Set file(s).
 
-        :param filename:
+        :param filename: Name of the DICOM RT structure set.
+            If reading from NIfTI, use a list of paths to the structures,
+        :type filename: PathLike|list[PathLike]
         :param structure_names: Names of the structures to be read.
             Used for reading only specific structures in a dicom files,
             can also be a regular expression.

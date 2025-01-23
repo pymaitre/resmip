@@ -315,6 +315,11 @@ class Image(sitk.Image):
                 f"Both images must have the same voxel spacing. The image has {self.spacing},"
                 f"the reference image has {reference_image.spacing}."
             )
+        if np.any(np.round(self.direction, 4) != np.round(reference_image.direction, 4)):
+            raise ValueError(
+                f"Both images must have the same direction. The image has {self.direction},"
+                f"the reference image has {reference_image.direction}."
+            )
         xyz_lower_padding = np.array(
             [
                 int(x)

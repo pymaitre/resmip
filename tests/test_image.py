@@ -315,6 +315,17 @@ def test_image_pad_different_spacing():
         input_image.pad(reference_image)
 
 
+def test_image_pad_different_direction():
+    """Test image padding with different direction."""
+    input_image = Image().read_image(dicom_ct_path())
+    print(input_image.direction)
+    reference_image = Image().read_image(dicom_ct_path())
+    reference_image.direction = (1, 0, 0, 0, 0, 1, 0, 1, 0)
+    assert input_image.direction != reference_image.direction
+    with pytest.raises(ValueError):
+        input_image.pad(reference_image)
+
+
 @pytest.mark.parametrize("left_shift", [-1, 0, 1])
 @pytest.mark.parametrize("right_shift", [-1, 0, 1])
 def test_image_pad(left_shift, right_shift):

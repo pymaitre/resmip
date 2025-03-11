@@ -128,8 +128,8 @@ def get_polygon_contours_from_slice_mask(slice_mask: np.ndarray) -> Tuple[np.nda
     :rtype: Tuple[np.ndarray]
     """
     polygons = tuple(
-        np.flip(np.array(poly), axis=1)
-        for poly in skimage.measure.find_contours(slice_mask.astype(np.uint8))
+        np.flip(np.array(poly), axis=1) - 1
+        for poly in skimage.measure.find_contours(np.pad(slice_mask, 1).astype(np.uint8))
     )
     # Add the first point after the last one, in order to fully
     # close the polygon, otherwise, in case of contours with holes,

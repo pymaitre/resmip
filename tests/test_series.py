@@ -61,7 +61,6 @@ def test_saved_dicom_series_pixels(tmp_path):
     """Check if the saved Dicom series pixel grid is saved correctly."""
     input_image = Image().read_image(dicom_ct_path())
     input_image.write_image(tmp_path)
-
     compare_dicom_images(input_image, tmp_path)
 
 

@@ -188,6 +188,8 @@ def write(image: sitk.Image, input_metadata: Dict[str, str], save_path: PathLike
     image_metadata[DICOM_FIELDS["SliceThickness"]] = str(rounded_z_spacing)
     image_metadata[DICOM_FIELDS["SpacingBetweenSlices"]] = str(rounded_z_spacing)
 
+    image_metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join(map(str, image.GetSpacing()[:2]))
+
     for i in range(image.GetDepth()):
         image_slice = image[:, :, i]
 

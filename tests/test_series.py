@@ -40,12 +40,12 @@ def compare_dicom_images(image: Image, reference_path: Path):
     dicom_series_reader.SetFileNames(dicom_series_files)
     dicom_series_reader.MetaDataDictionaryArrayUpdateOn()
     dicom_series_reader.LoadPrivateTagsOn()
-    dicom_series = dicom_series_reader.Execute()
+    dicom_image = dicom_series_reader.Execute()
 
-    np.testing.assert_equal(sitk.GetArrayFromImage(dicom_series), image.numpy())
-    assert dicom_series.GetOrigin() == image.origin
-    np.testing.assert_allclose(dicom_series.GetDirection(), image.direction)
-    np.testing.assert_allclose(dicom_series.GetSpacing(), image.spacing)
+    np.testing.assert_equal(sitk.GetArrayFromImage(dicom_image), image.numpy())
+    assert dicom_image.GetOrigin() == image.origin
+    np.testing.assert_allclose(dicom_image.GetDirection(), image.direction)
+    np.testing.assert_allclose(dicom_image.GetSpacing(), image.spacing)
 
 
 def test_dicom_image_pixel_array():
@@ -69,13 +69,13 @@ def test_saved_dicom_series_pixels_different_direction(tmp_path):
     input_image = Image().read_image(dicom_ct_path())
 
     np.random.seed(0)
-    x = np.random.random(3)
-    x /= np.linalg.norm(x)
-    y = np.random.random(3)
-    y -= y @ x * x
-    y /= np.linalg.norm(y)
-    z = np.cross(x, y)
-    input_image.direction = (*x, *y, *z)
+    x_dir = np.random.random(3)
+    x_dir /= np.linalg.norm(x_dir)
+    y_dir = np.random.random(3)
+    y_dir -= y_dir @ x_dir * x_dir
+    y_dir /= np.linalg.norm(y_dir)
+    z_dir = np.cross(x_dir, y_dir)
+    input_image.direction = (*x_dir, *y_dir, *z_dir)
     input_image.write_image(tmp_path)
 
     compare_dicom_images(input_image, tmp_path)

@@ -30,6 +30,24 @@ def compare_dicom_pixels(image: Image, dicom_path: Path):
         assert np.all(pixel_array == image_array[slice_index, :, :])
 
 
+def compare_dicom_images(image: Image, reference_path: Path):
+    """Compare dicom pixel values between files."""
+    series_id = sitk.ImageSeriesReader().GetGDCMSeriesIDs(str(reference_path))[0]
+    dicom_series_files = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(
+        str(reference_path), series_id
+    )
+    dicom_series_reader = sitk.ImageSeriesReader()
+    dicom_series_reader.SetFileNames(dicom_series_files)
+    dicom_series_reader.MetaDataDictionaryArrayUpdateOn()
+    dicom_series_reader.LoadPrivateTagsOn()
+    dicom_series = dicom_series_reader.Execute()
+
+    np.testing.assert_equal(sitk.GetArrayFromImage(dicom_series), image.numpy())
+    assert dicom_series.GetOrigin() == image.origin
+    np.testing.assert_allclose(dicom_series.GetDirection(), image.direction)
+    np.testing.assert_allclose(dicom_series.GetSpacing(), image.spacing)
+
+
 def test_dicom_image_pixel_array():
     """Check if the pixel grid read by SimpleITK corresponds to the one in the Dicom files."""
     image, image_metadata = dicom_series.read(dicom_ct_path())
@@ -44,7 +62,24 @@ def test_saved_dicom_series_pixels(tmp_path):
     input_image = Image().read_image(dicom_ct_path())
     input_image.write_image(tmp_path)
 
-    compare_dicom_pixels(input_image, tmp_path)
+    compare_dicom_images(input_image, tmp_path)
+
+
+def test_saved_dicom_series_pixels_different_direction(tmp_path):
+    """Check if the saved Dicom series pixel grid is saved correctly."""
+    input_image = Image().read_image(dicom_ct_path())
+
+    np.random.seed(0)
+    x = np.random.random(3)
+    x /= np.linalg.norm(x)
+    y = np.random.random(3)
+    y -= y @ x * x
+    y /= np.linalg.norm(y)
+    z = np.cross(x, y)
+    input_image.direction = (*x, *y, *z)
+    input_image.write_image(tmp_path)
+
+    compare_dicom_images(input_image, tmp_path)
 
 
 def test_saved_dicom_series_patient_data(tmp_path):

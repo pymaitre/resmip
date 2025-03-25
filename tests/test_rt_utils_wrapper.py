@@ -11,7 +11,7 @@ import srmip
 from srmip.dicom_utils.rt_utils_wrapper import (
     ROIData,
     RTStruct,
-    add_leading_zero_spacing,
+    add_leading_zero_to_header_value,
     get_slice_positioning,
 )
 
@@ -137,9 +137,9 @@ def test_get_slice_positioning_missing_key(key):
     "spacing_value_2",
     ["0.9790265", "1.9790265", ".9790265", "10.9790265"],
 )
-def test_add_leading_zero_spacing(spacing_value_1, spacing_value_2):
+def test_add_leading_zero_to_header_value(spacing_value_1, spacing_value_2):
     """Test the function for adding leading zeros to pixel spacing."""
     old_spacing = f"[{spacing_value_1}, {spacing_value_2}]"
     old_spacing_f = f"[{float(spacing_value_1)}, {float(spacing_value_2)}]"
-    new_spacing = add_leading_zero_spacing(old_spacing)
+    new_spacing = add_leading_zero_to_header_value(old_spacing)
     assert str([float(value) for value in json.loads(new_spacing)]) == old_spacing_f

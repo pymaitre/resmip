@@ -34,9 +34,6 @@ def get_structure_name_from_filename(filename: Path) -> str:
 class RTStructure(Image):
     """RT Structure (wrapper of srmip.Image)."""
 
-    _name: str
-    """Name of the RT Structure."""
-
     def __init__(self, *args, name: str = ""):
         """
         Call srmip.Image constructor and set a name for the RT Structure.

@@ -22,13 +22,11 @@ logger = logging.getLogger(__name__)
 class Image(sitk.Image):
     """Wrapper class of SimpleITK.Image with support to headers."""
 
-    _metadata: Dict[str, str]
-    """Dictionary containing metadata."""
-
     def __init__(self, *args):
         """Call sitk.Image constructor and create an empty dictionary for the header."""
         super().__init__(*args)
         self._metadata = {}
+        """Dictionary containing metadata."""
         # Copy metadata when creating an image from an existing one
         if len(args) > 0:
             if isinstance(args[0], Image):

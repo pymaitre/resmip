@@ -23,3 +23,8 @@ def dicom_rtst_path_with_hole() -> Path:
 def ibsi_rtst_path() -> Path:
     """Path of the IBSI-compliant RT Structure mask."""
     return Path(__file__).parent / "Nifti" / "IBSI2_CT_phantom" / "mask" / "GTV-1.nii"
+
+
+def coregistered_image_path() -> Path:
+    """Path of the coregistered CT image used for testing."""
+    return Path(__file__).parent / "Nifti" / "coregistered" / "CT.nii.gz"

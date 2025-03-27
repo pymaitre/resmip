@@ -9,7 +9,7 @@ from srmip import DICOM_FIELDS
 from srmip.image.image import Image
 from srmip.utils import format_digit_string
 
-from .utils import dicom_ct_path
+from .utils import coregistered_image_path, dicom_ct_path
 
 
 def test_metadata_is_unique():
@@ -415,6 +415,27 @@ def test_image_astype_numpy_unsupported(dtype):
 
     with pytest.raises(ValueError):
         input_image.astype(dtype)
+
+
+def test_image_coregistration():
+    """Coregister images."""
+    input_image = Image().read_image(dicom_ct_path())
+    reference_image = Image().read_image(dicom_ct_path())
+    assert input_image.origin == reference_image.origin
+    input_image.origin = (0, 0, 0)
+    np.testing.assert_equal(input_image.numpy(), reference_image.numpy())
+    coregistered_image = input_image.coregister(
+        reference_image=reference_image, fill_value=-1000, seed=1, num_threads=1
+    )
+    assert input_image.origin != reference_image.origin
+    np.testing.assert_allclose(coregistered_image.origin, reference_image.origin)
+    np.testing.assert_allclose(coregistered_image.direction, reference_image.direction)
+    np.testing.assert_allclose(coregistered_image.spacing, reference_image.spacing)
+    reference_coregistered_image = Image().read_image(coregistered_image_path())
+    np.testing.assert_equal(
+        coregistered_image.numpy(),
+        reference_coregistered_image.numpy(),
+    )
 
 
 @pytest.mark.parametrize("factor", [-1, 0.2, 5])

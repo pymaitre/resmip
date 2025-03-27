@@ -360,12 +360,28 @@ class Image(sitk.Image):
         )
 
     @staticmethod
-    def _get_coregistration_method():
-        """Generate method used for coregistration."""
+    def _get_coregistration_method(
+        seed: int = 0, num_threads: Optional[int] = None
+    ) -> sitk.ImageRegistrationMethod:
+        """
+        Generate method used for coregistration.
+
+        :param seed: Random seed for the registration method. When set to 0,
+            uses system walltime. Use different values for deterministic behaviour.
+        :type seed: int
+        :param num_threads: Number of threads used for coregistration. By default, it is
+            set to the maximum number of available threads.
+            Set it to 1 for deterministic behaviour.
+        :type num_threads: Optional[int]
+        :return: Registration method used for coregistration.
+        :rtype: sitk.ImageRegistrationMethod
+        """
         registration_method = sitk.ImageRegistrationMethod()
+        if num_threads:
+            registration_method.SetGlobalDefaultNumberOfThreads(num_threads)
         registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=100)
         registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-        registration_method.SetMetricSamplingPercentage(0.01)
+        registration_method.SetMetricSamplingPercentage(0.01, seed=seed)
         registration_method.SetInterpolator(sitk.sitkLinear)
         registration_method.SetOptimizerAsGradientDescent(
             learningRate=1.0,
@@ -379,16 +395,31 @@ class Image(sitk.Image):
         registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
         return registration_method
 
-    def coregister(self, reference_image: Image) -> Image:
+    def coregister(
+        self,
+        reference_image: Image,
+        fill_value: float = 0.0,
+        seed: int = 0,
+        num_threads: Optional[int] = None,
+    ) -> Image:
         """
         Coregiser the image on top of another (reference) image.
 
         :param reference_image: Image used as reference for coregistration.
         :type reference_image: Image
+        :param fill_value: Value used to fill voxels during resampling (defaults to 0).
+        :type fill_value: float
+        :param seed: Random seed for the registration method. When set to 0,
+            uses system walltime. Use different values for deterministic behaviour.
+        :type seed: int
+        :param num_threads: Number of threads used for coregistration. By default, it is
+            set to the maximum number of available threads.
+            Set it to 1 for deterministic behaviour.
+        :type num_threads: Optional[int]
         :return: New image coregistered with reference_image.
         :rtype: Image
         """
-        registration_method = self._get_coregistration_method()
+        registration_method = self._get_coregistration_method(seed=seed, num_threads=num_threads)
         current_type = self.GetPixelID()
 
         fixed_image = reference_image.astype(np.float32)
@@ -408,7 +439,7 @@ class Image(sitk.Image):
                 fixed_image,
                 final_transform,
                 sitk.sitkLinear,
-                0.0,
+                fill_value,
                 moving_image.GetPixelID(),
             )
         )

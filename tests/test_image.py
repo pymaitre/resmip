@@ -285,7 +285,7 @@ def test_image_from_array(view):
 
 
 @pytest.mark.parametrize("view", [True, False])
-def test_image_from_array(view):
+def test_image_view_from_array(view):
     """Test array generation from image."""
     input_image = Image.read_image(dicom_ct_path())
     if view:

@@ -89,6 +89,7 @@ class Image(sitk.Image):
         origin: Tuple[float],
         direction: Tuple[float],
         metadata: Optional[Dict[str, str]] = None,
+        **kwargs,
     ) -> Image:
         """
         Create a new image from a numpy array.
@@ -106,7 +107,7 @@ class Image(sitk.Image):
         :return: New image
         :rtype: Image
         """
-        new_image = cls(sitk.GetImageFromArray(array))
+        new_image = cls(sitk.GetImageFromArray(array), **kwargs)
         if metadata is not None:
             new_image.metadata = metadata
         new_image.spacing = spacing

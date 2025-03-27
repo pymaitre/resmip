@@ -121,6 +121,30 @@ def test_create_structure_set_from_structure():
     assert list(rtst.values()) == [structure]
 
 
+def test_rtstructure_from_array():
+    """Test RT structure creation from a numpy array."""
+    image = srmip.Image.read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    structure = RTStructure.read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+    new_structure = RTStructure.from_array(
+        structure.numpy(),
+        spacing=structure.spacing,
+        origin=structure.origin,
+        direction=structure.direction,
+        metadata=structure.metadata,
+        name=structure.name,
+    )
+    assert new_structure.GetSize() == structure.GetSize()
+    assert new_structure.spacing == structure.spacing
+    assert new_structure.origin == structure.origin
+    assert new_structure.direction == structure.direction
+    assert np.all(new_structure.numpy() == structure.numpy())
+    assert new_structure.metadata == structure.metadata
+    assert new_structure.name == structure.name
+
+
 @pytest.mark.parametrize("extension", ["nii", "nii.gz"])
 def test_write_single_nifti_structure(extension, tmp_path):
     """Create a RT Structure Set from a single RT Structure."""

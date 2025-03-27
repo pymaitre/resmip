@@ -265,11 +265,12 @@ def test_write_image_without_metadata(tmp_path):
     assert new_image.metadata == reference_image.metadata
 
 
-def test_image_from_array():
+@pytest.mark.parametrize("view", [True, False])
+def test_image_from_array(view):
     """Test image creation from a numpy array."""
     input_image = Image().read_image(dicom_ct_path())
     new_image = Image().from_array(
-        input_image.numpy(),
+        input_image.numpy(view=view),
         spacing=input_image.spacing,
         origin=input_image.origin,
         direction=input_image.direction,
@@ -279,8 +280,19 @@ def test_image_from_array():
     assert new_image.spacing == input_image.spacing
     assert new_image.origin == input_image.origin
     assert new_image.direction == input_image.direction
-    assert np.all(new_image.numpy() == input_image.numpy())
+    assert np.all(new_image.numpy(view=view) == input_image.numpy(view=view))
     assert new_image.metadata == input_image.metadata
+
+
+@pytest.mark.parametrize("view", [True, False])
+def test_image_from_array(view):
+    """Test array generation from image."""
+    input_image = Image.read_image(dicom_ct_path())
+    if view:
+        with pytest.raises(ValueError):
+            input_image.numpy(view=view)[:] = 0
+    else:
+        input_image.numpy(view=view)[:] = 0
 
 
 @pytest.mark.parametrize("scale", [0.5, 2])

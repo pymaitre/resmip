@@ -131,7 +131,9 @@ class Image(sitk.Image):
         filename = Path(filename)
         return filename.parent / f".{filename.stem}.json"
 
-    def __array__(self, dtype: Optional[Union[str, npt.DTypeLike]] = None) -> np.ndarray:
+    def __array__(
+        self, dtype: Optional[Union[str, npt.DTypeLike]] = None, view: bool = False
+    ) -> np.ndarray:
         """
         Convert an image to a numpy array.
 
@@ -141,15 +143,23 @@ class Image(sitk.Image):
             If None, the default dtype of the image is used
             as defined the global `FORMAT_TO_TYPESTR` dictionary.
         :type dtype: str | npt.DTypeLike | None
+        :param view: If set to true, return a view of the underlying data,
+            without copying them. If a dtype is specified, a copy is returned anyway.
+        :type view: bool
         :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         :rtype: np.ndarray
         """
-        image_array = sitk.GetArrayFromImage(self)
+        if view:
+            image_array = sitk.GetArrayViewFromImage(self)
+        else:
+            image_array = sitk.GetArrayFromImage(self)
         if dtype is not None:
             image_array = image_array.astype(dtype)
         return image_array
 
-    def numpy(self, dtype: Optional[Union[str, npt.DTypeLike]] = None) -> np.ndarray:
+    def numpy(
+        self, dtype: Optional[Union[str, npt.DTypeLike]] = None, view: bool = False
+    ) -> np.ndarray:
         """
         Generate a numpy array of pixels from the image.
 
@@ -159,10 +169,13 @@ class Image(sitk.Image):
             If None, the default dtype of the image is used
             as defined the global `FORMAT_TO_TYPESTR` dictionary.
         :type dtype: str | npt.DTypeLike | None
+        :param view: If set to true, return a view of the underlying data,
+            without copying them. If a dtype is specified, a copy is returned anyway.
+        :type view: bool
         :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         :rtype: np.ndarray
         """
-        return self.__array__(dtype=dtype)
+        return self.__array__(dtype=dtype, view=view)
 
     def astype(self, dtype: ImageDTypeLike) -> Image:
         """

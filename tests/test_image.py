@@ -9,7 +9,7 @@ from srmip import DICOM_FIELDS
 from srmip.image.image import Image
 from srmip.utils import format_digit_string
 
-from .utils import dicom_ct_path
+from .utils import coregistered_image_path, dicom_ct_path
 
 
 def test_metadata_is_unique():
@@ -105,6 +105,12 @@ def test_image_direction_setter():
     assert dicom_image.GetDirection() == new_direction
     assert dicom_image.direction == dicom_image.GetDirection()
     assert dicom_image.metadata[DICOM_FIELDS["ImageOrientationPatient"]] == dicom_direction
+
+
+def test_image_size_getter():
+    """Test Image.size()."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    assert dicom_image.size == dicom_image.GetSize()
 
 
 def test_saved_nifti_file_pixels(tmp_path):
@@ -265,11 +271,12 @@ def test_write_image_without_metadata(tmp_path):
     assert new_image.metadata == reference_image.metadata
 
 
-def test_image_from_array():
+@pytest.mark.parametrize("view", [True, False])
+def test_image_from_array(view):
     """Test image creation from a numpy array."""
     input_image = Image().read_image(dicom_ct_path())
     new_image = Image().from_array(
-        input_image.numpy(),
+        input_image.numpy(view=view),
         spacing=input_image.spacing,
         origin=input_image.origin,
         direction=input_image.direction,
@@ -279,8 +286,19 @@ def test_image_from_array():
     assert new_image.spacing == input_image.spacing
     assert new_image.origin == input_image.origin
     assert new_image.direction == input_image.direction
-    assert np.all(new_image.numpy() == input_image.numpy())
+    assert np.all(new_image.numpy(view=view) == input_image.numpy(view=view))
     assert new_image.metadata == input_image.metadata
+
+
+@pytest.mark.parametrize("view", [True, False])
+def test_image_view_from_array(view):
+    """Test array generation from image."""
+    input_image = Image.read_image(dicom_ct_path())
+    if view:
+        with pytest.raises(ValueError):
+            input_image.numpy(view=view)[:] = 0
+    else:
+        input_image.numpy(view=view)[:] = 0
 
 
 @pytest.mark.parametrize("scale", [0.5, 2])
@@ -415,6 +433,27 @@ def test_image_astype_numpy_unsupported(dtype):
 
     with pytest.raises(ValueError):
         input_image.astype(dtype)
+
+
+def test_image_coregistration():
+    """Coregister images."""
+    input_image = Image().read_image(dicom_ct_path())
+    reference_image = Image().read_image(dicom_ct_path())
+    assert input_image.origin == reference_image.origin
+    input_image.origin = (0, 0, 0)
+    np.testing.assert_equal(input_image.numpy(), reference_image.numpy())
+    coregistered_image = input_image.coregister(
+        reference_image=reference_image, fill_value=-1000, seed=1, num_threads=1
+    )
+    assert input_image.origin != reference_image.origin
+    np.testing.assert_allclose(coregistered_image.origin, reference_image.origin)
+    np.testing.assert_allclose(coregistered_image.direction, reference_image.direction)
+    np.testing.assert_allclose(coregistered_image.spacing, reference_image.spacing)
+    reference_coregistered_image = Image().read_image(coregistered_image_path())
+    np.testing.assert_equal(
+        coregistered_image.numpy(),
+        reference_coregistered_image.numpy(),
+    )
 
 
 @pytest.mark.parametrize("factor", [-1, 0.2, 5])

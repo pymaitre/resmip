@@ -18,9 +18,6 @@ logger = logging.getLogger(__name__)
 class Dose(Image):
     """RT Dose (wrapper of srmip.Image)."""
 
-    _scaling: float
-    """Dose Grid Scaling."""
-
     @classmethod
     def read_image(
         cls,
@@ -34,6 +31,8 @@ class Dose(Image):
         Doses could have different origin and/or
         spacing compared to the referenced series.
         This function, shifts the dose accordingly.
+        Dose values are scaled by "DoseGridScaling", if present.
+        https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e
 
         :param filename: Name of the file. If filename ends with ".dcm",
             the reader assumes to read a Dicom rtdose. Otherwise, it assumes a metatadata
@@ -67,7 +66,6 @@ class Dose(Image):
                 filename,
             )
             scaling = 1
-        new_dose._scaling = scaling
         if reference_image is None:
             logger.warning("No reference image has been provided for the RT Dose.")
             return new_dose
@@ -108,15 +106,6 @@ class Dose(Image):
         if file_format != ".dcm":
             return self.write_nondicom(filename)
         raise NotImplementedError("Saving to DICOM RT Dose is currently not supported.")
-
-    @property
-    def scaling(self) -> float:
-        """
-        Dose Grid Scaling.
-
-        https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e
-        """
-        return self._scaling
 
     def __add__(self, value: Union[int, float]) -> Dose:
         """

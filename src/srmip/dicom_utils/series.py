@@ -171,8 +171,6 @@ def write(image: sitk.Image, input_metadata: Dict[str, str], save_path: PathLike
     series_writer = sitk.ImageFileWriter()
     series_writer.KeepOriginalImageUIDOn()
 
-    instance_numbers = np.array(json.loads(input_metadata["slice_indexes"]))
-
     image_metadata = {}
     for dicom_tag in DICOM_FIELDS.values():
         if dicom_tag in input_metadata:
@@ -190,11 +188,23 @@ def write(image: sitk.Image, input_metadata: Dict[str, str], save_path: PathLike
     image_metadata[DICOM_FIELDS["SliceThickness"]] = str(rounded_z_spacing)
     image_metadata[DICOM_FIELDS["SpacingBetweenSlices"]] = str(rounded_z_spacing)
 
+    direction = image.GetDirection()
+    image_metadata[DICOM_FIELDS["ImageOrientationPatient"]] = "\\".join(
+        map(
+            str,
+            (
+                *direction[0::3],
+                *direction[1::3],
+            ),
+        )
+    )
+    image_metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join(map(str, image.GetSpacing()[:2]))
+
     for i in range(image.GetDepth()):
         image_slice = image[:, :, i]
 
         slice_metadata = image_metadata.copy()
-        slice_metadata[DICOM_FIELDS["InstanceNumber"]] = instance_numbers[i]
+        slice_metadata[DICOM_FIELDS["InstanceNumber"]] = i
 
         for key, value in slice_metadata.items():
             image_slice.SetMetaData(key, str(value))

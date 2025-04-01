@@ -107,6 +107,12 @@ def test_image_direction_setter():
     assert dicom_image.metadata[DICOM_FIELDS["ImageOrientationPatient"]] == dicom_direction
 
 
+def test_image_size_getter():
+    """Test Image.size()."""
+    dicom_image = Image.read_image(dicom_ct_path())
+    assert dicom_image.size == dicom_image.GetSize()
+
+
 def test_saved_nifti_file_pixels(tmp_path):
     """Check if the saved nifti file corresponds to the one read by SimpleITK."""
     image = Image().read_image(dicom_ct_path())

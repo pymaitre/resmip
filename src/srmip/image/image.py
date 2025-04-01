@@ -112,6 +112,11 @@ class Image(sitk.Image):
             [str(x) for x in value[:-3]]
         )
 
+    @property
+    def size(self) -> Tuple[float]:
+        """Image size in pixels."""
+        return self.GetSize()
+
     @classmethod
     def from_array(
         cls,

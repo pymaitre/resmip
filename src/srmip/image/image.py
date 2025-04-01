@@ -32,6 +32,37 @@ class Image(sitk.Image):
             if isinstance(args[0], Image):
                 self._metadata = args[0].metadata
 
+    def __getitem__(self, key) -> Image:
+        """
+        Get a pixel value, a sliced image, or a metadata item.
+
+        This operator implements basic indexing where idx is
+        arguments or a squence of integers the same dimension as
+        the image. The result will be a pixel value from that
+        index.
+
+        Multi-dimension extended slice based indexing is also
+        implemented. The return is a copy of a new image. The
+        standard sliced based indices are supported including
+        negative indices, to indicate location relative to the
+        end, along with negative step sized to indicate reversing
+        of direction.
+
+        If the length of idx is less than the number of dimension
+        of the image it will be padded with the defaults slice
+        ":".
+
+        When an index element is an integer, that dimension is
+        collapsed extracting an image with reduced dimensionality.
+        The minimum dimension of an image which can be extracted
+        is 2D.
+
+        If indexing with a string, then the metadata dictionary
+        queried with the index as the key. If the metadata dictionary
+        does not contain the key, a KeyError will occour.
+        """
+        return Image(super().__getitem__(key))
+
     @property
     def metadata(self) -> Dict[str, str]:
         """Dicom header combined with other metadata."""

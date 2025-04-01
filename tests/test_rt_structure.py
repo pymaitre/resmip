@@ -413,3 +413,26 @@ def test_write_dicom_structure_set_description(set_description, tmp_path):
         structure.write_image(rtst_path, reference_image_path=dicom_ct_path())
     series_description = pydicom.dcmread(rtst_path)["SeriesDescription"].value
     assert series_description == reference_description
+
+
+def test_crop_structure():
+    """Crop RT structure."""
+    image = srmip.Image().read_image(dicom_ct_path())
+    structure_name = "GTV-1"
+    structure = RTStructure().read_image(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=image
+    )
+    cropped_structure = structure[1:-2, 1:-2, 1:-2]
+    padded_structure = cropped_structure.pad(structure)
+
+    np.testing.assert_equal(
+        np.asarray(cropped_structure.GetSize()),
+        np.asarray(structure.GetSize()) - 3,
+    )
+    assert padded_structure.GetSize() == structure.GetSize()
+    assert padded_structure.origin == structure.origin
+    assert padded_structure.spacing == structure.spacing
+    np.testing.assert_equal(
+        padded_structure.numpy(),
+        structure.numpy(),
+    )

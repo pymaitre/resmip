@@ -10,7 +10,7 @@ repository = "https://github.com/pymaitre/srmip"
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
 numpy = "^1.26.4"
-pydicom = "^2.4.1"
+pydicom = "^2.4.4"
 simpleitk = "^2.4.0"
 scikit-image = "^0.21.0"
 matplotlib = "^3.7.5"

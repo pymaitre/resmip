@@ -12,10 +12,8 @@ import rt_utils.ds_helper
 import rt_utils.image_helper
 import SimpleITK as sitk
 
-from srmip.dicom_utils.rt_utils_wrapper.rt_utils_wrapper import (
-    ROIData,
-    ROIGenerationAlgorithm,
-)
+from srmip.dicom_utils.rt_utils_wrapper.roidata import ROIData
+from srmip.dicom_utils.rt_utils_wrapper.rt_utils_wrapper import ROIGenerationAlgorithm
 
 from .header import add_study_and_series_information, get_slice_positioning
 

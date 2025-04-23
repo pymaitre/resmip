@@ -8,12 +8,12 @@ import pydicom
 import pytest
 
 import srmip
-from srmip.dicom_utils.rt_utils_wrapper import (
-    ROIData,
-    RTStruct,
+from srmip.dicom_utils.rt_utils_wrapper import RTStruct
+from srmip.dicom_utils.rt_utils_wrapper.header import (
     add_leading_zero_to_header_value,
     get_slice_positioning,
 )
+from srmip.dicom_utils.rt_utils_wrapper.roidata import ROIData
 
 from .utils import dicom_ct_path, dicom_rtst_path
 

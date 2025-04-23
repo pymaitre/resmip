@@ -8,11 +8,15 @@ from typing import List, Union
 
 import numpy as np
 import pydicom
-import rt_utils.ds_helper
 import rt_utils.image_helper
 import SimpleITK as sitk
 
 from srmip.dicom_utils.rt_utils_wrapper.constants import ROIGenerationAlgorithm
+from srmip.dicom_utils.rt_utils_wrapper.ds_helper import (
+    add_patient_information,
+    add_refd_frame_of_ref_sequence,
+    generate_base_dataset,
+)
 from srmip.dicom_utils.rt_utils_wrapper.header import (
     add_study_and_series_information,
     get_slice_positioning,
@@ -24,10 +28,10 @@ logger = logging.getLogger(__name__)
 
 def create_rtstruct_dataset(series_data: List[pydicom.Dataset], **kwargs) -> pydicom.FileDataset:
     """Create the DICOM header template for the RT Structure Set."""
-    ds = rt_utils.ds_helper.generate_base_dataset()
+    ds = generate_base_dataset()
     add_study_and_series_information(ds, series_data, **kwargs)
-    rt_utils.ds_helper.add_patient_information(ds, series_data)
-    rt_utils.ds_helper.add_refd_frame_of_ref_sequence(ds, series_data)
+    add_patient_information(ds, series_data)
+    add_refd_frame_of_ref_sequence(ds, series_data)
     return ds
 
 

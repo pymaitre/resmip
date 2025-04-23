@@ -190,6 +190,8 @@ def test_write_image(file_format, tmp_path):
     elif file_format == "dicom":
         dicom_images = sitk.ImageSeriesReader().GetGDCMSeriesFileNames(str(output_file_name))
         new_image = sitk.ReadImage(dicom_images, imageIO="GDCMImageIO")
+    else:
+        raise ValueError
 
     assert np.all(sitk.GetArrayFromImage(new_image) == input_image.numpy())
 
@@ -212,6 +214,8 @@ def test_read_image(file_format, tmp_path):
         new_image_reference = sitk.ReadImage(output_file_name, imageIO="NiftiImageIO")
     elif file_format == "dicom":
         new_image_reference, _ = dicom_series.read(output_file_name)
+    else:
+        raise ValueError
 
     assert np.all(new_image.numpy() == sitk.GetArrayFromImage(new_image_reference))
 

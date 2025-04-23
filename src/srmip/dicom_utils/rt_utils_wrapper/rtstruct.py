@@ -8,7 +8,6 @@ from typing import List, Union
 
 import numpy as np
 import pydicom
-import rt_utils.image_helper
 import SimpleITK as sitk
 
 from srmip.dicom_utils.rt_utils_wrapper.constants import ROIGenerationAlgorithm
@@ -21,6 +20,7 @@ from srmip.dicom_utils.rt_utils_wrapper.header import (
     add_study_and_series_information,
     get_slice_positioning,
 )
+from srmip.dicom_utils.rt_utils_wrapper.image_helper import load_sorted_image_series
 from srmip.dicom_utils.rt_utils_wrapper.roidata import ROIData
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ class RTStruct:
     @classmethod
     def create_new(cls, dicom_series_path: str, **kwargs) -> RTStruct:
         """Create new RTStruct given the path of the referenced DICOM series."""
-        series_data = rt_utils.image_helper.load_sorted_image_series(dicom_series_path)
+        series_data = load_sorted_image_series(dicom_series_path)
         ds = create_rtstruct_dataset(series_data, **kwargs)
         return cls(series_data, ds)
 

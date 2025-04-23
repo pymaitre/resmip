@@ -20,7 +20,7 @@ bidict = "^0.23.1"
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-sphinx = "^7.1.0"
+sphinx = "^7.4.7"
 sphinx-rtd-theme = "^3.0.2"
 
 [tool.poetry.group.test]

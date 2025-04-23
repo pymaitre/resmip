@@ -13,7 +13,7 @@ numpy = "^1.26.4"
 pydicom = "^2.4.4"
 simpleitk = "^2.4.1"
 scikit-image = "^0.24.0"
-matplotlib = "^3.7.5"
+matplotlib = "^3.9.4"
 bidict = "^0.23.1"
 
 [tool.poetry.group.docs]

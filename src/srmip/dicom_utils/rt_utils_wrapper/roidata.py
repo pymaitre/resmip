@@ -8,9 +8,11 @@ import numpy as np
 import pydicom
 import SimpleITK as sitk
 
-from .rt_utils_wrapper import (
+from srmip.dicom_utils.rt_utils_wrapper.constants import (
     ROI_GENERATION_ALGORITHM,
     ROIGenerationAlgorithm,
+)
+from srmip.dicom_utils.rt_utils_wrapper.rt_utils_wrapper import (
     create_contour,
     get_contour_from_slice_mask,
 )

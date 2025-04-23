@@ -2,40 +2,11 @@
 
 from __future__ import annotations
 
-from enum import Enum
 from typing import Tuple
 
 import numpy as np
 import pydicom
 import skimage.measure
-
-
-class ROIGenerationAlgorithm(Enum):
-    """
-    ROI Generation Algorithm.
-
-    For more information see here:
-    https://dicom.innolitics.com/ciods/rt-structure-set/structure-set/30060020/30060036
-    """
-
-    null = 0
-    automatic = 1
-    semiautomatic = 2
-    manual = 3
-
-
-ROI_GENERATION_ALGORITHM = {
-    ROIGenerationAlgorithm.null: "",
-    ROIGenerationAlgorithm.automatic: "AUTOMATIC",
-    ROIGenerationAlgorithm.semiautomatic: "SEMIAUTOMATIC",
-    ROIGenerationAlgorithm.manual: "MANUAL",
-}
-"""
-Type of algorithm used to generate ROI.
-
-For more information see here:
-https://dicom.innolitics.com/ciods/rt-structure-set/structure-set/30060020/30060036
-"""
 
 
 def create_contour(series_slice: pydicom.Dataset, contour_data: np.ndarray) -> pydicom.Dataset:

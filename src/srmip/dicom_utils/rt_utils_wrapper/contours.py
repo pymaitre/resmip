@@ -1,4 +1,4 @@
-"""Wrapper module for rt_utils, used when converting nifti files to DICOM."""
+"""Functions for converting masks and DICOM contours."""
 
 from __future__ import annotations
 

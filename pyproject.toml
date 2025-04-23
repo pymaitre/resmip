@@ -37,3 +37,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 addopts = ['--cov=srmip']
+
+[tool.pylint.DESIGN]
+max-args = 8
+max-locals = 18

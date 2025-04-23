@@ -134,6 +134,7 @@ class RTStructure(Image):
     def write_image(
         self,
         filename: PathLike,
+        *,
         write_metadata: bool = False,
         file_format: Optional[str] = None,
         reference_image_path: Optional[PathLike] = None,
@@ -166,7 +167,10 @@ class RTStructure(Image):
         if file_format != ".dcm":
             return self.write_nondicom(filename, file_format)
         return RTStructureSet([self]).write_image(
-            filename, file_format, reference_image_path, series_description=series_description
+            filename,
+            file_format=file_format,
+            reference_image_path=reference_image_path,
+            series_description=series_description,
         )
 
     def write_nondicom(
@@ -283,6 +287,7 @@ class RTStructureSet(Dict[str, RTStructure]):
     def read_image(
         cls,
         filename: Union[PathLike, List[PathLike]],
+        *,
         structure_names: Optional[List[str]] = None,
         regex: bool = False,
         reference_image: Optional[Image] = None,
@@ -328,6 +333,7 @@ class RTStructureSet(Dict[str, RTStructure]):
     def write_image(
         self,
         filename: Union[PathLike, List[PathLike]],
+        *,
         file_format: Optional[str] = None,
         reference_image_path: Optional[PathLike] = None,
         series_description: str = "",

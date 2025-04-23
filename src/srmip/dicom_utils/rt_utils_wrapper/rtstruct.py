@@ -53,6 +53,7 @@ class RTStruct:
 
     def add_roi(
         self,
+        *,
         mask: sitk.Image,
         color: Union[str, List[int]] = None,
         name: str = None,

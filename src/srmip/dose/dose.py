@@ -76,6 +76,7 @@ class Dose(Image):
     def write_image(
         self,
         filename: PathLike,
+        *,
         write_metadata: bool = False,
         file_format: Optional[str] = None,
         # reference_image_path: Optional[PathLike] = None,

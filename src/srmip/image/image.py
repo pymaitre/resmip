@@ -121,6 +121,7 @@ class Image(sitk.Image):
     def from_array(
         cls,
         array: np.ndarray,
+        *,
         spacing: Tuple[float],
         origin: Tuple[float],
         direction: Tuple[float],
@@ -263,7 +264,7 @@ class Image(sitk.Image):
         new_image.metadata = series_metadata
         return new_image
 
-    def write_image(self, filename: PathLike, write_metadata: bool = True) -> None:
+    def write_image(self, filename: PathLike, *, write_metadata: bool = True) -> None:
         """
         Save image file (and metadata).
 

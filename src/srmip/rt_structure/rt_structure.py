@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Union
 
 import SimpleITK as sitk
 
@@ -93,8 +93,8 @@ class RTStructure(Image):
         cls,
         filename: PathLike,
         read_metadata: bool = True,
-        structure_name: Optional[str] = None,
-        reference_image: Optional[Image] = None,
+        structure_name: str | None = None,
+        reference_image: Image | None = None,
     ) -> RTStructure:
         """
         Read RT Structure from file.
@@ -136,8 +136,8 @@ class RTStructure(Image):
         filename: PathLike,
         *,
         write_metadata: bool = False,
-        file_format: Optional[str] = None,
-        reference_image_path: Optional[PathLike] = None,
+        file_format: str | None = None,
+        reference_image_path: PathLike | None = None,
         series_description: str = "",
     ) -> None:
         """
@@ -174,7 +174,7 @@ class RTStructure(Image):
         )
 
     def write_nondicom(
-        self, filename: PathLike, write_metadata: bool = False, file_format: Optional[str] = None
+        self, filename: PathLike, write_metadata: bool = False, file_format: str | None = None
     ) -> None:
         """
         Save RT Structure for formats other than dicom.
@@ -229,7 +229,7 @@ class RTStructure(Image):
         resampled_structure = RTStructure(resampled_image, name=self.name)
         return resampled_structure
 
-    def __add__(self, value: Union[int, float]) -> RTStructure:
+    def __add__(self, value: int | float) -> RTStructure:
         """
         Add constant value to structure pixel data.
 
@@ -240,7 +240,7 @@ class RTStructure(Image):
         """
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
-    def __sub__(self, value: Union[int, float]) -> RTStructure:
+    def __sub__(self, value: int | float) -> RTStructure:
         """
         Subtract constant value to structure pixel data.
 
@@ -251,7 +251,7 @@ class RTStructure(Image):
         """
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
-    def __mul__(self, value: Union[int, float]) -> RTStructure:
+    def __mul__(self, value: int | float) -> RTStructure:
         """
         Multiply constant value to structure pixel data.
 
@@ -262,7 +262,7 @@ class RTStructure(Image):
         """
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
-    def __truediv__(self, value: Union[int, float]) -> RTStructure:
+    def __truediv__(self, value: int | float) -> RTStructure:
         """
         Multiply constant value to structure pixel data.
 
@@ -274,10 +274,10 @@ class RTStructure(Image):
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
 
-class RTStructureSet(Dict[str, RTStructure]):
+class RTStructureSet(dict[str, RTStructure]):
     """RT Structure Set (dictionary of [str, RTStructure])."""
 
-    def __init__(self, structures: Optional[List[RTStructure]] = None):
+    def __init__(self, structures: list[RTStructure] | None = None):
         """Create a dictionary with the given RT Structures."""
         if structures is None:
             structures = []
@@ -286,11 +286,11 @@ class RTStructureSet(Dict[str, RTStructure]):
     @classmethod
     def read_image(
         cls,
-        filename: Union[PathLike, List[PathLike]],
+        filename: PathLike | list[PathLike],
         *,
-        structure_names: Optional[List[str]] = None,
+        structure_names: list[str] | None = None,
         regex: bool = False,
-        reference_image: Optional[Image] = None,
+        reference_image: Image | None = None,
         parallel: bool = True,
     ) -> RTStructureSet:
         """
@@ -332,10 +332,10 @@ class RTStructureSet(Dict[str, RTStructure]):
 
     def write_image(
         self,
-        filename: Union[PathLike, List[PathLike]],
+        filename: PathLike | list[PathLike],
         *,
-        file_format: Optional[str] = None,
-        reference_image_path: Optional[PathLike] = None,
+        file_format: str | None = None,
+        reference_image_path: PathLike | None = None,
         series_description: str = "",
     ) -> None:
         """

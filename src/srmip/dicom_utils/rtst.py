@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 import matplotlib
 import numpy as np
@@ -34,7 +34,7 @@ class DicomStructure:
 
 def check_if_valid_structure(
     struct_index: Union[int, IS],
-    struct_point_sequence: Dict[str, Dataset],
+    struct_point_sequence: dict[str, Dataset],
 ) -> bool:
     """
     Check if the structure point sequence is valid.
@@ -70,7 +70,7 @@ def check_if_valid_structure(
 
 def convert_single_structure(
     reference_image: sitk.Image,
-    struct_point_sequence: Dict[str, Dataset],
+    struct_point_sequence: dict[str, Dataset],
     struct_ds: Dataset,
 ) -> DicomStructure:
     """
@@ -142,10 +142,10 @@ def convert_single_structure(
 def read(  # pylint: disable=too-many-locals
     rtst_path: Path,
     reference_image: sitk.Image,
-    structure_names: Optional[Union[str, List[str]]] = None,
+    structure_names: Optional[Union[str, list[str]]] = None,
     parallel: bool = False,
     regex: bool = False,
-) -> List[DicomStructure]:
+) -> list[DicomStructure]:
     """
     Read DICOM ST Structure Set file and convert it into a list of RTStructure (nifti) objects.
 
@@ -206,7 +206,7 @@ def read(  # pylint: disable=too-many-locals
 
 
 def write(
-    rt_structures: Dict[str, sitk.Image],
+    rt_structures: dict[str, sitk.Image],
     save_path: PathLike,
     dcm_series_path: PathLike,
     color_map: matplotlib.colors.Colormap = matplotlib.colormaps.get_cmap("rainbow"),

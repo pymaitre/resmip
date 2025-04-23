@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import List, Union
+from typing import Union
 
 import numpy as np
 import pydicom
@@ -32,7 +32,7 @@ class ROIData:
     """ROI name."""
     frame_of_reference_uid: str
     """Frame of reference of the referenced series."""
-    color: Union[str, List[int]] = None
+    color: Union[str, list[int]] = None
     """Color of the RT structure."""
     description: str = ""
     """ROI description."""
@@ -72,7 +72,7 @@ class ROIData:
 
     def roi_contour_sequence(
         self,
-        series_data: List[pydicom.Dataset],
+        series_data: list[pydicom.Dataset],
     ) -> pydicom.Dataset:
         """Create the ROI Contour Sequence for the structure."""
         mask_array = sitk.GetArrayFromImage(self.mask) != 0
@@ -99,7 +99,7 @@ class ROIData:
         roi_contour.ContourSequence = contour_sequence
         return roi_contour
 
-    def validate_mask_array(self, mask: np.ndarray, series_data: List[pydicom.Dataset]) -> None:
+    def validate_mask_array(self, mask: np.ndarray, series_data: list[pydicom.Dataset]) -> None:
         """Check if the mask has correct type and shape."""
         if mask.dtype != bool:
             raise TypeError(f"Mask data type must be boolean. Got {mask.dtype}")

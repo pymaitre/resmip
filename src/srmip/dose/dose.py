@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 import pydicom
 import pydicom.errors
@@ -23,7 +22,7 @@ class Dose(Image):
         cls,
         filename: PathLike,
         read_metadata: bool = True,
-        reference_image: Optional[Image] = None,
+        reference_image: Image | None = None,
     ) -> Dose:
         """
         Read rt dose from file.
@@ -78,7 +77,7 @@ class Dose(Image):
         filename: PathLike,
         *,
         write_metadata: bool = False,
-        file_format: Optional[str] = None,
+        file_format: str | None = None,
         # reference_image_path: Optional[PathLike] = None,
     ) -> None:
         """
@@ -108,7 +107,7 @@ class Dose(Image):
             return self.write_nondicom(filename)
         raise NotImplementedError("Saving to DICOM RT Dose is currently not supported.")
 
-    def __add__(self, value: Union[int, float]) -> Dose:
+    def __add__(self, value: int | float) -> Dose:
         """
         Add constant value to dose pixel data.
 
@@ -119,7 +118,7 @@ class Dose(Image):
         """
         return Dose(super().__add__(value))
 
-    def __sub__(self, value: Union[int, float]) -> Dose:
+    def __sub__(self, value: int | float) -> Dose:
         """
         Subtract constant value to dose pixel data.
 
@@ -130,7 +129,7 @@ class Dose(Image):
         """
         return Dose(super().__sub__(value))
 
-    def __mul__(self, value: Union[int, float]) -> Dose:
+    def __mul__(self, value: int | float) -> Dose:
         """
         Multiply constant value to dose pixel data.
 
@@ -141,7 +140,7 @@ class Dose(Image):
         """
         return Dose(super().__mul__(value))
 
-    def __truediv__(self, value: Union[int, float]) -> Dose:
+    def __truediv__(self, value: int | float) -> Dose:
         """
         Multiply constant value to dose pixel data.
 

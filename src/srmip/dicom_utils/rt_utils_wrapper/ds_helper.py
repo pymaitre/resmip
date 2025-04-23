@@ -1,7 +1,6 @@
 """Wrapper module from rt-utils."""
 
 import datetime
-from typing import List
 
 from pydicom.dataset import Dataset, FileDataset, FileMetaDataset
 from pydicom.sequence import Sequence
@@ -63,7 +62,7 @@ def add_sequence_lists_to_ds(ds: FileDataset):
     ds.RTROIObservationsSequence = Sequence()
 
 
-def add_patient_information(ds: FileDataset, series_data: List[Dataset]):
+def add_patient_information(ds: FileDataset, series_data: list[Dataset]):
     """Add patient information read from the reference image to the header."""
     reference_ds = series_data[0]
     ds.PatientName = getattr(reference_ds, "PatientName", "")
@@ -75,7 +74,7 @@ def add_patient_information(ds: FileDataset, series_data: List[Dataset]):
     ds.PatientWeight = getattr(reference_ds, "PatientWeight", "")
 
 
-def add_refd_frame_of_ref_sequence(ds: FileDataset, series_data: List[Dataset]):
+def add_refd_frame_of_ref_sequence(ds: FileDataset, series_data: list[Dataset]):
     """Set frame of reference for the rtst equal to the one from the reference image."""
     refd_frame_of_ref = Dataset()
     refd_frame_of_ref.FrameOfReferenceUID = getattr(
@@ -87,7 +86,7 @@ def add_refd_frame_of_ref_sequence(ds: FileDataset, series_data: List[Dataset]):
     ds.ReferencedFrameOfReferenceSequence.append(refd_frame_of_ref)
 
 
-def create_frame_of_ref_study_sequence(series_data: List[Dataset]) -> Sequence:
+def create_frame_of_ref_study_sequence(series_data: list[Dataset]) -> Sequence:
     """Set frame of reference from the referenced study."""
     reference_ds = series_data[0]
     rt_refd_series = Dataset()
@@ -107,7 +106,7 @@ def create_frame_of_ref_study_sequence(series_data: List[Dataset]) -> Sequence:
     return rt_refd_study_sequence
 
 
-def create_contour_image_sequence(series_data: List[Dataset]) -> Sequence:
+def create_contour_image_sequence(series_data: list[Dataset]) -> Sequence:
     """Set frame of reference from the referenced series."""
     contour_image_sequence = Sequence()
 

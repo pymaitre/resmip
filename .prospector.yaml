@@ -15,10 +15,3 @@ pydocstyle:
   disable:
     - D203
     - D212
-pylint:
-  disable:
-    - useless-suppression
-    - django-not-available
-  options:
-    max-locals: 18
-    max-args: 8

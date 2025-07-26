@@ -3,7 +3,6 @@
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Tuple
 
 import numpy as np
 import pydicom
@@ -19,7 +18,7 @@ from srmip.utils import PathLike, format_digit_string
 logger = logging.getLogger(__name__)
 
 
-def get_series_dicom_files(dicom_series_directory_path: PathLike) -> Tuple[Path]:
+def get_series_dicom_files(dicom_series_directory_path: PathLike) -> tuple[Path]:
     """
     Get the list of dicom files of the series to be read.
 
@@ -47,7 +46,7 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> Tuple[Path]
 
 def get_spacing_from_dicom_header(
     dicom_series_reader: sitk.ImageSeriesReader, slices_number: int
-) -> Tuple[float]:
+) -> tuple[float]:
     """
     Read correctly-rounded voxel spacing from the DICOM header.
 
@@ -89,7 +88,7 @@ def get_spacing_from_dicom_header(
     return tuple(slice_xy_spacing + [slice_z_spacing])
 
 
-def read(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image, Dict[str, str]]:
+def read(dicom_series_directory_path: PathLike) -> tuple[sitk.Image, dict[str, str]]:
     """
     Read Dicom series from file.
 
@@ -152,7 +151,7 @@ def read(dicom_series_directory_path: PathLike) -> Tuple[sitk.Image, Dict[str, s
     return dicom_series, series_metadata
 
 
-def write(image: sitk.Image, input_metadata: Dict[str, str], save_path: PathLike) -> None:
+def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike) -> None:
     """
     Save the image as a Dicom series.
 

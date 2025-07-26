@@ -11,8 +11,8 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-22.04]
-        python-version: [3.9]
+        os: [windows-latest, ubuntu-latest]
+        python-version: ['3.10']
     env:
       JOB_TYPE: BUILD
     steps:

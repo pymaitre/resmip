@@ -1,7 +1,6 @@
 """Wrapper module from rt-utils."""
 
 import os
-from typing import List
 
 import numpy as np
 from pydicom import Dataset, dcmread
@@ -21,7 +20,7 @@ def load_sorted_image_series(dicom_series_path: str):
     return series_data
 
 
-def load_dcm_images_from_path(dicom_series_path: str) -> List[Dataset]:
+def load_dcm_images_from_path(dicom_series_path: str) -> list[Dataset]:
     """Load all DICOM images from the specified path."""
     series_data = []
     for root, _, files in os.walk(dicom_series_path):

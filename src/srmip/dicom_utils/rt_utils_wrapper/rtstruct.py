@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import List, Union
 
 import numpy as np
 import pydicom
@@ -26,7 +25,7 @@ from srmip.dicom_utils.rt_utils_wrapper.roidata import ROIData
 logger = logging.getLogger(__name__)
 
 
-def create_rtstruct_dataset(series_data: List[pydicom.Dataset], **kwargs) -> pydicom.FileDataset:
+def create_rtstruct_dataset(series_data: list[pydicom.Dataset], **kwargs) -> pydicom.FileDataset:
     """Create the DICOM header template for the RT Structure Set."""
     ds = generate_base_dataset()
     add_study_and_series_information(ds, series_data, **kwargs)
@@ -38,7 +37,7 @@ def create_rtstruct_dataset(series_data: List[pydicom.Dataset], **kwargs) -> pyd
 class RTStruct:
     """Wrapper class of rt_utils.RTStruct."""
 
-    def __init__(self, series_data: List[pydicom.Dataset], ds: pydicom.FileDataset):
+    def __init__(self, series_data: list[pydicom.Dataset], ds: pydicom.FileDataset):
         """Instantiate the RT structure set file builder."""
         self.series_data = series_data
         self.ds = ds
@@ -53,11 +52,12 @@ class RTStruct:
 
     def add_roi(
         self,
+        *,
         mask: sitk.Image,
-        color: Union[str, List[int]] = None,
+        color: str | list[int] = None,
         name: str = None,
         description: str = "",
-        roi_generation_algorithm: Union[str, ROIGenerationAlgorithm] = ROIGenerationAlgorithm.null,
+        roi_generation_algorithm: str | ROIGenerationAlgorithm = ROIGenerationAlgorithm.null,
     ):
         """Add contour to the RT structure set file."""
         self.validate_mask(mask)

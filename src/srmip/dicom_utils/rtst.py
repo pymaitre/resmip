@@ -6,12 +6,14 @@ from dataclasses import dataclass
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 import matplotlib
 import numpy as np
-import pydicom as pydcm
+import pydicom
 import SimpleITK as sitk
+from pydicom.dataset import Dataset
+from pydicom.valuerep import IS
 from skimage.draw import polygon
 
 from srmip.dicom_utils.rt_utils_wrapper import RTStruct
@@ -31,8 +33,8 @@ class DicomStructure:
 
 
 def check_if_valid_structure(
-    struct_index: Union[int, pydcm.valuerep.IS],
-    struct_point_sequence: Dict[str, pydcm.dataset.Dataset],
+    struct_index: Union[int, IS],
+    struct_point_sequence: dict[str, Dataset],
 ) -> bool:
     """
     Check if the structure point sequence is valid.
@@ -40,11 +42,11 @@ def check_if_valid_structure(
     If the structure is invalid, print more information and return false.
 
     :param struct_index: ROI Number of the RT Structure.
-    :type struct_index: int | pydcm.valuerep.IS
+    :type struct_index: int | IS
     :param struct_point_sequence: dictionary containing the sequence of points of the RT Structure.
         - key: string representing ROI Number
-        - value: pydcm.dataset.Dataset containing RT Structure data (including slice polygons)
-    :type struct_point_sequence: Dict[str, pydcm.dataset.Dataset]
+        - value: Dataset containing RT Structure data (including slice polygons)
+    :type struct_point_sequence: Dict[str, Dataset]
     :return: true if the structure point sequence is valid.
     :rtype: bool
     """
@@ -68,8 +70,8 @@ def check_if_valid_structure(
 
 def convert_single_structure(
     reference_image: sitk.Image,
-    struct_point_sequence: Dict[str, pydcm.dataset.Dataset],
-    struct_ds: pydcm.dataset.Dataset,
+    struct_point_sequence: dict[str, Dataset],
+    struct_ds: Dataset,
 ) -> DicomStructure:
     """
     Convert a DICOM RT Structure to NIFTI.
@@ -78,11 +80,11 @@ def convert_single_structure(
     :type reference_image: sitk.Image
     :param struct_point_sequence: dictionary containing the sequence of points of the RT Structure.
         - key: string representing ROI Number
-        - value: pydcm.dataset.Dataset containing RT Structure data (including slice polygons)
-    :type struct_point_sequence: Dict[str, pydcm.dataset.Dataset]
+        - value: Dataset containing RT Structure data (including slice polygons)
+    :type struct_point_sequence: Dict[str, Dataset]
     :param struct_ds: single element of the Structure Set ROI Sequence containing ROI information,
         including ROI Number and ROI Name.
-    :type struct_ds: pydcm.dataset.Dataset
+    :type struct_ds: Dataset
     :return: object containing structure name and structure image.
         If the contour is not valid, return an empy DicomStructure(None, None)
     :rtype: DicomStructure
@@ -140,10 +142,10 @@ def convert_single_structure(
 def read(  # pylint: disable=too-many-locals
     rtst_path: Path,
     reference_image: sitk.Image,
-    structure_names: Optional[Union[str, List[str]]] = None,
+    structure_names: Optional[Union[str, list[str]]] = None,
     parallel: bool = False,
     regex: bool = False,
-) -> List[DicomStructure]:
+) -> list[DicomStructure]:
     """
     Read DICOM ST Structure Set file and convert it into a list of RTStructure (nifti) objects.
 
@@ -163,7 +165,7 @@ def read(  # pylint: disable=too-many-locals
     :return: list of matching RTStructure (nifti) objects.
     :rtype: list[DicomStructure]
     """
-    dicom_struct = pydcm.dcmread(rtst_path, force=True)
+    dicom_struct = pydicom.dcmread(rtst_path, force=True)
 
     struct_point_sequence = {cs.ReferencedROINumber: cs for cs in dicom_struct.ROIContourSequence}
     structure_sets = []
@@ -204,7 +206,7 @@ def read(  # pylint: disable=too-many-locals
 
 
 def write(
-    rt_structures: Dict[str, sitk.Image],
+    rt_structures: dict[str, sitk.Image],
     save_path: PathLike,
     dcm_series_path: PathLike,
     color_map: matplotlib.colors.Colormap = matplotlib.colormaps.get_cmap("rainbow"),

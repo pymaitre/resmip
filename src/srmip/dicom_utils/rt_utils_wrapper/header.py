@@ -2,7 +2,6 @@
 
 import json
 import re
-from typing import Dict, List, Tuple
 
 import pydicom
 from pydicom.uid import generate_uid
@@ -20,7 +19,7 @@ def add_leading_zero_to_header_value(value) -> str:
     return re.sub(r"(\[| -?)\.", r"\g<1>0.", str(value))
 
 
-def get_slice_positioning(dicom_slice: pydicom.Dataset) -> Dict[str, Tuple[float]]:
+def get_slice_positioning(dicom_slice: pydicom.Dataset) -> dict[str, tuple[float]]:
     """Get voxel spacing, origin and direction from a DICOM slice."""
     try:
         series_instance_uid = str(dicom_slice["SOPInstanceUID"].value)
@@ -59,7 +58,7 @@ def get_slice_positioning(dicom_slice: pydicom.Dataset) -> Dict[str, Tuple[float
 
 
 def add_study_and_series_information(
-    ds: pydicom.FileDataset, series_data: List[pydicom.Dataset], **kwargs
+    ds: pydicom.FileDataset, series_data: list[pydicom.Dataset], **kwargs
 ):
     """Add study information to the DICOM header."""
     reference_ds = series_data[0]  # All elements in series should have the same data

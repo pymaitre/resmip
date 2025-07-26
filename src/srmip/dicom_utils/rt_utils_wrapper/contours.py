@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Tuple
-
 import numpy as np
 import pydicom
 import skimage.measure
@@ -28,7 +26,7 @@ def create_contour(series_slice: pydicom.Dataset, contour_data: np.ndarray) -> p
     return contour
 
 
-def get_polygon_contours_from_slice_mask(slice_mask: np.ndarray) -> Tuple[np.ndarray]:
+def get_polygon_contours_from_slice_mask(slice_mask: np.ndarray) -> tuple[np.ndarray]:
     """
     Convert the slice mask to a collection of polygon contours.
 

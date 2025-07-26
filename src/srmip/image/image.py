@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Dict, Iterable, Optional, Tuple, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -64,7 +64,7 @@ class Image(sitk.Image):
         return Image(super().__getitem__(key))
 
     @property
-    def metadata(self) -> Dict[str, str]:
+    def metadata(self) -> dict[str, str]:
         """Dicom header combined with other metadata."""
         return self._metadata
 
@@ -73,29 +73,29 @@ class Image(sitk.Image):
         self._metadata = value
 
     @property
-    def spacing(self) -> Tuple[float]:
+    def spacing(self) -> tuple[float]:
         """Voxel spacing in mm (x, y, z)."""
         return self.GetSpacing()
 
     @spacing.setter
-    def spacing(self, value: Tuple[float]):
+    def spacing(self, value: tuple[float]):
         self.SetSpacing(value)
         # add the spacing to metadata too
         self.metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join([str(x) for x in value[:2]])
         self.metadata[DICOM_FIELDS["SliceThickness"]] = str(value[2])
 
     @property
-    def origin(self) -> Tuple[float]:
+    def origin(self) -> tuple[float]:
         """Coordinates of the top left voxel in mm (x, y, z)."""
         return self.GetOrigin()
 
     @origin.setter
-    def origin(self, value: Tuple[float]):
+    def origin(self, value: tuple[float]):
         """The original DICOM header key is not updated."""
         self.SetOrigin(value)
 
     @property
-    def direction(self) -> Tuple[float]:
+    def direction(self) -> tuple[float]:
         """
         Direction cosine matrix.
 
@@ -105,7 +105,7 @@ class Image(sitk.Image):
         return self.GetDirection()
 
     @direction.setter
-    def direction(self, value: Tuple[float]):
+    def direction(self, value: tuple[float]):
         self.SetDirection(value)
         # add the spacing to metadata too (only xy direction)
         self.metadata[DICOM_FIELDS["ImageOrientationPatient"]] = "\\".join(
@@ -113,7 +113,7 @@ class Image(sitk.Image):
         )
 
     @property
-    def size(self) -> Tuple[float]:
+    def size(self) -> tuple[float]:
         """Image size in pixels."""
         return self.GetSize()
 
@@ -121,10 +121,11 @@ class Image(sitk.Image):
     def from_array(
         cls,
         array: np.ndarray,
-        spacing: Tuple[float],
-        origin: Tuple[float],
-        direction: Tuple[float],
-        metadata: Optional[Dict[str, str]] = None,
+        *,
+        spacing: tuple[float],
+        origin: tuple[float],
+        direction: tuple[float],
+        metadata: dict[str, str] | None = None,
         **kwargs,
     ) -> Image:
         """
@@ -167,9 +168,7 @@ class Image(sitk.Image):
         filename = Path(filename)
         return filename.parent / f".{filename.stem}.json"
 
-    def __array__(
-        self, dtype: Optional[Union[str, npt.DTypeLike]] = None, view: bool = False
-    ) -> np.ndarray:
+    def __array__(self, dtype: str | npt.DTypeLike | None = None, view: bool = False) -> np.ndarray:
         """
         Convert an image to a numpy array.
 
@@ -193,9 +192,7 @@ class Image(sitk.Image):
             image_array = image_array.astype(dtype)
         return image_array
 
-    def numpy(
-        self, dtype: Optional[Union[str, npt.DTypeLike]] = None, view: bool = False
-    ) -> np.ndarray:
+    def numpy(self, dtype: str | npt.DTypeLike | None = None, view: bool = False) -> np.ndarray:
         """
         Generate a numpy array of pixels from the image.
 
@@ -263,7 +260,7 @@ class Image(sitk.Image):
         new_image.metadata = series_metadata
         return new_image
 
-    def write_image(self, filename: PathLike, write_metadata: bool = True) -> None:
+    def write_image(self, filename: PathLike, *, write_metadata: bool = True) -> None:
         """
         Save image file (and metadata).
 
@@ -409,7 +406,7 @@ class Image(sitk.Image):
 
     @staticmethod
     def _get_coregistration_method(
-        seed: int = 0, num_threads: Optional[int] = None
+        seed: int = 0, num_threads: int | None = None
     ) -> sitk.ImageRegistrationMethod:
         """
         Generate method used for coregistration.
@@ -448,7 +445,7 @@ class Image(sitk.Image):
         reference_image: Image,
         fill_value: float = 0.0,
         seed: int = 0,
-        num_threads: Optional[int] = None,
+        num_threads: int | None = None,
     ) -> Image:
         """
         Coregiser the image on top of another (reference) image.
@@ -495,7 +492,7 @@ class Image(sitk.Image):
         moving_image.metadata = self.metadata
         return moving_image
 
-    def __add__(self, value: Union[int, float]) -> Image:
+    def __add__(self, value: int | float) -> Image:
         """
         Add constant value to pixel data.
 
@@ -519,7 +516,7 @@ class Image(sitk.Image):
         transformed_image.metadata = self.metadata
         return transformed_image
 
-    def __sub__(self, value: Union[int, float]) -> Image:
+    def __sub__(self, value: int | float) -> Image:
         """
         Subtract constant value to pixel data.
 
@@ -542,7 +539,7 @@ class Image(sitk.Image):
         transformed_image.metadata = self.metadata
         return transformed_image
 
-    def __mul__(self, value: Union[int, float]) -> Image:
+    def __mul__(self, value: int | float) -> Image:
         """
         Multiply constant value to pixel data.
 
@@ -566,7 +563,7 @@ class Image(sitk.Image):
         transformed_image.metadata = self.metadata
         return transformed_image
 
-    def __truediv__(self, value: Union[int, float]) -> Image:
+    def __truediv__(self, value: int | float) -> Image:
         """
         Multiply constant value to pixel data.
 

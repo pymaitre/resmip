@@ -382,6 +382,39 @@ def test_rtstruct_resample():
     assert np.allclose(resampled_volume, volume, rtol=0.006)
 
 
+@pytest.mark.parametrize("left_shift", [-1, 0, 1])
+@pytest.mark.parametrize("right_shift", [-1, 0, 1])
+def test_rtstruct_pad(left_shift, right_shift):
+    """Test RTStructure.pad()."""
+    image_spacing = (1, 1, 1)
+    image_origin = np.array((0, 0, 0))
+    reference_origin = image_origin + left_shift
+    image_direction = (1, 0, 0, 0, 1, 0, 0, 0, 1)
+    original_shape = (5, 5, 5)
+    reference_size = np.array(original_shape) + right_shift
+    original_array = np.zeros(original_shape)
+    point_coordinate = (2, 2, 2)
+    original_array[point_coordinate] = 1
+    original_structure = RTStructure().from_array(
+        original_array,
+        spacing=image_spacing,
+        origin=tuple(image_origin.tolist()),
+        direction=image_direction,
+    )
+    reference_structure = RTStructure().from_array(
+        np.zeros(reference_size),
+        spacing=image_spacing,
+        origin=tuple(reference_origin.tolist()),
+        direction=image_direction,
+    )
+    padded_structure = original_structure.pad(reference_structure)
+    new_coordinate = np.array(point_coordinate) - left_shift
+
+    assert padded_structure.numpy().shape == reference_structure.numpy().shape
+    assert padded_structure.numpy()[tuple(new_coordinate.tolist())] == 1
+    assert padded_structure.name == reference_structure.name
+
+
 @pytest.mark.parametrize("operation", ["__add__", "__sub__", "__mul__", "__truediv__"])
 def test_rtstruct_add_sub_mul_truediv(operation):
     """Arithmetic operators on RT structures are not implemented."""

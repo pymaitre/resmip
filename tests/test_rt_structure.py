@@ -386,26 +386,28 @@ def test_rtstruct_resample():
 @pytest.mark.parametrize("right_shift", [-1, 0, 1])
 def test_rtstruct_pad(left_shift, right_shift):
     """Test RTStructure.pad()."""
-    image_spacing = (1, 1, 1)
-    image_origin = np.array((0, 0, 0))
-    reference_origin = image_origin + left_shift
-    image_direction = (1, 0, 0, 0, 1, 0, 0, 0, 1)
-    original_shape = (5, 5, 5)
-    reference_size = np.array(original_shape) + right_shift
-    original_array = np.zeros(original_shape)
+    structure_spacing = (1, 1, 1)
+    structure_origin = np.array((0, 0, 0))
+    reference_origin = structure_origin + left_shift
+    structure_direction = (1, 0, 0, 0, 1, 0, 0, 0, 1)
+    original_structure_shape = (5, 5, 5)
+    reference_size = np.array(original_structure_shape) + right_shift
+    original_array = np.zeros(original_structure_shape)
     point_coordinate = (2, 2, 2)
     original_array[point_coordinate] = 1
     original_structure = RTStructure().from_array(
         original_array,
-        spacing=image_spacing,
-        origin=tuple(image_origin.tolist()),
-        direction=image_direction,
+        spacing=structure_spacing,
+        origin=tuple(structure_origin.tolist()),
+        direction=structure_direction,
+        name="Struct",
     )
     reference_structure = RTStructure().from_array(
         np.zeros(reference_size),
-        spacing=image_spacing,
+        spacing=structure_spacing,
         origin=tuple(reference_origin.tolist()),
-        direction=image_direction,
+        direction=structure_direction,
+        name="Struct",
     )
     padded_structure = original_structure.pad(reference_structure)
     new_coordinate = np.array(point_coordinate) - left_shift

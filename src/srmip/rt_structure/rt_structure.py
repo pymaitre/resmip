@@ -6,6 +6,7 @@ import logging
 from collections.abc import Iterable
 from pathlib import Path
 
+import numpy as np
 import SimpleITK as sitk
 
 import srmip.dicom_utils.rtst as dicom_rtst
@@ -131,6 +132,48 @@ class RTStructure(Image):
         new_rt_structure = cls(Image().read_image(filename), name=structure_name)
         return new_rt_structure
 
+    @classmethod
+    def from_array(
+        cls,
+        array: np.ndarray,
+        *,
+        spacing: tuple[float],
+        origin: tuple[float],
+        direction: tuple[float],
+        metadata: dict[str, str] | None = None,
+        name: str = "",
+        **kwargs,
+    ) -> RTStructure:
+        """
+        Create a new structure from a numpy array.
+
+        :param array: 3D array containing voxel values for the structure (z, y, x).
+        :type array: np.ndarray
+        :param spacing: Voxel spacing for the structure in mm (x, y, z).
+        :type spacing: tuple[float]
+        :param origin: Coordinates of the top left voxel in mm (x, y, z).
+        :type origin: tuple[float]
+        :param direction: Direction cosine matrix.
+        :type direction: tuple[float]
+        :param metadata: Metadata containing information from the DICOM header.
+        :type metadata: Dict[str, str]|None
+        :param name: Name of the structure.
+        :type name: str
+        :return: New structure
+        :rtype: RTStructure
+        """
+        return RTStructure(
+            super().from_array(
+                array=array,
+                spacing=spacing,
+                origin=origin,
+                direction=direction,
+                metadata=metadata,
+                **kwargs,
+            ),
+            name=name,
+        )
+
     def write_image(
         self,
         filename: PathLike,
@@ -228,6 +271,22 @@ class RTStructure(Image):
         )
         resampled_structure = RTStructure(resampled_image, name=self.name)
         return resampled_structure
+
+    def pad(self, reference_image: Image, **kwargs) -> RTStructure:
+        """
+        Pad the structure on top of another image.
+
+        Uses the same notation as `numpy.pad`.
+        The struct is shifted aligning its top-left voxel with the reference image.
+        The two images must have the same voxel spacing.
+        The shifted structure is cropped if it extends out of the reference image.
+
+        :param reference_image: Image used as reference for padding.
+        :type reference_image: Image
+        :return: New structure with same shape and spacing of the reference.
+        :rtype: RTStructure
+        """
+        return RTStructure(super().pad(reference_image=reference_image, **kwargs), name=self.name)
 
     def __add__(self, value: int | float) -> RTStructure:
         """

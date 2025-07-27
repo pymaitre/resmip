@@ -272,6 +272,22 @@ class RTStructure(Image):
         resampled_structure = RTStructure(resampled_image, name=self.name)
         return resampled_structure
 
+    def pad(self, reference_image: Image, **kwargs) -> RTStructure:
+        """
+        Pad the structure on top of another image.
+
+        Uses the same notation as `numpy.pad`.
+        The struct is shifted aligning its top-left voxel with the reference image.
+        The two images must have the same voxel spacing.
+        The shifted structure is cropped if it extends out of the reference image.
+
+        :param reference_image: Image used as reference for padding.
+        :type reference_image: Image
+        :return: New structure with same shape and spacing of the reference.
+        :rtype: RTStructure
+        """
+        return RTStructure(super().pad(reference_image=reference_image, **kwargs), name=self.name)
+
     def __add__(self, value: int | float) -> RTStructure:
         """
         Add constant value to structure pixel data.

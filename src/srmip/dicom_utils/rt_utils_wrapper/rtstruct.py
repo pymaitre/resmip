@@ -109,22 +109,20 @@ class RTStruct:
 
         reference_spacing = (reference_spacing[:2]) + (z_spacing,)
 
-        # if mask.GetSpacing() != reference_spacing:
         if not np.allclose(mask.GetSpacing(), reference_spacing):
             raise ValueError(
                 f"The mask spacing ({mask.GetSpacing()}) is different "
                 f"than the reference series spacing ({reference_spacing})."
             )
-        # if mask.GetOrigin() != tuple(reference_origin):
         if not np.allclose(mask.GetOrigin(), reference_origin):
             raise ValueError(
                 f"The mask origin ({mask.GetOrigin()}) is different "
                 f"than the reference series origin ({reference_origin})."
             )
-        if mask.GetDirection()[:-3] != tuple(reference_direction):
+        if not np.allclose(mask.GetDirection()[:-3], reference_direction):
             raise ValueError(
-                f"The mask origin ({mask.GetDirection()[:-3]}) is different "
-                f"than the reference series origin ({reference_direction})."
+                f"The mask direction ({mask.GetDirection()[:-3]}) is different "
+                f"than the reference series direction ({reference_direction})."
             )
 
     def save(self, file_path: Path) -> None:

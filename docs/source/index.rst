@@ -8,6 +8,8 @@
 
 Welcome to srmip's documentation!
 =================================
+SRMIP stands for a Python library for Medical Image Processing (MIP). It can help you reading and writing 3D images such as CTs, MRIs, PETs in various formats, including DICOM and ITK formats (such as NIFTI). 
+It also fully supports DICOM RT Structure Sets and ITK-compatible (e.g.: NIFTI) structures. SRMIP can also read DICOM RT Dose files and save them to ITK formats.
 
 Getting started
 ---------------

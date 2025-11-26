@@ -8,12 +8,12 @@ import numpy as np
 import pydicom
 import SimpleITK as sitk
 
-from srmip.dicom_utils.constants import (
+from resmip.dicom_utils.constants import (
     DICOM_FIELDS,
     SERIES_DEPENDENT_FIELDS,
     SLICE_DEPENDENT_FIELDS,
 )
-from srmip.utils import PathLike, format_digit_string
+from resmip.utils import PathLike, format_digit_string
 
 logger = logging.getLogger(__name__)
 

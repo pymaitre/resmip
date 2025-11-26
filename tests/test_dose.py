@@ -7,8 +7,8 @@ import numpy as np
 import pydicom
 import pytest
 
-from srmip.dose.dose import Dose
-from srmip.image.image import Image
+from resmip.dose.dose import Dose
+from resmip.image.image import Image
 
 REFERENCE_DICOM_PATH = Path(__file__).parent / "Dicom" / "dicompyler_img"
 REFERENCE_DICOM_IMAGE_PATH = REFERENCE_DICOM_PATH / "ct.0.dcm"

@@ -1,4 +1,4 @@
-"""srmip."""
+"""resmip."""
 
 import importlib.metadata as im
 

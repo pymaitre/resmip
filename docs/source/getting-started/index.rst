@@ -3,7 +3,7 @@
 Getting started
 ===============
 
-Installation of srmip.
+Installation of resmip.
 
 .. toctree::
     :maxdepth: 2

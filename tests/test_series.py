@@ -7,10 +7,10 @@ import numpy as np
 import pydicom
 import SimpleITK as sitk
 
-import srmip.dicom_utils.series as dicom_series
-from srmip import read_image, write_image
-from srmip.dicom_utils.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
-from srmip.image.image import Image
+import resmip.dicom_utils.series as dicom_series
+from resmip import read_image, write_image
+from resmip.dicom_utils.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
+from resmip.image.image import Image
 
 from .utils import dicom_ct_path
 

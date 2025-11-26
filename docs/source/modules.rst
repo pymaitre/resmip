@@ -1,7 +1,7 @@
-srmip
-=====
+resmip
+======
 
 .. toctree::
    :maxdepth: 4
 
-   srmip
+   resmip

@@ -1,13 +1,13 @@
-srmip.dose package
-==================
+resmip.dose package
+===================
 
 Submodules
 ----------
 
-srmip.dose.dose module
-----------------------
+resmip.dose.dose module
+-----------------------
 
-.. automodule:: srmip.dose.dose
+.. automodule:: resmip.dose.dose
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ srmip.dose.dose module
 Module contents
 ---------------
 
-.. automodule:: srmip.dose
+.. automodule:: resmip.dose
    :members:
    :undoc-members:
    :show-inheritance:

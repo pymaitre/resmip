@@ -1,9 +1,9 @@
 
 
-Install srmip
-=============
+Install resmip
+==============
 
-Srmip can be installed using poetry (https://python-poetry.org/).
+resmip can be installed using poetry (https://python-poetry.org/).
 
 Normal installation
 -------------------
@@ -17,25 +17,25 @@ Setting up poetry
 
     pip install poetry
 
-Install srmip
-^^^^^^^^^^^^^
+Install resmip
+^^^^^^^^^^^^^^
 
-For non-development use, srmip can be installed from the project directory in two possible ways:
+For non-development use, resmip can be installed from the project directory in two possible ways:
 
 1. Using poetry:
 
 .. code-block:: bash
 
-    git clone https://github.com/pymaitre/srmip
-    cd srmip
+    git clone https://github.com/pymaitre/resmip
+    cd resmip
     poetry install
 
 2. Using pip:
 
 .. code-block:: bash
 
-    git clone https://github.com/pymaitre/srmip
-    cd srmip
+    git clone https://github.com/pymaitre/resmip
+    cd resmip
     pip install .
 
 Development
@@ -53,11 +53,11 @@ This library support pre-commit hook scripts (https://pre-commit.com/). ``pre-co
 Installation
 ^^^^^^^^^^^^
 
-Install srmip with poetry. It is also recommended to install extra dependencies:
+Install resmip with poetry. It is also recommended to install extra dependencies:
 
 .. code-block:: bash
 
-    git clone https://github.com/pymaitre/srmip
-    cd srmip
+    git clone https://github.com/pymaitre/resmip
+    cd resmip
     poetry install --with docs,test
     pre-commit install

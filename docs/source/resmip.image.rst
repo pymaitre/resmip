@@ -1,13 +1,13 @@
-srmip.image package
-===================
+resmip.image package
+====================
 
 Submodules
 ----------
 
-srmip.image.image module
-------------------------
+resmip.image.image module
+-------------------------
 
-.. automodule:: srmip.image.image
+.. automodule:: resmip.image.image
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ srmip.image.image module
 Module contents
 ---------------
 
-.. automodule:: srmip.image
+.. automodule:: resmip.image
    :members:
    :undoc-members:
    :show-inheritance:

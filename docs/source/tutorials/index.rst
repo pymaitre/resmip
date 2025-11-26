@@ -3,7 +3,7 @@
 Tutorials
 =========
 
-Tutorials on how to use srmip.
+Tutorials on how to use resmip.
 
 .. toctree::
     :maxdepth: 2

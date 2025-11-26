@@ -6,7 +6,7 @@ from pydicom.dataset import Dataset, FileDataset, FileMetaDataset
 from pydicom.sequence import Sequence
 from pydicom.uid import ImplicitVRLittleEndian, generate_uid
 
-from srmip.dicom_utils.rt_utils_wrapper.sopclass import SOPClassUID
+from resmip.dicom_utils.rt_utils_wrapper.sopclass import SOPClassUID
 
 
 def generate_base_dataset() -> FileDataset:

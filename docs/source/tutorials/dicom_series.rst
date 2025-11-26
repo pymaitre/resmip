@@ -11,14 +11,14 @@ Import a Dicom series
 
     The DICOM images used in this tutorial can be found in ``tests/Dicom/siemens_mprage_0_dcm``.
 
-Any Dicom series (e.g.: CT) can be imported with srmip using the ``read_image`` method from the ``Image`` class.
+Any Dicom series (e.g.: CT) can be imported with resmip using the ``read_image`` method from the ``Image`` class.
 
 .. testcode:: python
     :hide:
 
     from pathlib import Path
 
-    from srmip.image import Image
+    from resmip.image import Image
 
 
     dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "siemens_mprage_0_dcm"
@@ -31,7 +31,7 @@ First of all, we define the path of the ditectory containing the Dicom CT:
 
 .. testcode:: python
 
-    from srmip.image import Image
+    from resmip.image import Image
 
 
     dicom_image = Image().read_image(dicom_ct_directory)
@@ -40,10 +40,10 @@ Alternatively, images can be imported with the ``read_image`` method:
 
 .. testcode:: python
 
-    import srmip
+    import resmip
 
 
-    dicom_image = srmip.read_image(dicom_ct_directory)
+    dicom_image = resmip.read_image(dicom_ct_directory)
 
 Save a Dicom series
 -------------------
@@ -56,7 +56,7 @@ Images can be saved to Dicom using the ``write_image`` method of ``Image``, as l
     from pathlib import Path
     import tempfile
 
-    from srmip.image import Image
+    from resmip.image import Image
 
 
     dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "siemens_mprage_0_dcm"
@@ -71,7 +71,7 @@ First of all, we define the path of the ditectory containing the Dicom CT and th
 
 .. testcode:: python
 
-    from srmip.image import Image
+    from resmip.image import Image
 
 
     dicom_image = Image().read_image(dicom_ct_directory)
@@ -82,11 +82,11 @@ Alternatively, images can be saved to dicom with the ``write_image`` method:
 
 .. testcode:: python
 
-    import srmip
+    import resmip
 
 
-    dicom_image = srmip.read_image(dicom_ct_directory)
-    srmip.write_image(dicom_image, dicom_ct_destination_directory)
+    dicom_image = resmip.read_image(dicom_ct_directory)
+    resmip.write_image(dicom_image, dicom_ct_destination_directory)
 
 
 ..

@@ -11,10 +11,10 @@ import numpy as np
 import numpy.typing as npt
 import SimpleITK as sitk
 
-import srmip.dicom_utils.series as dicom_series
-from srmip import DICOM_FIELDS
-from srmip.image._data_types import ImageDTypeLike, _is_unsigned, _sitk_image_dtype
-from srmip.utils import PathLike, format_digit_string
+import resmip.dicom_utils.series as dicom_series
+from resmip import DICOM_FIELDS
+from resmip.image._data_types import ImageDTypeLike, _is_unsigned, _sitk_image_dtype
+from resmip.utils import PathLike, format_digit_string
 
 logger = logging.getLogger(__name__)
 

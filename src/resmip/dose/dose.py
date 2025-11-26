@@ -8,14 +8,14 @@ from pathlib import Path
 import pydicom
 import pydicom.errors
 
-from srmip.image import Image
-from srmip.utils import PathLike
+from resmip.image import Image
+from resmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
 
 
 class Dose(Image):
-    """RT Dose (wrapper of srmip.Image)."""
+    """RT Dose (wrapper of resmip.Image)."""
 
     @classmethod
     def read_image(

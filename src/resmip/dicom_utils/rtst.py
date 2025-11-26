@@ -16,8 +16,8 @@ from pydicom.dataset import Dataset
 from pydicom.valuerep import IS
 from skimage.draw import polygon
 
-from srmip.dicom_utils.rt_utils_wrapper import RTStruct
-from srmip.utils import PathLike
+from resmip.dicom_utils.rt_utils_wrapper import RTStruct
+from resmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
 

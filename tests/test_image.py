@@ -4,10 +4,10 @@ import numpy as np
 import pytest
 import SimpleITK as sitk
 
-import srmip.dicom_utils.series as dicom_series
-from srmip import DICOM_FIELDS
-from srmip.image.image import Image
-from srmip.utils import format_digit_string
+import resmip.dicom_utils.series as dicom_series
+from resmip import DICOM_FIELDS
+from resmip.image.image import Image
+from resmip.utils import format_digit_string
 
 from .utils import coregistered_image_path, dicom_ct_path
 

@@ -2,7 +2,7 @@
 
 import pytest
 
-from srmip.utils import format_digit_string
+from resmip.utils import format_digit_string
 
 
 @pytest.mark.parametrize("is_digit", [True, False])

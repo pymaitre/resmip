@@ -7,21 +7,21 @@ import numpy as np
 import pydicom
 import pytest
 
-import srmip
-from srmip.dicom_utils.rt_utils_wrapper import RTStruct
-from srmip.dicom_utils.rt_utils_wrapper.header import (
+import resmip
+from resmip.dicom_utils.rt_utils_wrapper import RTStruct
+from resmip.dicom_utils.rt_utils_wrapper.header import (
     add_leading_zero_to_header_value,
     get_slice_positioning,
 )
-from srmip.dicom_utils.rt_utils_wrapper.roidata import ROIData
+from resmip.dicom_utils.rt_utils_wrapper.roidata import ROIData
 
 from .utils import dicom_ct_path, dicom_rtst_path
 
 
 def test_validate_mask_array_wrong_type():
     """Test validate_mask_array with wrong array type."""
-    image = srmip.Image.read_image(dicom_ct_path())
-    structure = srmip.RTStructure.read_image(
+    image = resmip.Image.read_image(dicom_ct_path())
+    structure = resmip.RTStructure.read_image(
         dicom_rtst_path(), structure_name="GTV-1", reference_image=image
     )
     rtst = RTStruct.create_new(dicom_ct_path())
@@ -33,8 +33,8 @@ def test_validate_mask_array_wrong_type():
 
 def test_validate_mask_array_wrong_shape():
     """Test validate_mask_array with wrong array shape."""
-    image = srmip.Image.read_image(dicom_ct_path())
-    structure = srmip.RTStructure.read_image(
+    image = resmip.Image.read_image(dicom_ct_path())
+    structure = resmip.RTStructure.read_image(
         dicom_rtst_path(), structure_name="GTV-1", reference_image=image
     )
     rtst = RTStruct.create_new(dicom_ct_path())
@@ -47,8 +47,8 @@ def test_validate_mask_array_wrong_shape():
 
 def test_validate_mask_array_wrong_dimension():
     """Test validate_mask_array with wrong dimension (2D array)."""
-    image = srmip.Image.read_image(dicom_ct_path())
-    structure = srmip.RTStructure.read_image(
+    image = resmip.Image.read_image(dicom_ct_path())
+    structure = resmip.RTStructure.read_image(
         dicom_rtst_path(), structure_name="GTV-1", reference_image=image
     )
     rtst = RTStruct.create_new(dicom_ct_path())
@@ -61,8 +61,8 @@ def test_validate_mask_array_wrong_dimension():
 
 def test_validate_mask_array_empty(caplog):
     """Test validate_mask_array with all zeros."""
-    image = srmip.Image.read_image(dicom_ct_path())
-    structure = srmip.RTStructure.read_image(
+    image = resmip.Image.read_image(dicom_ct_path())
+    structure = resmip.RTStructure.read_image(
         dicom_rtst_path(), structure_name="GTV-1", reference_image=image
     )
     rtst = RTStruct.create_new(dicom_ct_path())
@@ -78,8 +78,8 @@ def test_validate_mask_array_empty(caplog):
 def test_validate_mask_wrong_spacing():
     """Test validate_mask_array with wrong voxel spacing."""
     rtst = RTStruct.create_new(dicom_ct_path())
-    image = srmip.Image.read_image(dicom_ct_path())
-    structure = srmip.RTStructure.read_image(
+    image = resmip.Image.read_image(dicom_ct_path())
+    structure = resmip.RTStructure.read_image(
         dicom_rtst_path(), structure_name="GTV-1", reference_image=image
     ).resample((0.5, 0.5, 0.5))
     with pytest.raises(ValueError):
@@ -89,8 +89,8 @@ def test_validate_mask_wrong_spacing():
 def test_validate_mask_wrong_origin():
     """Test validate_mask_array with wrong origin."""
     rtst = RTStruct.create_new(dicom_ct_path())
-    image = srmip.Image.read_image(dicom_ct_path())
-    structure = srmip.RTStructure.read_image(
+    image = resmip.Image.read_image(dicom_ct_path())
+    structure = resmip.RTStructure.read_image(
         dicom_rtst_path(), structure_name="GTV-1", reference_image=image
     )
     structure.origin = (0, 0, 0)
@@ -101,8 +101,8 @@ def test_validate_mask_wrong_origin():
 def test_validate_mask_wrong_direction():
     """Test validate_mask_array with wrong orientation."""
     rtst = RTStruct.create_new(dicom_ct_path())
-    image = srmip.Image.read_image(dicom_ct_path())
-    structure = srmip.RTStructure.read_image(
+    image = resmip.Image.read_image(dicom_ct_path())
+    structure = resmip.RTStructure.read_image(
         dicom_rtst_path(), structure_name="GTV-1", reference_image=image
     )
     structure.direction = (0, 1, 0, 1, 0, 0, 0, 0, 1)

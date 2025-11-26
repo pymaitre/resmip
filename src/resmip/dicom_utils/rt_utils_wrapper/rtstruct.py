@@ -9,18 +9,18 @@ import numpy as np
 import pydicom
 import SimpleITK as sitk
 
-from srmip.dicom_utils.rt_utils_wrapper.constants import ROIGenerationAlgorithm
-from srmip.dicom_utils.rt_utils_wrapper.ds_helper import (
+from resmip.dicom_utils.rt_utils_wrapper.constants import ROIGenerationAlgorithm
+from resmip.dicom_utils.rt_utils_wrapper.ds_helper import (
     add_patient_information,
     add_refd_frame_of_ref_sequence,
     generate_base_dataset,
 )
-from srmip.dicom_utils.rt_utils_wrapper.header import (
+from resmip.dicom_utils.rt_utils_wrapper.header import (
     add_study_and_series_information,
     get_slice_positioning,
 )
-from srmip.dicom_utils.rt_utils_wrapper.image_helper import load_sorted_image_series
-from srmip.dicom_utils.rt_utils_wrapper.roidata import ROIData
+from resmip.dicom_utils.rt_utils_wrapper.image_helper import load_sorted_image_series
+from resmip.dicom_utils.rt_utils_wrapper.roidata import ROIData
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
-srmip package
-=============
+resmip package
+==============
 
 Subpackages
 -----------
@@ -7,18 +7,18 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   srmip.dicom_utils
-   srmip.dose
-   srmip.image
-   srmip.rt_structure
+   resmip.dicom_utils
+   resmip.dose
+   resmip.image
+   resmip.rt_structure
 
 Submodules
 ----------
 
-srmip.utils module
-------------------
+resmip.utils module
+-------------------
 
-.. automodule:: srmip.utils
+.. automodule:: resmip.utils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -26,7 +26,7 @@ srmip.utils module
 Module contents
 ---------------
 
-.. automodule:: srmip
+.. automodule:: resmip
    :members:
    :undoc-members:
    :show-inheritance:

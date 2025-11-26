@@ -14,11 +14,11 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "srmip"
+project = "resmip"
 copyright = "2023, G. Palazzo, M.G. Ubeira-Gabellini"
 author = "G. Palazzo, M.G. Ubeira-Gabellini"
 # The full version, including alpha/beta/rc tags
-release = "0.0.1"
+release = "0.0.5"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

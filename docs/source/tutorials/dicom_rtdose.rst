@@ -16,15 +16,15 @@ Import a Dicom RT Dose
 
     There is currently no support for saving DICOM RT Dose files.
 
-Dicom RT Dose files can be imported with `srmip` after having imported the referenced series:
+Dicom RT Dose files can be imported with `resmip` after having imported the referenced series:
 
 .. testcode:: python
     :hide:
 
     from pathlib import Path
 
-    from srmip.image import Image
-    from srmip.dose import Dose
+    from resmip.image import Image
+    from resmip.dose import Dose
 
 
     dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "dicompyler_img"
@@ -39,8 +39,8 @@ First of all, we define the path of the ditectory containing the Dicom CT and RT
 
 .. testcode:: python
 
-    from srmip.image import Image
-    from srmip.dose import Dose
+    from resmip.image import Image
+    from resmip.dose import Dose
 
 
     dicom_image = Image().read_image(dicom_ct_directory)

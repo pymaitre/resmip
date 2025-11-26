@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "srmip"
+name = "resmip"
 version = "0.0.5"
 description = "Python library for Medical Image Processing (MIP)."
 authors = ["G. Palazzo, M.G. Ubeira-Gabellini"]
 license = "GNU Lesser General Public License v2.1"
 readme = "README.md"
-repository = "https://github.com/pymaitre/srmip"
+repository = "https://github.com/pymaitre/resmip"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
@@ -36,7 +36,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = ['--cov=srmip']
+addopts = ['--cov=resmip']
 
 [tool.pylint.DESIGN]
 max-args = 8

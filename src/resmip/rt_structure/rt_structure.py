@@ -9,9 +9,9 @@ from pathlib import Path
 import numpy as np
 import SimpleITK as sitk
 
-import srmip.dicom_utils.rtst as dicom_rtst
-from srmip import Image
-from srmip.utils import PathLike
+import resmip.dicom_utils.rtst as dicom_rtst
+from resmip import Image
+from resmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +33,11 @@ def get_structure_name_from_filename(filename: Path) -> str:
 
 
 class RTStructure(Image):
-    """RT Structure (wrapper of srmip.Image)."""
+    """RT Structure (wrapper of resmip.Image)."""
 
     def __init__(self, *args, name: str = ""):
         """
-        Call srmip.Image constructor and set a name for the RT Structure.
+        Call resmip.Image constructor and set a name for the RT Structure.
 
         :param name: name of the RT Structure. Defaults to an empty string.
         :type name: str
@@ -246,7 +246,7 @@ class RTStructure(Image):
         default_pixel_value: float = 0,
     ) -> RTStructure:
         """
-        Wrapper of srmip.Image.resample, using the appropriate interpolator.
+        Wrapper of resmip.Image.resample, using the appropriate interpolator.
 
         Resample the image with a new voxel spacing (in mm).
 

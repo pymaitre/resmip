@@ -13,7 +13,7 @@ Image processing
 
     from pathlib import Path
 
-    from srmip.image import Image
+    from resmip.image import Image
 
 
     dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "IBSI1_CT_phantom" / "CT_00000"

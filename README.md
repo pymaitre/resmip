@@ -1,5 +1,11 @@
-# srmip
-Python library for Medical Image Processing (MIP).
+<p align="center">
+  <img src="assets/resmip.png" alt="ResMIP Logo" width="320"><br>
+  <align="center"><em> A python-based Reseach library for Medical Image Processing (MIP) </em>
+</p>
+
+---
+
+# ResMIP
 
 ## Installation and working environment
 

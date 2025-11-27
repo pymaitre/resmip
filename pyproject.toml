@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/pymaitre/resmip"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.14"
+python = ">=3.10,<3.15"
 numpy = "^1.26.4"
 pydicom = "^2.4.4"
 simpleitk = "^2.4.1"

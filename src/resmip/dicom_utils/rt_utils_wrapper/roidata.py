@@ -2,7 +2,6 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Union
 
 import numpy as np
 import pydicom
@@ -32,11 +31,11 @@ class ROIData:
     """ROI name."""
     frame_of_reference_uid: str
     """Frame of reference of the referenced series."""
-    color: Union[str, list[int]] = None
+    color: str | list[int] = None
     """Color of the RT structure."""
     description: str = ""
     """ROI description."""
-    roi_generation_algorithm: Union[str, ROIGenerationAlgorithm] = ROIGenerationAlgorithm.null
+    roi_generation_algorithm: str | ROIGenerationAlgorithm = ROIGenerationAlgorithm.null
     """
     Supported values:
         - ""

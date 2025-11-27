@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
-from typing import Optional, Union
 
 import matplotlib
 import numpy as np
@@ -33,7 +32,7 @@ class DicomStructure:
 
 
 def check_if_valid_structure(
-    struct_index: Union[int, IS],
+    struct_index: int | IS,
     struct_point_sequence: dict[str, Dataset],
 ) -> bool:
     """
@@ -142,7 +141,7 @@ def convert_single_structure(
 def read(  # pylint: disable=too-many-locals
     rtst_path: Path,
     reference_image: sitk.Image,
-    structure_names: Optional[Union[str, list[str]]] = None,
+    structure_names: str | list[str] | None = None,
     parallel: bool = False,
     regex: bool = False,
 ) -> list[DicomStructure]:

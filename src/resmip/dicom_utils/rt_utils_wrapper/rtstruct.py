@@ -128,4 +128,4 @@ class RTStruct:
     def save(self, file_path: Path) -> None:
         """Saves the RTStruct with the specified name / location."""
         logger.info("Writing file to %s", file_path)
-        self.ds.save_as(file_path)
+        self.ds.save_as(file_path, implicit_vr=True, little_endian=True)

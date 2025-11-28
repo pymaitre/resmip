@@ -10,10 +10,10 @@ repository = "https://github.com/pymaitre/resmip"
 [tool.poetry.dependencies]
 python = ">=3.10,<3.15"
 numpy = "^1.26.4"
-pydicom = ">=3.2.0,<4"
+pydicom = "^3.0.1"
 simpleitk = "^2.4.1"
 scikit-image = "^0.24.0"
-matplotlib = "^3.10.8"
+matplotlib = "^3.10.7"
 bidict = "^0.23.1"
 
 [tool.poetry.group.docs]

@@ -208,7 +208,7 @@ class RTStructure(Image):
         if file_format is None:
             file_format = Path(filename).suffix
         if file_format != ".dcm":
-            return self.write_nondicom(filename, file_format)
+            return self.write_nondicom(filename, file_format=file_format)
         return RTStructureSet([self]).write_image(
             filename,
             file_format=file_format,

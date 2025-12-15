@@ -451,7 +451,11 @@ def test_image_coregistration(coregistration_metric):
     input_image.origin = (0, 0, 0)
     np.testing.assert_equal(input_image.numpy(), reference_image.numpy())
     coregistered_image = input_image.coregister(
-        reference_image=reference_image, fill_value=-1000, seed=1, num_threads=1
+        reference_image=reference_image,
+        fill_value=-1000,
+        coregistration_metric=coregistration_metric,
+        seed=1,
+        num_threads=1,
     )
     assert input_image.origin != reference_image.origin
     np.testing.assert_allclose(coregistered_image.origin, reference_image.origin)

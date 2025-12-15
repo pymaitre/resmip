@@ -409,7 +409,7 @@ class Image(sitk.Image):
     def _get_coregistration_method(
         seed: int = 0,
         num_threads: int | None = None,
-        metric: CoregistrationMetric = CoregistrationMetric.correlation,
+        metric: CoregistrationMetric = CoregistrationMetric.mutual_information,
     ) -> sitk.ImageRegistrationMethod:
         """
         Generate method used for coregistration.
@@ -462,27 +462,29 @@ class Image(sitk.Image):
         self,
         reference_image: Image,
         fill_value: float = 0.0,
+        coregistration_metric: CoregistrationMetric = CoregistrationMetric.mutual_information,
         seed: int = 0,
         num_threads: int | None = None,
     ) -> Image:
         """
         Coregiser the image on top of another (reference) image.
 
-        :param reference_image: Image used as reference for coregistration.
-        :type reference_image: Image
-        :param fill_value: Value used to fill voxels during resampling (defaults to 0).
-        :type fill_value: float
-        :param seed: Random seed for the registration method. When set to 0,
-            uses system walltime. Use different values for deterministic behaviour.
-        :type seed: int
-        :param num_threads: Number of threads used for coregistration. By default, it is
-            set to the maximum number of available threads.
-            Set it to 1 for deterministic behaviour.
-        :type num_threads: Optional[int]
-        :return: New image coregistered with reference_image.
-        :rtype: Image
+        Args:
+            reference_image (Image): Image used as reference for coregistration.
+            fill_value (float): Value used to fill voxels during resampling (defaults to 0).
+            metric (CoregistrationMetric): metric used for coregistration.
+            seed (int): Random seed for the registration method. When set to 0,
+                uses system walltime. Use different values for deterministic behaviour.
+            num_threads (int|None): Number of threads used for coregistration. By default, it is
+                set to the maximum number of available threads.
+                Set it to 1 for deterministic behaviour.
+
+        Returns:
+            Image: New image coregistered with reference_image.
         """
-        registration_method = self._get_coregistration_method(seed=seed, num_threads=num_threads)
+        registration_method = self._get_coregistration_method(
+            seed=seed, num_threads=num_threads, metric=coregistration_metric
+        )
         current_type = self.GetPixelID()
 
         fixed_image = reference_image.astype(np.float32)

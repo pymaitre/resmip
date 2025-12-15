@@ -34,8 +34,7 @@ class Image(sitk.Image):
                 self._metadata = args[0].metadata
 
     def __getitem__(self, key) -> Image:
-        """
-        Get a pixel value, a sliced image, or a metadata item.
+        """Get a pixel value, a sliced image, or a metadata item.
 
         This operator implements basic indexing where idx is
         arguments or a squence of integers the same dimension as
@@ -97,8 +96,7 @@ class Image(sitk.Image):
 
     @property
     def direction(self) -> tuple[float]:
-        """
-        Direction cosine matrix.
+        """Direction cosine matrix.
 
         For more information, see here:
         https://dicom.innolitics.com/ciods/rt-dose/image-plane/00200037
@@ -129,8 +127,7 @@ class Image(sitk.Image):
         metadata: dict[str, str] | None = None,
         **kwargs,
     ) -> Image:
-        """
-        Create a new image from a numpy array.
+        """Create a new image from a numpy array.
 
         :param array: 3D array containing voxel values for the image (z, y, x).
         :type array: np.ndarray
@@ -155,8 +152,7 @@ class Image(sitk.Image):
 
     @staticmethod
     def metadata_file_name(filename: PathLike) -> Path:
-        """
-        Generate the filename for the metadata.
+        """Generate the filename for the metadata.
 
         Defaults a json file with same name of the output image file (filename).
         The json filename is prepended with a "." to make it hidden.
@@ -170,8 +166,7 @@ class Image(sitk.Image):
         return filename.parent / f".{filename.stem}.json"
 
     def __array__(self, dtype: str | npt.DTypeLike | None = None, view: bool = False) -> np.ndarray:
-        """
-        Convert an image to a numpy array.
+        """Convert an image to a numpy array.
 
         Wrapper of sitk.GetArrayFromImage().
 
@@ -194,8 +189,7 @@ class Image(sitk.Image):
         return image_array
 
     def numpy(self, dtype: str | npt.DTypeLike | None = None, view: bool = False) -> np.ndarray:
-        """
-        Generate a numpy array of pixels from the image.
+        """Generate a numpy array of pixels from the image.
 
         Wrapper of sitk.GetArrayFromImage().
 
@@ -212,8 +206,7 @@ class Image(sitk.Image):
         return self.__array__(dtype=dtype, view=view)
 
     def astype(self, dtype: ImageDTypeLike) -> Image:
-        """
-        Convert pixel array type to the specified value, by casting a new image.
+        """Convert pixel array type to the specified value, by casting a new image.
 
         :param dtype: The dtype to use for the numpy array.
             If None, the default dtype of the image is used
@@ -228,8 +221,7 @@ class Image(sitk.Image):
 
     @classmethod
     def read_image(cls, filename: PathLike, read_metadata: bool = True) -> Image:
-        """
-        Load image file (and metadata).
+        """Load image file (and metadata).
 
         The image format is automatically determined from filename's suffix.
 
@@ -262,8 +254,7 @@ class Image(sitk.Image):
         return new_image
 
     def write_image(self, filename: PathLike, *, write_metadata: bool = True) -> None:
-        """
-        Save image file (and metadata).
+        """Save image file (and metadata).
 
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.
@@ -285,8 +276,7 @@ class Image(sitk.Image):
         self.write_nondicom(filename=filename, write_metadata=write_metadata)
 
     def write_nondicom(self, filename: PathLike, write_metadata: bool = True) -> None:
-        """
-        Save image file (and metadata) to non-DICOM formats using ITK.
+        """Save image file (and metadata) to non-DICOM formats using ITK.
 
         :param filename: Name of the file. If filename is a directory,
             the writer assumes to write a Dicom series.
@@ -306,8 +296,7 @@ class Image(sitk.Image):
         interpolator: int = sitk.sitkLinear,
         default_pixel_value: float = 0,
     ) -> Image:
-        """
-        Resample the image with a new voxel spacing (in mm).
+        """Resample the image with a new voxel spacing (in mm).
 
         :param new_spacing: New voxel spacing of the resampled image (x, y, z) in mm.
         :type new_spacing: Iterable
@@ -343,8 +332,7 @@ class Image(sitk.Image):
         return new_img
 
     def pad(self, reference_image: Image, **kwargs) -> Image:
-        """
-        Pad the image on top of another image.
+        """Pad the image on top of another image.
 
         Uses the same notation as `numpy.pad`.
         The image is shifted aligning its top-left voxel with the reference image.
@@ -411,8 +399,7 @@ class Image(sitk.Image):
         num_threads: int | None = None,
         metric: CoregistrationMetric = CoregistrationMetric.mutual_information,
     ) -> sitk.ImageRegistrationMethod:
-        """
-        Generate method used for coregistration.
+        """Generate method used for coregistration.
 
         Args:
             seed (int): Random seed for the registration method. When set to 0,
@@ -461,18 +448,18 @@ class Image(sitk.Image):
     def coregister(
         self,
         reference_image: Image,
+        *,
         fill_value: float = 0.0,
         coregistration_metric: CoregistrationMetric = CoregistrationMetric.mutual_information,
         seed: int = 0,
         num_threads: int | None = None,
     ) -> Image:
-        """
-        Coregiser the image on top of another (reference) image.
+        """Coregiser the image on top of another (reference) image.
 
         Args:
             reference_image (Image): Image used as reference for coregistration.
             fill_value (float): Value used to fill voxels during resampling (defaults to 0).
-            metric (CoregistrationMetric): metric used for coregistration.
+            coregistration_metric (CoregistrationMetric): metric used for coregistration.
             seed (int): Random seed for the registration method. When set to 0,
                 uses system walltime. Use different values for deterministic behaviour.
             num_threads (int|None): Number of threads used for coregistration. By default, it is
@@ -513,8 +500,7 @@ class Image(sitk.Image):
         return moving_image
 
     def __add__(self, value: int | float) -> Image:
-        """
-        Add constant value to pixel data.
+        """Add constant value to pixel data.
 
         :param value: Value to be added to pixel data.
         :type value: int | float
@@ -537,8 +523,7 @@ class Image(sitk.Image):
         return transformed_image
 
     def __sub__(self, value: int | float) -> Image:
-        """
-        Subtract constant value to pixel data.
+        """Subtract constant value to pixel data.
 
         :param value: Value to be subtracted to pixel data.
         :type value: int | float
@@ -560,8 +545,7 @@ class Image(sitk.Image):
         return transformed_image
 
     def __mul__(self, value: int | float) -> Image:
-        """
-        Multiply constant value to pixel data.
+        """Multiply constant value to pixel data.
 
         :param value: Value to be multiplied to pixel data.
         :type value: int | float
@@ -584,8 +568,7 @@ class Image(sitk.Image):
         return transformed_image
 
     def __truediv__(self, value: int | float) -> Image:
-        """
-        Multiply constant value to pixel data.
+        """Divide constant value to pixel data.
 
         :param value: Value to be multiplied to pixel data.
         :type value: int | float

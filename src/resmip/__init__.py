@@ -15,8 +15,7 @@ __version__ = im.version(__package__)
 
 
 def read_image(*args, **kwargs) -> Image:
-    """
-    Call Image().read_image directly from a function.
+    """Call Image().read_image directly from a function.
 
     Done in the most similar way we do for SimpleITK.read_image.
     """
@@ -24,8 +23,7 @@ def read_image(*args, **kwargs) -> Image:
 
 
 def write_image(image: Image, *args, **kwargs):
-    """
-    Call image.write_image directly from a function.
+    """Call image.write_image directly from a function.
 
     Done in the most similar way we do for SimpleITK.write_image.
     """

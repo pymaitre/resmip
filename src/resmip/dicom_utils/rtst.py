@@ -35,8 +35,7 @@ def check_if_valid_structure(
     struct_index: int | IS,
     struct_point_sequence: dict[str, Dataset],
 ) -> bool:
-    """
-    Check if the structure point sequence is valid.
+    """Check if the structure point sequence is valid.
 
     If the structure is invalid, print more information and return false.
 
@@ -72,8 +71,7 @@ def convert_single_structure(
     struct_point_sequence: dict[str, Dataset],
     struct_ds: Dataset,
 ) -> DicomStructure:
-    """
-    Convert a DICOM RT Structure to NIFTI.
+    """Convert a DICOM RT Structure to NIFTI.
 
     :param reference_image: 3D image associated with the structure.
     :type reference_image: sitk.Image
@@ -145,8 +143,7 @@ def read(  # pylint: disable=too-many-locals
     parallel: bool = False,
     regex: bool = False,
 ) -> list[DicomStructure]:
-    """
-    Read DICOM ST Structure Set file and convert it into a list of RTStructure (nifti) objects.
+    """Read DICOM ST Structure Set file and convert it into a list of RTStructure (nifti) objects.
 
     :param rtst_path: full path of the RT Structure Set.
     :type rtst_path: Path
@@ -211,8 +208,7 @@ def write(
     color_map: matplotlib.colors.Colormap = matplotlib.colormaps.get_cmap("rainbow"),
     series_description: str = "",
 ) -> None:
-    """
-    Write RT Structures to dicom file.
+    """Write RT Structures to dicom file.
 
     Wrapper of convert_nifti from platipy.dicom.io.nifti_to_rtstruct.
 

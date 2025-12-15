@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_structure_name_from_filename(filename: Path) -> str:
-    """
-    Get the structure name from the filename.
+    """Get the structure name from the filename.
 
     If the file is compressed, e.g.: structure.nii.gz, remove ".nii".
     :param filename: Name of the file.
@@ -36,8 +35,7 @@ class RTStructure(Image):
     """RT Structure (wrapper of resmip.Image)."""
 
     def __init__(self, *args, name: str = ""):
-        """
-        Call resmip.Image constructor and set a name for the RT Structure.
+        """Call resmip.Image constructor and set a name for the RT Structure.
 
         :param name: name of the RT Structure. Defaults to an empty string.
         :type name: str
@@ -50,8 +48,7 @@ class RTStructure(Image):
         self._name = name
 
     def __getitem__(self, key) -> RTStructure:
-        """
-        Get a pixel value, a sliced image, or a metadata item.
+        """Get a pixel value, a sliced image, or a metadata item.
 
         This operator implements basic indexing where idx is
         arguments or a squence of integers the same dimension as
@@ -97,8 +94,7 @@ class RTStructure(Image):
         structure_name: str | None = None,
         reference_image: Image | None = None,
     ) -> RTStructure:
-        """
-        Read RT Structure from file.
+        """Read RT Structure from file.
 
         The image format is automatically determined from filename's suffix.
 
@@ -144,8 +140,7 @@ class RTStructure(Image):
         name: str = "",
         **kwargs,
     ) -> RTStructure:
-        """
-        Create a new structure from a numpy array.
+        """Create a new structure from a numpy array.
 
         :param array: 3D array containing voxel values for the structure (z, y, x).
         :type array: np.ndarray
@@ -183,8 +178,7 @@ class RTStructure(Image):
         reference_image_path: PathLike | None = None,
         series_description: str = "",
     ) -> None:
-        """
-        Save RT Structure file.
+        """Save RT Structure file.
 
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.
@@ -219,8 +213,7 @@ class RTStructure(Image):
     def write_nondicom(
         self, filename: PathLike, write_metadata: bool = False, file_format: str | None = None
     ) -> None:
-        """
-        Save RT Structure for formats other than dicom.
+        """Save RT Structure for formats other than dicom.
 
         :param filename: Name of the file. If filename is a directory,
             use a the structure's name.
@@ -245,8 +238,7 @@ class RTStructure(Image):
         interpolator: int = sitk.sitkNearestNeighbor,
         default_pixel_value: float = 0,
     ) -> RTStructure:
-        """
-        Wrapper of resmip.Image.resample, using the appropriate interpolator.
+        """Wrapper of resmip.Image.resample, using the appropriate interpolator.
 
         Resample the image with a new voxel spacing (in mm).
 
@@ -273,8 +265,7 @@ class RTStructure(Image):
         return resampled_structure
 
     def pad(self, reference_image: Image, **kwargs) -> RTStructure:
-        """
-        Pad the structure on top of another image.
+        """Pad the structure on top of another image.
 
         Uses the same notation as `numpy.pad`.
         The struct is shifted aligning its top-left voxel with the reference image.
@@ -289,8 +280,7 @@ class RTStructure(Image):
         return RTStructure(super().pad(reference_image=reference_image, **kwargs), name=self.name)
 
     def __add__(self, value: int | float) -> RTStructure:
-        """
-        Add constant value to structure pixel data.
+        """Add constant value to structure pixel data.
 
         :param value: Value to be added to pixel data.
         :type value: int | float
@@ -300,8 +290,7 @@ class RTStructure(Image):
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
     def __sub__(self, value: int | float) -> RTStructure:
-        """
-        Subtract constant value to structure pixel data.
+        """Subtract constant value to structure pixel data.
 
         :param value: Value to be subtracted to pixel data.
         :type value: int | float
@@ -311,8 +300,7 @@ class RTStructure(Image):
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
     def __mul__(self, value: int | float) -> RTStructure:
-        """
-        Multiply constant value to structure pixel data.
+        """Multiply constant value to structure pixel data.
 
         :param value: Value to be multiplied to pixel data.
         :type value: int | float
@@ -322,8 +310,7 @@ class RTStructure(Image):
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
     def __truediv__(self, value: int | float) -> RTStructure:
-        """
-        Multiply constant value to structure pixel data.
+        """Divide constant value to structure pixel data.
 
         :param value: Value to be multiplied to pixel data.
         :type value: int | float
@@ -352,8 +339,7 @@ class RTStructureSet(dict[str, RTStructure]):
         reference_image: Image | None = None,
         parallel: bool = True,
     ) -> RTStructureSet:
-        """
-        Read RT Structure Set file(s).
+        """Read RT Structure Set file(s).
 
         :param filename: Name of the DICOM RT structure set.
             If reading from NIfTI, use a list of paths to the structures,
@@ -397,8 +383,7 @@ class RTStructureSet(dict[str, RTStructure]):
         reference_image_path: PathLike | None = None,
         series_description: str = "",
     ) -> None:
-        """
-        Save RT Structure Set file(s).
+        """Save RT Structure Set file(s).
 
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.

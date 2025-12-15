@@ -1,4 +1,4 @@
-"""Test module for rt_structure.py"""
+"""Test module for rt_structure.py."""
 
 import numpy as np
 import pydicom
@@ -64,8 +64,7 @@ def test_read_single_dicom_structure_wrong_name():
 
 
 def test_read_single_dicom_structure_without_reference_image():
-    """
-    Read a dicom RT Structure without specifying a reference image.
+    """Read a dicom RT Structure without specifying a reference image.
 
     A value error should be raised.
     """
@@ -75,8 +74,7 @@ def test_read_single_dicom_structure_without_reference_image():
 
 
 def test_read_single_dicom_structure_without_structure_name():
-    """
-    Read a dicom RT Structure without specifying a structure name.
+    """Read a dicom RT Structure without specifying a structure name.
 
     A value error should be raised.
     """

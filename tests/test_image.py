@@ -1,4 +1,4 @@
-"""Test module for image.py"""
+"""Test module for image.py."""
 
 import numpy as np
 import pytest
@@ -137,9 +137,7 @@ def test_numpy(dtype):
 
 
 def test_saved_nifti_file_metadata(tmp_path):
-    """
-    Check if the saved nifti file metadata corresponds to the one read from the dicom.
-    """
+    """Check if the saved nifti file metadata corresponds to the one read from the dicom."""
     dicom_image = Image.read_image(dicom_ct_path())
     nifti_file_path = tmp_path / "testfile.nii"
     dicom_image.write_image(nifti_file_path)

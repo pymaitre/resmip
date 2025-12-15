@@ -1,4 +1,4 @@
-"""Test module for dose.py"""
+"""Test module for dose.py."""
 
 import logging
 from pathlib import Path

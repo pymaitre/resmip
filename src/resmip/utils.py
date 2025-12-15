@@ -9,8 +9,7 @@ PathLike = Union[str, os.PathLike]
 
 
 def format_digit_string(digit_string: str) -> str:
-    """
-    Reformat a string containing a digit.
+    """Reformat a string containing a digit.
 
     Remove trailing whitespaces. If the input string does not represent
     a string, do nothing.

@@ -32,6 +32,7 @@ jobs:
           poetry install --with test
           poetry run prospector
           poetry run pylint tests
+          poetry run ruff check
       - name: Build and test docs
         run: |
           python -m pip install .

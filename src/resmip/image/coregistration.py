@@ -15,7 +15,9 @@ class CoregistrationMetric(Enum):
     https://docs.itk.org/projects/doxygen/en/stable/classitk_1_1CorrelationImageToImageMetricv4.html
     """
     mutual_information = auto()
-    """Use the mutual information between two images to be registered using the method of Mattes et al.
+    """Use the mutual information between two images to be registered.
+
+    Uses the method of Mattes et al.
 
     It can be useful when the two images with different modalities.
     More information can be found here:

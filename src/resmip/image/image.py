@@ -14,6 +14,7 @@ import SimpleITK as sitk
 import resmip.dicom_utils.series as dicom_series
 from resmip import DICOM_FIELDS
 from resmip.image._data_types import ImageDTypeLike, _is_unsigned, _sitk_image_dtype
+from resmip.image.coregistration import CoregistrationMetric
 from resmip.utils import PathLike, format_digit_string
 
 logger = logging.getLogger(__name__)
@@ -406,35 +407,52 @@ class Image(sitk.Image):
 
     @staticmethod
     def _get_coregistration_method(
-        seed: int = 0, num_threads: int | None = None
+        seed: int = 0,
+        num_threads: int | None = None,
+        metric: CoregistrationMetric = CoregistrationMetric.correlation,
     ) -> sitk.ImageRegistrationMethod:
         """
         Generate method used for coregistration.
 
-        :param seed: Random seed for the registration method. When set to 0,
-            uses system walltime. Use different values for deterministic behaviour.
-        :type seed: int
-        :param num_threads: Number of threads used for coregistration. By default, it is
-            set to the maximum number of available threads.
-            Set it to 1 for deterministic behaviour.
-        :type num_threads: Optional[int]
-        :return: Registration method used for coregistration.
-        :rtype: sitk.ImageRegistrationMethod
+        Args:
+            seed (int): Random seed for the registration method. When set to 0,
+                uses system walltime. Use different values for deterministic behaviour.
+            num_threads (int|None): Number of threads used for coregistration. By default, it is
+                set to the maximum number of available threads.
+                Set it to 1 for deterministic behaviour.
+            metric (CoregistrationMetric): metric used for coregistration.
+
+        Returns:
+            sitk.ImageRegistrationMethod: Registration method used for coregistration.
         """
+
+        def _set_metric(reg_method: sitk.ImageRegistrationMethod, metric: CoregistrationMetric):
+            """Set coregistration metric."""
+            number_of_mutual_information_bins = 100
+            if metric == CoregistrationMetric.correlation:
+                reg_method.SetMetricAsCorrelation()
+            elif metric == CoregistrationMetric.mutual_information:
+                reg_method.SetMetricAsMattesMutualInformation(
+                    numberOfHistogramBins=number_of_mutual_information_bins
+                )
+            else:
+                raise ValueError(f"The provided metric {metric} is not supported.")
+
         registration_method = sitk.ImageRegistrationMethod()
         if num_threads:
             registration_method.SetGlobalDefaultNumberOfThreads(num_threads)
-        registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=100)
+        _set_metric(registration_method, metric)
         registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
         registration_method.SetMetricSamplingPercentage(0.01, seed=seed)
         registration_method.SetInterpolator(sitk.sitkLinear)
-        registration_method.SetOptimizerAsGradientDescent(
-            learningRate=1.0,
-            numberOfIterations=200,
-            convergenceMinimumValue=1e-6,
-            convergenceWindowSize=10,
+        registration_method.SetOptimizerAsRegularStepGradientDescent(
+            learningRate=2.0,
+            minStep=1e-4,
+            numberOfIterations=500,
+            gradientMagnitudeTolerance=1e-8,
         )
         registration_method.SetOptimizerScalesFromPhysicalShift()
+        registration_method.SetInterpolator(sitk.sitkLinear)
         registration_method.SetShrinkFactorsPerLevel(shrinkFactors=[4, 2, 1])
         registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas=[2, 1, 0])
         registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()

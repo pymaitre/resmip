@@ -4,6 +4,14 @@ resmip.image package
 Submodules
 ----------
 
+resmip.image.coregistration module
+----------------------------------
+
+.. automodule:: resmip.image.coregistration
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 resmip.image.image module
 -------------------------
 

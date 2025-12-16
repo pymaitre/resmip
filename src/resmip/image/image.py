@@ -123,26 +123,24 @@ class Image(sitk.Image):
         cls,
         array: np.ndarray,
         *,
-        spacing: tuple[float],
-        origin: tuple[float],
+        spacing: tuple[float, float, float],
+        origin: tuple[float, float, float],
         direction: tuple[float],
         metadata: dict[str, str] | None = None,
         **kwargs,
     ) -> Image:
         """Create a new image from a numpy array.
 
-        :param array: 3D array containing voxel values for the image (z, y, x).
-        :type array: np.ndarray
-        :param spacing: Voxel spacing for the image in mm (x, y, z).
-        :type spacing: tuple[float]
-        :param origin: Coordinates of the top left voxel in mm (x, y, z).
-        :type origin: tuple[float]
-        :param direction: Direction cosine matrix.
-        :type direction: tuple[float]
-        :param metadata: Metadata containing information from the DICOM header.
-        :type metadata: Optional[Dict[str, str]]
-        :return: New image
-        :rtype: Image
+        Args:
+            array (np.ndarray): 3D array containing voxel values for the image (z, y, x).
+            spacing (tuple[float, float, float]): Voxel spacing for the image in mm (x, y, z).
+            origin (tuple[float, float, float]): Coordinates of the top left voxel in mm (x, y, z).
+            direction (tuple[float]): Direction cosine matrix.
+            metadata (dict[str, str] | None): Metadata containing information from the DICOM header.
+            **kwargs: extra arguments used in `resmip.Image.__init__`.
+
+        Returns:
+            Image: New image
         """
         new_image = cls(sitk.GetImageFromArray(array), **kwargs)
         if metadata is not None:
@@ -159,10 +157,11 @@ class Image(sitk.Image):
         Defaults a json file with same name of the output image file (filename).
         The json filename is prepended with a "." to make it hidden.
 
-        :param filename: name of the output image file name.
-        :type filename: PathLike
-        :return: Path of the json metadata file.
-        :rtype: Path
+        Args:
+            filename (PathLike): name of the output image file name.
+
+        Returns:
+            Path: Path of the json metadata file.
         """
         filename = Path(filename)
         return filename.parent / f".{filename.stem}.json"
@@ -172,15 +171,15 @@ class Image(sitk.Image):
 
         Wrapper of sitk.GetArrayFromImage().
 
-        :param dtype: The dtype to use for the numpy array.
-            If None, the default dtype of the image is used
-            as defined the global `FORMAT_TO_TYPESTR` dictionary.
-        :type dtype: str | npt.DTypeLike | None
-        :param view: If set to true, return a view of the underlying data,
-            without copying them. If a dtype is specified, a copy is returned anyway.
-        :type view: bool
-        :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
-        :rtype: np.ndarray
+        Args:
+            dtype (str | npt.DTypeLike | None): The dtype to use for the numpy array.
+                If None, the default dtype of the image is used
+                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+            view (bool): If set to true, return a view of the underlying data,
+                without copying them. If a dtype is specified, a copy is returned anyway.
+
+        Returns:
+            np.ndarray: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         """
         if view:
             image_array = sitk.GetArrayViewFromImage(self)
@@ -195,27 +194,28 @@ class Image(sitk.Image):
 
         Wrapper of sitk.GetArrayFromImage().
 
-        :param dtype: The dtype to use for the numpy array.
-            If None, the default dtype of the image is used
-            as defined the global `FORMAT_TO_TYPESTR` dictionary.
-        :type dtype: str | npt.DTypeLike | None
-        :param view: If set to true, return a view of the underlying data,
-            without copying them. If a dtype is specified, a copy is returned anyway.
-        :type view: bool
-        :return: Image array as numpy array of shape (z_dim, y_dim, x_dim).
-        :rtype: np.ndarray
+        Args:
+            dtype (str | npt.DTypeLike | None): The dtype to use for the numpy array.
+                If None, the default dtype of the image is used
+                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+            view (bool): If set to true, return a view of the underlying data,
+                without copying them. If a dtype is specified, a copy is returned anyway.
+
+        Returns:
+            np.ndarray: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         """
         return self.__array__(dtype=dtype, view=view)
 
     def astype(self, dtype: ImageDTypeLike) -> Image:
         """Convert pixel array type to the specified value, by casting a new image.
 
-        :param dtype: The dtype to use for the numpy array.
-            If None, the default dtype of the image is used
-            as defined the global `FORMAT_TO_TYPESTR` dictionary.
-        :type dtype: ImageDTypeLike
-        :return: new image with specified data type.
-        :rtype: Image
+        Args:
+            dtype (ImageDTypeLike): The dtype to use for the numpy array.
+                If None, the default dtype of the image is used
+                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+
+        Returns:
+            Image: new image with specified data type.
         """
         new_image = Image(sitk.Cast(self, _sitk_image_dtype(dtype)))
         new_image.metadata = self.metadata
@@ -227,15 +227,15 @@ class Image(sitk.Image):
 
         The image format is automatically determined from filename's suffix.
 
-        :param filename: Name of the file. If filename is a directory,
-            the reader assumes to read a Dicom series. Otherwise, it assumes a metatadata
-            file with the following format exists: f".{filename.stem}.json".
-        :type filename: PathLike
-        :param read_metadata: If true, read the json file with metadata
-            (not applicable for dicom files).
-        :type read_metadata: bool
-        :return: Image and metadata.
-        :rtype: Image
+        Args:
+            filename (PathLike): Name of the file. If filename is a directory,
+                the reader assumes to read a Dicom series. Otherwise, it assumes a metatadata
+                file with the following format exists: f".{filename.stem}.json".
+            read_metadata (bool): If true, read the json file with metadata
+                (not applicable for dicom files).
+
+        Returns:
+            Image: Image and metadata.
         """
         filename = Path(filename)
         if filename.is_dir():
@@ -261,12 +261,11 @@ class Image(sitk.Image):
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.
 
-        :param filename: Name of the file. If filename is a directory,
-            the writer assumes to write a Dicom series.
-        :type filename: PathLike
-        :param write_metadata: If true, save the json file with metadata
-            (not applicable for dicom files).
-        :type write_metadata: bool
+        Args:
+            filename (PathLike): Name of the file. If filename is a directory,
+                the writer assumes to write a Dicom series.
+            write_metadata (bool): If true, save the json file with metadata
+                (not applicable for dicom files).
         """
         filename = Path(filename)
         if not filename.exists() and filename.suffix == "":
@@ -280,12 +279,11 @@ class Image(sitk.Image):
     def write_nondicom(self, filename: PathLike, write_metadata: bool = True) -> None:
         """Save image file (and metadata) to non-DICOM formats using ITK.
 
-        :param filename: Name of the file. If filename is a directory,
-            the writer assumes to write a Dicom series.
-        :type filename: PathLike
-        :param write_metadata: If true, save the json file with metadata
-            (not applicable for dicom files).
-        :type write_metadata: bool
+        Args:
+            filename (PathLike): Name of the file. If filename is a directory,
+                the writer assumes to write a Dicom series.
+            write_metadata (bool): If true, save the json file with metadata
+                (not applicable for dicom files).
         """
         sitk.WriteImage(self, filename)
         if write_metadata:
@@ -300,14 +298,13 @@ class Image(sitk.Image):
     ) -> Image:
         """Resample the image with a new voxel spacing (in mm).
 
-        :param new_spacing: New voxel spacing of the resampled image (x, y, z) in mm.
-        :type new_spacing: Iterable
-        :param interpolator: Interpolation method used for image resampling.
-        :type interpolator: int
-        :param default_pixel_value: Default value for pixel intensity.
-        :type default_pixel_value: float
-        :return: Resampled image.
-        :rtype: Image
+        Args:
+            new_spacing (Iterable): New voxel spacing of the resampled image (x, y, z) in mm.
+            interpolator (int): Interpolation method used for image resampling.
+            default_pixel_value (float): Default value for pixel intensity.
+
+        Returns:
+            Image: Resampled image.
         """
         if isinstance(new_spacing, (list, tuple)):
             new_spacing = np.array(new_spacing)
@@ -341,10 +338,12 @@ class Image(sitk.Image):
         The two images must have the same voxel spacing.
         The shifted image is cropped if it extends out of the reference image.
 
-        :param reference_image: Image used as reference for padding.
-        :type reference_image: Image
-        :return: New image with same shape and spacing of the reference.
-        :rtype: Image
+        Args:
+            reference_image (Image): Image used as reference for padding.
+            **kwargs: same arguments used in `np.pad`.
+
+        Returns:
+            Image: New image with same shape and spacing of the reference.
         """
         if self.spacing != reference_image.spacing:
             raise ValueError(
@@ -505,10 +504,11 @@ class Image(sitk.Image):
     def __add__(self, value: int | float) -> Image:
         """Add constant value to pixel data.
 
-        :param value: Value to be added to pixel data.
-        :type value: int | float
-        :return: Image with constant value added to pixel data.
-        :rtype: Image
+        Args:
+            value (int | float): Value to be added to pixel data.
+
+        Returns:
+            Image: Image with constant value added to pixel data.
         """
         current_image = self
         if isinstance(value, float):
@@ -528,10 +528,11 @@ class Image(sitk.Image):
     def __sub__(self, value: int | float) -> Image:
         """Subtract constant value to pixel data.
 
-        :param value: Value to be subtracted to pixel data.
-        :type value: int | float
-        :return: Image with constant value subtracted to pixel data.
-        :rtype: Image
+        Args:
+            value (int | float): Value to be subtracted to pixel data.
+
+        Returns:
+            Image: Image with constant value subtracted to pixel data.
         """
         current_image = self
         if isinstance(value, float):
@@ -550,10 +551,11 @@ class Image(sitk.Image):
     def __mul__(self, value: int | float) -> Image:
         """Multiply constant value to pixel data.
 
-        :param value: Value to be multiplied to pixel data.
-        :type value: int | float
-        :return: Image with constant value multiplied to pixel data.
-        :rtype: Image
+        Args:
+            value (int | float): Value to be multiplied to pixel data.
+
+        Returns:
+            Image: Image with constant value multiplied to pixel data.
         """
         current_image = self
         if isinstance(value, float):
@@ -573,10 +575,11 @@ class Image(sitk.Image):
     def __truediv__(self, value: int | float) -> Image:
         """Divide constant value to pixel data.
 
-        :param value: Value to be multiplied to pixel data.
-        :type value: int | float
-        :return: Image with constant value multiplied to pixel data.
-        :rtype: Image
+        Args:
+            value (int | float): Value to be multiplied to pixel data.
+
+        Returns:
+            Image: Image with constant value multiplied to pixel data.
         """
         logger.debug("Casting image type to float")
         current_image = self.astype(float)

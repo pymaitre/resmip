@@ -11,7 +11,7 @@ import SimpleITK as sitk
 
 import resmip.dicom_utils.rtst as dicom_rtst
 from resmip import Image
-from resmip.image._data_types import ImageDTypeLike, _sitk_image_dtype
+from resmip.image._data_types import ImageDTypeLike
 from resmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
@@ -35,17 +35,19 @@ def get_structure_name_from_filename(filename: Path) -> str:
 class RTStructure(Image):
     """RT Structure (wrapper of resmip.Image)."""
 
-    def __init__(self, *args, name: str = ""):
+    def __init__(self, *args, name: str = "", **kwargs):
         """Call resmip.Image constructor and set a name for the RT Structure.
 
-        :param name: name of the RT Structure. Defaults to an empty string.
-        :type name: str
+        Args:
+            *args: arguments provided to `resmip.Image.__init__`.
+            name (str): name of the RT Structure. Defaults to an empty string.
+            **kwargs: extra arguments used in `resmip.Image.__init__`.
         """
         if not isinstance(name, str):
             raise ValueError(
                 f"type({name}) ({type(name)}) is not a valid type for name. Supported type(s): str."
             )
-        super().__init__(*args)
+        super().__init__(*args, **kwargs)
         self._name = name
 
     def __getitem__(self, key) -> RTStructure:
@@ -88,18 +90,17 @@ class RTStructure(Image):
         self._name = value
 
     def astype(self, dtype: ImageDTypeLike) -> RTStructure:
-        """Convert pixel array type to the specified value, by casting a new dose.
+        """Convert pixel array type to the specified value, by casting a new structure.
 
-        :param dtype: The dtype to use for the numpy array.
-            If None, the default dtype of the image is used
-            as defined the global `FORMAT_TO_TYPESTR` dictionary.
-        :type dtype: ImageDTypeLike
-        :return: new dose with specified data type.
-        :rtype: Dose
+        Args:
+            dtype (ImageDTypeLike): The dtype to use for the numpy array.
+                If None, the default dtype of the image is used
+                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+
+        Returns:
+            RTStructure: new structure with specified data type.
         """
-        new_dose = RTStructure(sitk.Cast(self, _sitk_image_dtype(dtype)), name=self.name)
-        new_dose.metadata = self.metadata
-        return new_dose
+        return RTStructure(super().astype(dtype=dtype), name=self.name)
 
     @classmethod
     def read_image(
@@ -113,21 +114,19 @@ class RTStructure(Image):
 
         The image format is automatically determined from filename's suffix.
 
-        :param filename: Name of the file. If filename ends with ".dcm",
-            the reader assumes to read a Dicom rtstruct. Otherwise, it assumes a metatadata
-            file with the following format exists: f".{filename.stem}.json".
-        :type filename: PathLike
-        :param read_metadata: If true, read the json file with metadata
-            (not applicable for dicom files). Currently not used.
-        :type read_metadata: bool
-        :param structure_name: Name of the RT Structure (case-sensitive).
-            Required for dicom files. Optional for other files (if set to None, use filename).
-        :type structure_name: str | None
-        :param reference_image: 3D image used as reference for dicom Structures
-            (not used for other formats).
-        :type reference_image: Image | None
-        :return: RT Structure.
-        :rtype: RTStructure
+        Args:
+            filename (PathLike): Name of the file. If filename ends with ".dcm",
+                the reader assumes to read a Dicom rtstruct. Otherwise, it assumes a metatadata
+                file with the following format exists: f".{filename.stem}.json".
+            read_metadata (bool): If true, read the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            structure_name (str | None): Name of the RT Structure (case-sensitive).
+                Required for dicom files. Optional for other files (if set to None, use filename).
+            reference_image (Image | None): 3D image used as reference for dicom Structures
+                (not used for other formats).
+
+        Returns:
+            RTStructure: RT Structure.
         """
         filename = Path(filename)
         if filename.suffix == ".dcm":
@@ -148,8 +147,8 @@ class RTStructure(Image):
         cls,
         array: np.ndarray,
         *,
-        spacing: tuple[float],
-        origin: tuple[float],
+        spacing: tuple[float, float, float],
+        origin: tuple[float, float, float],
         direction: tuple[float],
         metadata: dict[str, str] | None = None,
         name: str = "",
@@ -157,20 +156,17 @@ class RTStructure(Image):
     ) -> RTStructure:
         """Create a new structure from a numpy array.
 
-        :param array: 3D array containing voxel values for the structure (z, y, x).
-        :type array: np.ndarray
-        :param spacing: Voxel spacing for the structure in mm (x, y, z).
-        :type spacing: tuple[float]
-        :param origin: Coordinates of the top left voxel in mm (x, y, z).
-        :type origin: tuple[float]
-        :param direction: Direction cosine matrix.
-        :type direction: tuple[float]
-        :param metadata: Metadata containing information from the DICOM header.
-        :type metadata: Dict[str, str]|None
-        :param name: Name of the structure.
-        :type name: str
-        :return: New structure
-        :rtype: RTStructure
+        Args:
+            array (np.ndarray): 3D array containing voxel values for the structure (z, y, x).
+            spacing (tuple[float, float, float]): Voxel spacing for the structure in mm (x, y, z).
+            origin (tuple[float, float, float]): Coordinates of the top left voxel in mm (x, y, z).
+            direction (tuple[float]): Direction cosine matrix.
+            metadata (dict[str, str] | None): Metadata containing information from the DICOM header.
+            name (str): Name of the structure.
+            **kwargs: extra arguments used in `resmip.Image.__init__`.
+
+        Returns:
+            RTStructure: New structure
         """
         return RTStructure(
             super().from_array(
@@ -198,22 +194,18 @@ class RTStructure(Image):
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.
 
-        :param filename: Name of the file. If filename is a directory,
-            use a the structure's name. For dicom files use the UID.
-        :type filename: PathLike
-        :param write_metadata: If true, write the json file with metadata
-            (not applicable for dicom files). Currently not used.
-        :param file_format: Format of the rt structure saved. If None,
-            infer it from filename.
-        :type file_format: str | None
-        :param reference_image_path: Path of the reference dicom image.
-            Ignored when saving in formats other than dicom.
-        :type reference_image_path: PathLike | None
-        :param series_description: Series Description for the saved DICOM
-            RT Structure Set. Non used for other formats.
-        :type series_description: str
+        Args:
+            filename (PathLike): Name of the file. If filename is a directory,
+                use a the structure's name. For dicom files use the UID.
+            write_metadata (bool): If true, write the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            file_format (str | None): Format of the rt structure saved. If None,
+                infer it from filename.
+            reference_image_path (PathLike | None): Path of the reference dicom image.
+                Ignored when saving in formats other than dicom.
+            series_description (str): Series Description for the saved DICOM
+                RT Structure Set. Non used for other formats.
         """
-        # Create an RT Structure Set and save it
         if file_format is None:
             file_format = Path(filename).suffix
         if file_format != ".dcm":
@@ -230,15 +222,13 @@ class RTStructure(Image):
     ) -> None:
         """Save RT Structure for formats other than dicom.
 
-        :param filename: Name of the file. If filename is a directory,
-            use a the structure's name.
-        :type filename: PathLike
-        :param write_metadata: If true, save the json file with metadata
-            (not applicable for dicom files).
-        :type write_metadata: bool
-        :param file_format: Format of the rt structure saved. If None,
-            infer it from filename.
-        :type file_format: str | None
+        Args:
+            filename (PathLike): Name of the file. If filename is a directory,
+                use a the structure's name.
+            write_metadata (bool): If true, save the json file with metadata
+                (not applicable for dicom files).
+            file_format (str | None): Format of the rt structure saved. If None,
+                infer it from filename.
         """
         filename = Path(filename)
         if filename.is_dir():
@@ -257,15 +247,14 @@ class RTStructure(Image):
 
         Resample the image with a new voxel spacing (in mm).
 
-        :param new_spacing: New voxel spacing of the resampled image (x, y, z) in mm.
-        :type new_spacing: Iterable
-        :param interpolator: Interpolation method used for image resampling.
-            Only nearest neighbors should be used for RT structures.
-        :type interpolator: int
-        :param default_pixel_value: Default value for pixel intensity.
-        :type default_pixel_value: float
-        :return: Resampled image.
-        :rtype: Image
+        Args:
+            new_spacing (Iterable): New voxel spacing of the resampled image (x, y, z) in mm.
+            interpolator (int): Interpolation method used for image resampling.
+                Only nearest neighbors should be used for RT structures.
+            default_pixel_value (float): Default value for pixel intensity.
+
+        Returns:
+            RTStructure: Resampled structure.
         """
         if interpolator != sitk.sitkNearestNeighbor:
             logger.warning(
@@ -287,10 +276,12 @@ class RTStructure(Image):
         The two images must have the same voxel spacing.
         The shifted structure is cropped if it extends out of the reference image.
 
-        :param reference_image: Image used as reference for padding.
-        :type reference_image: Image
-        :return: New structure with same shape and spacing of the reference.
-        :rtype: RTStructure
+        Args:
+            reference_image (Image): Image used as reference for padding.
+            **kwargs: same arguments used in `np.pad`.
+
+        Returns:
+            RTStructure: New structure with same shape and spacing of the reference.
         """
         return RTStructure(super().pad(reference_image=reference_image, **kwargs), name=self.name)
 
@@ -305,40 +296,44 @@ class RTStructure(Image):
     def __add__(self, value: int | float) -> RTStructure:
         """Add constant value to structure pixel data.
 
-        :param value: Value to be added to pixel data.
-        :type value: int | float
-        :return: RTStructure with constant value added to pixel data.
-        :rtype: RTStructure
+        Args:
+            value (int | float): Value to be added to pixel data.
+
+        Returns:
+            RTStructure: RTStructure with constant value added to pixel data.
         """
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
     def __sub__(self, value: int | float) -> RTStructure:
         """Subtract constant value to structure pixel data.
 
-        :param value: Value to be subtracted to pixel data.
-        :type value: int | float
-        :return: RTStructure with constant value subtracted to pixel data.
-        :rtype: RTStructure
+        Args:
+            value (int | float): Value to be subtracted to pixel data.
+
+        Returns:
+            RTStructure: RTStructure with constant value subtracted to pixel data.
         """
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
     def __mul__(self, value: int | float) -> RTStructure:
         """Multiply constant value to structure pixel data.
 
-        :param value: Value to be multiplied to pixel data.
-        :type value: int | float
-        :return: RTStructure with constant value multiplied to pixel data.
-        :rtype: RTStructure
+        Args:
+            value (int | float): Value to be multiplied to pixel data.
+
+        Returns:
+            RTStructure: RTStructure with constant value multiplied to pixel data.
         """
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
     def __truediv__(self, value: int | float) -> RTStructure:
         """Divide constant value to structure pixel data.
 
-        :param value: Value to be multiplied to pixel data.
-        :type value: int | float
-        :return: RTStructure with constant value multiplied to pixel data.
-        :rtype: RTStructure
+        Args:
+            value (int | float): Value to be multiplied to pixel data.
+
+        Returns:
+            RTStructure: RTStructure with constant value multiplied to pixel data.
         """
         raise NotImplementedError("This operation is currently not supported for RT Structures.")
 
@@ -364,22 +359,19 @@ class RTStructureSet(dict[str, RTStructure]):
     ) -> RTStructureSet:
         """Read RT Structure Set file(s).
 
-        :param filename: Name of the DICOM RT structure set.
-            If reading from NIfTI, use a list of paths to the structures,
-        :type filename: PathLike|list[PathLike]
-        :param structure_names: Names of the structures to be read.
-            Used for reading only specific structures in a dicom files,
-            can also be a regular expression.
-        :type structure_names: list[str] | None
-        :param regex: Whether to consider `structure_names` as a regular expression or not.
-        :type regex: bool
-        :param parallel: Whether to read structures in parallel or not.
-        :type parallel: bool
-        :param reference_image: 3D image used as reference for dicom Structures
-            (not used for other formats).
-        :type reference_image: Image | None
-        :return: RT Structure Set.
-        :rtype: RTStructureSet
+        Args:
+            filename (PathLike | list[PathLike]): Name of the DICOM RT structure set.
+                If reading from NIfTI, use a list of paths to the structures,
+            structure_names (list[str] | None): Names of the structures to be read.
+                Used for reading only specific structures in a dicom files,
+                can also be a regular expression.
+            regex (bool): Whether to consider `structure_names` as a regular expression or not.
+            parallel (bool): Whether to read structures in parallel or not.
+            reference_image (Image | None): 3D image used as reference for dicom Structures
+                (not used for other formats).
+
+        Returns:
+            RTStructureSet: RT Structure Set.
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
@@ -411,18 +403,15 @@ class RTStructureSet(dict[str, RTStructure]):
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.
 
-        :param filename: Name of the dicom file.
-            For other formats, it is a list of file names with same length of self.
-        :type filename: PathLike|list[PathLike]
-        :param file_format: Format of the rt structure saved. If None,
-            infer it from filename.
-        :type file_format: str | None
-        :param reference_image_path: Path of the reference dicom image.
-            Ignored when saving in formats other than dicom.
-        :type reference_image_path: PathLike | None
-        :param series_description: Series Description for the saved DICOM
-            RT Structure Set. Non used for other formats.
-        :type series_description: str
+        Args:
+            filename (PathLike | list[PathLike]): Name of the dicom file.
+                For other formats, it is a list of file names with same length of self.
+            file_format (str | None): Format of the rt structure saved. If None,
+                infer it from filename.
+            reference_image_path (PathLike | None): Path of the reference dicom image.
+                Ignored when saving in formats other than dicom.
+            series_description (str): Series Description for the saved DICOM
+                RT Structure Set. Non used for other formats.
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)

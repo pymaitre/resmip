@@ -11,7 +11,7 @@ import pydicom.errors
 import SimpleITK as sitk
 
 from resmip.image import Image
-from resmip.image._data_types import ImageDTypeLike, _sitk_image_dtype
+from resmip.image._data_types import ImageDTypeLike
 from resmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
@@ -53,16 +53,15 @@ class Dose(Image):
     def astype(self, dtype: ImageDTypeLike) -> Dose:
         """Convert pixel array type to the specified value, by casting a new dose.
 
-        :param dtype: The dtype to use for the numpy array.
-            If None, the default dtype of the image is used
-            as defined the global `FORMAT_TO_TYPESTR` dictionary.
-        :type dtype: ImageDTypeLike
-        :return: new dose with specified data type.
-        :rtype: Dose
+        Args:
+            dtype (ImageDTypeLike): The dtype to use for the numpy array.
+                If None, the default dtype of the image is used
+                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+
+        Returns:
+            Dose: new dose with specified data type.
         """
-        new_dose = Dose(sitk.Cast(self, _sitk_image_dtype(dtype)))
-        new_dose.metadata = self.metadata
-        return new_dose
+        return Dose(super().astype(dtype=dtype))
 
     @classmethod
     def read_image(
@@ -79,19 +78,18 @@ class Dose(Image):
         Dose values are scaled by "DoseGridScaling", if present.
         https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e
 
-        :param filename: Name of the file. If filename ends with ".dcm",
-            the reader assumes to read a Dicom rtdose. Otherwise, it assumes a metatadata
-            file with the following format exists: f".{filename.stem}.json".
-        :type filename: PathLike
-        :param read_metadata: If true, read the json file with metadata
-            (not applicable for dicom files). Currently not used.
-        :type read_metadata: bool
-        :param reference_image: 3D image used as reference for dicom Doses, in case
-            origin and/or spacing differ. When set to None, a warning is raised and no
-            shift / resampling is applied.
-        :type reference_image: Image | None
-        :return: RT Dose.
-        :rtype: Dose
+        Args:
+            filename (PathLike): Name of the file. If filename ends with ".dcm",
+                the reader assumes to read a Dicom rtdose. Otherwise, it assumes a metatadata
+                file with the following format exists: f".{filename.stem}.json".
+            read_metadata (bool): If true, read the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            reference_image (Image | None): 3D image used as reference for dicom Doses, in case
+                origin and/or spacing differ. When set to None, a warning is raised and no
+                shift / resampling is applied.
+
+        Returns:
+            Dose: RT Dose.
         """
         image = super().read_image(filename=filename, read_metadata=read_metadata)
         new_dose = cls(image)
@@ -133,16 +131,14 @@ class Dose(Image):
 
         Currently only non-DICOM file formats are supported
 
-        :param filename: Name of the file to be saved.
-        :type filename: PathLike
-        :param write_metadata: If true, write the json file with metadata
-            (not applicable for dicom files). Currently not used.
-        :param file_format: Format of the rt dose saved. If None,
-            infer it from filename.
-        :type file_format: str | None
-        :param reference_image_path: Path of the reference dicom image.
-            Ignored when saving in formats other than dicom.
-        :type reference_image_path: PathLike | None
+        Args:
+            filename (PathLike): Name of the file to be saved.
+            write_metadata (bool): If true, write the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            file_format (str | None): Format of the rt dose saved. If None,
+                infer it from filename.
+            reference_image_path (PathLike | None): Path of the reference dicom image.
+                Ignored when saving in formats other than dicom.
         """
         filename = Path(filename)
         if file_format is None:
@@ -208,39 +204,43 @@ class Dose(Image):
     def __add__(self, value: int | float) -> Dose:
         """Add constant value to dose pixel data.
 
-        :param value: Value to be added to pixel data.
-        :type value: int | float
-        :return: Dose with constant value added to pixel data.
-        :rtype: Dose
+        Args:
+            value (int | float): Value to be added to pixel data.
+
+        Returns:
+            Dose: Dose with constant value added to pixel data.
         """
         return Dose(super().__add__(value))
 
     def __sub__(self, value: int | float) -> Dose:
         """Subtract constant value to dose pixel data.
 
-        :param value: Value to be subtracted to pixel data.
-        :type value: int | float
-        :return: Dose with constant value subtracted to pixel data.
-        :rtype: Dose
+        Args:
+            value (int | float): Value to be subtracted to pixel data.
+
+        Returns:
+            Dose: Dose with constant value subtracted to pixel data.
         """
         return Dose(super().__sub__(value))
 
     def __mul__(self, value: int | float) -> Dose:
         """Multiply constant value to dose pixel data.
 
-        :param value: Value to be multiplied to pixel data.
-        :type value: int | float
-        :return: Dose with constant value multiplied to pixel data.
-        :rtype: Dose
+        Args:
+            value (int | float): Value to be multiplied to pixel data.
+
+        Returns:
+            Dose: Dose with constant value multiplied to pixel data.
         """
         return Dose(super().__mul__(value))
 
     def __truediv__(self, value: int | float) -> Dose:
         """Divide constant value to dose pixel data.
 
-        :param value: Value to be multiplied to pixel data.
-        :type value: int | float
-        :return: Dose with constant value multiplied to pixel data.
-        :rtype: Dose
+        Args:
+            value (int | float): Value to be multiplied to pixel data.
+
+        Returns:
+            Dose: Dose with constant value multiplied to pixel data.
         """
         return Dose(super().__truediv__(value))

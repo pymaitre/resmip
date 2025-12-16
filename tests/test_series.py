@@ -1,4 +1,4 @@
-"""Test module for series.py"""
+"""Test module for series.py."""
 
 import json
 from pathlib import Path

@@ -8,12 +8,12 @@ readme = "README.md"
 repository = "https://github.com/pymaitre/resmip"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.10,<3.13"
 numpy = "^1.26.4"
-pydicom = "^2.4.4"
+pydicom = "^3.0.1"
 simpleitk = "^2.4.1"
 scikit-image = "^0.24.0"
-matplotlib = "^3.9.4"
+matplotlib = "^3.10.7"
 bidict = "^0.23.1"
 
 [tool.poetry.group.docs]
@@ -30,6 +30,7 @@ optional = true
 prospector = "^1.16.1"
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
+ruff = "^0.14.5"
 
 [build-system]
 requires = ["poetry-core"]
@@ -41,3 +42,9 @@ addopts = ['--cov=resmip']
 [tool.pylint.DESIGN]
 max-args = 8
 max-locals = 18
+
+[tool.ruff.lint]
+extend-select = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

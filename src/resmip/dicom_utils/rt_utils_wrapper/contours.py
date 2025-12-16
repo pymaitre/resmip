@@ -27,8 +27,7 @@ def create_contour(series_slice: pydicom.Dataset, contour_data: np.ndarray) -> p
 
 
 def get_polygon_contours_from_slice_mask(slice_mask: np.ndarray) -> tuple[np.ndarray]:
-    """
-    Convert the slice mask to a collection of polygon contours.
+    """Convert the slice mask to a collection of polygon contours.
 
     :param slice_mask: Mask of the slice to be converted, of shape (x_dim, y_dim).
     :type slice_mask: np.ndarray
@@ -47,8 +46,7 @@ def get_polygon_contours_from_slice_mask(slice_mask: np.ndarray) -> tuple[np.nda
 
 
 def get_contour_from_slice_mask(slice_mask: np.ndarray) -> np.ndarray:
-    """
-    Convert the slice mask to a polygon contour.
+    """Convert the slice mask to a polygon contour.
 
     :param slice_mask: Mask of the slice to be converted, of shape (x_dim, y_dim).
     :type slice_mask: np.ndarray

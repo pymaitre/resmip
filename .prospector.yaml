@@ -12,6 +12,4 @@ ignore-paths:
 ignore-patterns:
   - .*__init__\.py$
 pydocstyle:
-  disable:
-    - D203
-    - D212
+  run: false

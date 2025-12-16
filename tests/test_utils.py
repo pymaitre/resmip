@@ -1,4 +1,4 @@
-"""Test module for dicom.py"""
+"""Test module for dicom.py."""
 
 import pytest
 

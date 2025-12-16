@@ -11,8 +11,7 @@ ImageDTypeLike = Union[str, int, npt.DTypeLike]
 
 
 def _sitk_image_dtype(dtype: ImageDTypeLike) -> int:
-    """
-    Convert dtype to one of the supported sitk values.
+    """Convert dtype to one of the supported sitk values.
 
     If a sitk type is provided, do nothing.
     """

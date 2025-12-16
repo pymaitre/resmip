@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_series_dicom_files(dicom_series_directory_path: PathLike) -> tuple[Path]:
-    """
-    Get the list of dicom files of the series to be read.
+    """Get the list of dicom files of the series to be read.
 
     Read series ids first and then read the modalities. This is done in order to exclude
     RT Dose files.
@@ -47,8 +46,7 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> tuple[Path]
 def get_spacing_from_dicom_header(
     dicom_series_reader: sitk.ImageSeriesReader, slices_number: int
 ) -> tuple[float]:
-    """
-    Read correctly-rounded voxel spacing from the DICOM header.
+    """Read correctly-rounded voxel spacing from the DICOM header.
 
     If the series has only one slice, the z spacing is set to 1 mm.
 
@@ -89,8 +87,7 @@ def get_spacing_from_dicom_header(
 
 
 def read(dicom_series_directory_path: PathLike) -> tuple[sitk.Image, dict[str, str]]:
-    """
-    Read Dicom series from file.
+    """Read Dicom series from file.
 
     Non-unicode characters in the dicom header are escaped into unicode sequences.
 
@@ -152,8 +149,7 @@ def read(dicom_series_directory_path: PathLike) -> tuple[sitk.Image, dict[str, s
 
 
 def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike) -> None:
-    """
-    Save the image as a Dicom series.
+    """Save the image as a Dicom series.
 
     :param image: image object to be saved.
     :type image: sitk.Image

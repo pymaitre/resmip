@@ -4,8 +4,7 @@ from pydicom.uid import PYDICOM_IMPLEMENTATION_UID
 
 
 class SOPClassUID:
-    """
-    Identified for the SOP class.
+    """Identified for the SOP class.
 
     For more information see here:
     https://dicom.innolitics.com/ciods/rt-dose/sop-common/00080016

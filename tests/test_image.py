@@ -1,4 +1,4 @@
-"""Test module for image.py"""
+"""Test module for image.py."""
 
 import numpy as np
 import pytest
@@ -6,7 +6,7 @@ import SimpleITK as sitk
 
 import resmip.dicom_utils.series as dicom_series
 from resmip import DICOM_FIELDS
-from resmip.image.image import Image
+from resmip.image import CoregistrationMetric, Image
 from resmip.utils import format_digit_string
 
 from .utils import coregistered_image_path, dicom_ct_path
@@ -137,9 +137,7 @@ def test_numpy(dtype):
 
 
 def test_saved_nifti_file_metadata(tmp_path):
-    """
-    Check if the saved nifti file metadata corresponds to the one read from the dicom.
-    """
+    """Check if the saved nifti file metadata corresponds to the one read from the dicom."""
     dicom_image = Image.read_image(dicom_ct_path())
     nifti_file_path = tmp_path / "testfile.nii"
     dicom_image.write_image(nifti_file_path)
@@ -439,7 +437,11 @@ def test_image_astype_numpy_unsupported(dtype):
         input_image.astype(dtype)
 
 
-def test_image_coregistration():
+@pytest.mark.parametrize(
+    "coregistration_metric",
+    [CoregistrationMetric.correlation, CoregistrationMetric.mutual_information],
+)
+def test_image_coregistration(coregistration_metric):
     """Coregister images."""
     input_image = Image().read_image(dicom_ct_path())
     reference_image = Image().read_image(dicom_ct_path())
@@ -447,13 +449,19 @@ def test_image_coregistration():
     input_image.origin = (0, 0, 0)
     np.testing.assert_equal(input_image.numpy(), reference_image.numpy())
     coregistered_image = input_image.coregister(
-        reference_image=reference_image, fill_value=-1000, seed=1, num_threads=1
+        reference_image=reference_image,
+        fill_value=-1000,
+        coregistration_metric=coregistration_metric,
+        seed=1,
+        num_threads=1,
     )
     assert input_image.origin != reference_image.origin
     np.testing.assert_allclose(coregistered_image.origin, reference_image.origin)
     np.testing.assert_allclose(coregistered_image.direction, reference_image.direction)
     np.testing.assert_allclose(coregistered_image.spacing, reference_image.spacing)
-    reference_coregistered_image = Image().read_image(coregistered_image_path())
+    reference_coregistered_image = Image.read_image(
+        coregistered_image_path(coregistration_metric.name)
+    )
     np.testing.assert_equal(
         coregistered_image.numpy(),
         reference_coregistered_image.numpy(),

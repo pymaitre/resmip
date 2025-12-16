@@ -25,6 +25,6 @@ def ibsi_rtst_path() -> Path:
     return Path(__file__).parent / "Nifti" / "IBSI2_CT_phantom" / "mask" / "GTV-1.nii"
 
 
-def coregistered_image_path() -> Path:
+def coregistered_image_path(coregistration_metric) -> Path:
     """Path of the coregistered CT image used for testing."""
-    return Path(__file__).parent / "Nifti" / "coregistered" / "CT.nii.gz"
+    return Path(__file__).parent / "Nifti" / "coregistered" / f"{coregistration_metric}.nii.gz"

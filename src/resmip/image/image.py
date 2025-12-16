@@ -14,6 +14,7 @@ import SimpleITK as sitk
 import resmip.dicom_utils.series as dicom_series
 from resmip import DICOM_FIELDS
 from resmip.image._data_types import ImageDTypeLike, _is_unsigned, _sitk_image_dtype
+from resmip.image.coregistration import CoregistrationMetric
 from resmip.utils import PathLike, format_digit_string
 
 logger = logging.getLogger(__name__)
@@ -33,8 +34,7 @@ class Image(sitk.Image):
                 self._metadata = args[0].metadata
 
     def __getitem__(self, key) -> Image:
-        """
-        Get a pixel value, a sliced image, or a metadata item.
+        """Get a pixel value, a sliced image, or a metadata item.
 
         This operator implements basic indexing where idx is
         arguments or a squence of integers the same dimension as
@@ -96,8 +96,7 @@ class Image(sitk.Image):
 
     @property
     def direction(self) -> tuple[float]:
-        """
-        Direction cosine matrix.
+        """Direction cosine matrix.
 
         For more information, see here:
         https://dicom.innolitics.com/ciods/rt-dose/image-plane/00200037
@@ -128,8 +127,7 @@ class Image(sitk.Image):
         metadata: dict[str, str] | None = None,
         **kwargs,
     ) -> Image:
-        """
-        Create a new image from a numpy array.
+        """Create a new image from a numpy array.
 
         :param array: 3D array containing voxel values for the image (z, y, x).
         :type array: np.ndarray
@@ -154,8 +152,7 @@ class Image(sitk.Image):
 
     @staticmethod
     def metadata_file_name(filename: PathLike) -> Path:
-        """
-        Generate the filename for the metadata.
+        """Generate the filename for the metadata.
 
         Defaults a json file with same name of the output image file (filename).
         The json filename is prepended with a "." to make it hidden.
@@ -169,8 +166,7 @@ class Image(sitk.Image):
         return filename.parent / f".{filename.stem}.json"
 
     def __array__(self, dtype: str | npt.DTypeLike | None = None, view: bool = False) -> np.ndarray:
-        """
-        Convert an image to a numpy array.
+        """Convert an image to a numpy array.
 
         Wrapper of sitk.GetArrayFromImage().
 
@@ -193,8 +189,7 @@ class Image(sitk.Image):
         return image_array
 
     def numpy(self, dtype: str | npt.DTypeLike | None = None, view: bool = False) -> np.ndarray:
-        """
-        Generate a numpy array of pixels from the image.
+        """Generate a numpy array of pixels from the image.
 
         Wrapper of sitk.GetArrayFromImage().
 
@@ -211,8 +206,7 @@ class Image(sitk.Image):
         return self.__array__(dtype=dtype, view=view)
 
     def astype(self, dtype: ImageDTypeLike) -> Image:
-        """
-        Convert pixel array type to the specified value, by casting a new image.
+        """Convert pixel array type to the specified value, by casting a new image.
 
         :param dtype: The dtype to use for the numpy array.
             If None, the default dtype of the image is used
@@ -227,8 +221,7 @@ class Image(sitk.Image):
 
     @classmethod
     def read_image(cls, filename: PathLike, read_metadata: bool = True) -> Image:
-        """
-        Load image file (and metadata).
+        """Load image file (and metadata).
 
         The image format is automatically determined from filename's suffix.
 
@@ -261,8 +254,7 @@ class Image(sitk.Image):
         return new_image
 
     def write_image(self, filename: PathLike, *, write_metadata: bool = True) -> None:
-        """
-        Save image file (and metadata).
+        """Save image file (and metadata).
 
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.
@@ -284,8 +276,7 @@ class Image(sitk.Image):
         self.write_nondicom(filename=filename, write_metadata=write_metadata)
 
     def write_nondicom(self, filename: PathLike, write_metadata: bool = True) -> None:
-        """
-        Save image file (and metadata) to non-DICOM formats using ITK.
+        """Save image file (and metadata) to non-DICOM formats using ITK.
 
         :param filename: Name of the file. If filename is a directory,
             the writer assumes to write a Dicom series.
@@ -305,8 +296,7 @@ class Image(sitk.Image):
         interpolator: int = sitk.sitkLinear,
         default_pixel_value: float = 0,
     ) -> Image:
-        """
-        Resample the image with a new voxel spacing (in mm).
+        """Resample the image with a new voxel spacing (in mm).
 
         :param new_spacing: New voxel spacing of the resampled image (x, y, z) in mm.
         :type new_spacing: Iterable
@@ -342,8 +332,7 @@ class Image(sitk.Image):
         return new_img
 
     def pad(self, reference_image: Image, **kwargs) -> Image:
-        """
-        Pad the image on top of another image.
+        """Pad the image on top of another image.
 
         Uses the same notation as `numpy.pad`.
         The image is shifted aligning its top-left voxel with the reference image.
@@ -406,35 +395,51 @@ class Image(sitk.Image):
 
     @staticmethod
     def _get_coregistration_method(
-        seed: int = 0, num_threads: int | None = None
+        seed: int = 0,
+        num_threads: int | None = None,
+        metric: CoregistrationMetric = CoregistrationMetric.mutual_information,
     ) -> sitk.ImageRegistrationMethod:
-        """
-        Generate method used for coregistration.
+        """Generate method used for coregistration.
 
-        :param seed: Random seed for the registration method. When set to 0,
-            uses system walltime. Use different values for deterministic behaviour.
-        :type seed: int
-        :param num_threads: Number of threads used for coregistration. By default, it is
-            set to the maximum number of available threads.
-            Set it to 1 for deterministic behaviour.
-        :type num_threads: Optional[int]
-        :return: Registration method used for coregistration.
-        :rtype: sitk.ImageRegistrationMethod
+        Args:
+            seed (int): Random seed for the registration method. When set to 0,
+                uses system walltime. Use different values for deterministic behaviour.
+            num_threads (int|None): Number of threads used for coregistration. By default, it is
+                set to the maximum number of available threads.
+                Set it to 1 for deterministic behaviour.
+            metric (CoregistrationMetric): metric used for coregistration.
+
+        Returns:
+            sitk.ImageRegistrationMethod: Registration method used for coregistration.
         """
+
+        def _set_metric(reg_method: sitk.ImageRegistrationMethod, metric: CoregistrationMetric):
+            """Set coregistration metric."""
+            number_of_mutual_information_bins = 100
+            if metric == CoregistrationMetric.correlation:
+                reg_method.SetMetricAsCorrelation()
+            elif metric == CoregistrationMetric.mutual_information:
+                reg_method.SetMetricAsMattesMutualInformation(
+                    numberOfHistogramBins=number_of_mutual_information_bins
+                )
+            else:
+                raise ValueError(f"The provided metric {metric} is not supported.")
+
         registration_method = sitk.ImageRegistrationMethod()
         if num_threads:
             registration_method.SetGlobalDefaultNumberOfThreads(num_threads)
-        registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=100)
+        _set_metric(registration_method, metric)
         registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
         registration_method.SetMetricSamplingPercentage(0.01, seed=seed)
         registration_method.SetInterpolator(sitk.sitkLinear)
-        registration_method.SetOptimizerAsGradientDescent(
-            learningRate=1.0,
-            numberOfIterations=200,
-            convergenceMinimumValue=1e-6,
-            convergenceWindowSize=10,
+        registration_method.SetOptimizerAsRegularStepGradientDescent(
+            learningRate=2.0,
+            minStep=1e-4,
+            numberOfIterations=500,
+            gradientMagnitudeTolerance=1e-8,
         )
         registration_method.SetOptimizerScalesFromPhysicalShift()
+        registration_method.SetInterpolator(sitk.sitkLinear)
         registration_method.SetShrinkFactorsPerLevel(shrinkFactors=[4, 2, 1])
         registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas=[2, 1, 0])
         registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
@@ -443,28 +448,30 @@ class Image(sitk.Image):
     def coregister(
         self,
         reference_image: Image,
+        *,
         fill_value: float = 0.0,
+        coregistration_metric: CoregistrationMetric = CoregistrationMetric.mutual_information,
         seed: int = 0,
         num_threads: int | None = None,
     ) -> Image:
-        """
-        Coregiser the image on top of another (reference) image.
+        """Coregiser the image on top of another (reference) image.
 
-        :param reference_image: Image used as reference for coregistration.
-        :type reference_image: Image
-        :param fill_value: Value used to fill voxels during resampling (defaults to 0).
-        :type fill_value: float
-        :param seed: Random seed for the registration method. When set to 0,
-            uses system walltime. Use different values for deterministic behaviour.
-        :type seed: int
-        :param num_threads: Number of threads used for coregistration. By default, it is
-            set to the maximum number of available threads.
-            Set it to 1 for deterministic behaviour.
-        :type num_threads: Optional[int]
-        :return: New image coregistered with reference_image.
-        :rtype: Image
+        Args:
+            reference_image (Image): Image used as reference for coregistration.
+            fill_value (float): Value used to fill voxels during resampling (defaults to 0).
+            coregistration_metric (CoregistrationMetric): metric used for coregistration.
+            seed (int): Random seed for the registration method. When set to 0,
+                uses system walltime. Use different values for deterministic behaviour.
+            num_threads (int|None): Number of threads used for coregistration. By default, it is
+                set to the maximum number of available threads.
+                Set it to 1 for deterministic behaviour.
+
+        Returns:
+            Image: New image coregistered with reference_image.
         """
-        registration_method = self._get_coregistration_method(seed=seed, num_threads=num_threads)
+        registration_method = self._get_coregistration_method(
+            seed=seed, num_threads=num_threads, metric=coregistration_metric
+        )
         current_type = self.GetPixelID()
 
         fixed_image = reference_image.astype(np.float32)
@@ -493,8 +500,7 @@ class Image(sitk.Image):
         return moving_image
 
     def __add__(self, value: int | float) -> Image:
-        """
-        Add constant value to pixel data.
+        """Add constant value to pixel data.
 
         :param value: Value to be added to pixel data.
         :type value: int | float
@@ -517,8 +523,7 @@ class Image(sitk.Image):
         return transformed_image
 
     def __sub__(self, value: int | float) -> Image:
-        """
-        Subtract constant value to pixel data.
+        """Subtract constant value to pixel data.
 
         :param value: Value to be subtracted to pixel data.
         :type value: int | float
@@ -540,8 +545,7 @@ class Image(sitk.Image):
         return transformed_image
 
     def __mul__(self, value: int | float) -> Image:
-        """
-        Multiply constant value to pixel data.
+        """Multiply constant value to pixel data.
 
         :param value: Value to be multiplied to pixel data.
         :type value: int | float
@@ -564,8 +568,7 @@ class Image(sitk.Image):
         return transformed_image
 
     def __truediv__(self, value: int | float) -> Image:
-        """
-        Multiply constant value to pixel data.
+        """Divide constant value to pixel data.
 
         :param value: Value to be multiplied to pixel data.
         :type value: int | float

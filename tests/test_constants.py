@@ -1,4 +1,4 @@
-"""Test module for constants.py"""
+"""Test module for constants.py."""
 
 from pathlib import Path
 

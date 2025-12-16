@@ -4,8 +4,7 @@ from enum import Enum
 
 
 class ROIGenerationAlgorithm(Enum):
-    """
-    ROI Generation Algorithm.
+    """ROI Generation Algorithm.
 
     For more information see here:
     https://dicom.innolitics.com/ciods/rt-structure-set/structure-set/30060020/30060036
@@ -23,8 +22,7 @@ ROI_GENERATION_ALGORITHM = {
     ROIGenerationAlgorithm.semiautomatic: "SEMIAUTOMATIC",
     ROIGenerationAlgorithm.manual: "MANUAL",
 }
-"""
-Type of algorithm used to generate ROI.
+"""Type of algorithm used to generate ROI.
 
 For more information see here:
 https://dicom.innolitics.com/ciods/rt-structure-set/structure-set/30060020/30060036

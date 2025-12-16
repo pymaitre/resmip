@@ -24,8 +24,7 @@ class Dose(Image):
         read_metadata: bool = True,
         reference_image: Image | None = None,
     ) -> Dose:
-        """
-        Read rt dose from file.
+        """Read rt dose from file.
 
         Doses could have different origin and/or
         spacing compared to the referenced series.
@@ -80,8 +79,7 @@ class Dose(Image):
         file_format: str | None = None,
         # reference_image_path: Optional[PathLike] = None,
     ) -> None:
-        """
-        Save RT Dose file.
+        """Save RT Dose file.
 
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.
@@ -108,8 +106,7 @@ class Dose(Image):
         raise NotImplementedError("Saving to DICOM RT Dose is currently not supported.")
 
     def __add__(self, value: int | float) -> Dose:
-        """
-        Add constant value to dose pixel data.
+        """Add constant value to dose pixel data.
 
         :param value: Value to be added to pixel data.
         :type value: int | float
@@ -119,8 +116,7 @@ class Dose(Image):
         return Dose(super().__add__(value))
 
     def __sub__(self, value: int | float) -> Dose:
-        """
-        Subtract constant value to dose pixel data.
+        """Subtract constant value to dose pixel data.
 
         :param value: Value to be subtracted to pixel data.
         :type value: int | float
@@ -130,8 +126,7 @@ class Dose(Image):
         return Dose(super().__sub__(value))
 
     def __mul__(self, value: int | float) -> Dose:
-        """
-        Multiply constant value to dose pixel data.
+        """Multiply constant value to dose pixel data.
 
         :param value: Value to be multiplied to pixel data.
         :type value: int | float
@@ -141,8 +136,7 @@ class Dose(Image):
         return Dose(super().__mul__(value))
 
     def __truediv__(self, value: int | float) -> Dose:
-        """
-        Multiply constant value to dose pixel data.
+        """Divide constant value to dose pixel data.
 
         :param value: Value to be multiplied to pixel data.
         :type value: int | float

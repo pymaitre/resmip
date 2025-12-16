@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class Image(sitk.Image):
     """Wrapper class of SimpleITK.Image with support to headers."""
 
-    def __init__(self, *args):
+    def __init__(self, *args, metadata: dict[str, str] | None = None):
         """Call sitk.Image constructor and create an empty dictionary for the header."""
         super().__init__(*args)
         self._metadata = {}
@@ -32,6 +32,8 @@ class Image(sitk.Image):
         if len(args) > 0:
             if isinstance(args[0], Image):
                 self._metadata = args[0].metadata
+        if metadata:
+            self._metadata.update(metadata)
 
     def __getitem__(self, key) -> Image:
         """Get a pixel value, a sliced image, or a metadata item.
@@ -61,7 +63,7 @@ class Image(sitk.Image):
         queried with the index as the key. If the metadata dictionary
         does not contain the key, a KeyError will occour.
         """
-        return Image(super().__getitem__(key))
+        return Image(super().__getitem__(key), metadata=self.metadata)
 
     @property
     def metadata(self) -> dict[str, str]:
@@ -391,6 +393,7 @@ class Image(sitk.Image):
             spacing=reference_image.spacing,
             origin=reference_image.origin,
             direction=reference_image.direction,
+            metadata=self.metadata,
         )
 
     @staticmethod

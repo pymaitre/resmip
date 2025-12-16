@@ -11,6 +11,7 @@ import SimpleITK as sitk
 
 import resmip.dicom_utils.rtst as dicom_rtst
 from resmip import Image
+from resmip.image._data_types import ImageDTypeLike, _sitk_image_dtype
 from resmip.utils import PathLike
 
 logger = logging.getLogger(__name__)
@@ -85,6 +86,20 @@ class RTStructure(Image):
     @name.setter
     def name(self, value):
         self._name = value
+
+    def astype(self, dtype: ImageDTypeLike) -> RTStructure:
+        """Convert pixel array type to the specified value, by casting a new dose.
+
+        :param dtype: The dtype to use for the numpy array.
+            If None, the default dtype of the image is used
+            as defined the global `FORMAT_TO_TYPESTR` dictionary.
+        :type dtype: ImageDTypeLike
+        :return: new dose with specified data type.
+        :rtype: Dose
+        """
+        new_dose = RTStructure(sitk.Cast(self, _sitk_image_dtype(dtype)), name=self.name)
+        new_dose.metadata = self.metadata
+        return new_dose
 
     @classmethod
     def read_image(
@@ -278,6 +293,14 @@ class RTStructure(Image):
         :rtype: RTStructure
         """
         return RTStructure(super().pad(reference_image=reference_image, **kwargs), name=self.name)
+
+    def coregister(self, *args, **kwargs) -> RTStructure:
+        """Coregiser the structure on top of another (reference) image.
+
+        Raises:
+            NotImplementedError: Coregistration of structures is not supported.
+        """
+        raise NotImplementedError
 
     def __add__(self, value: int | float) -> RTStructure:
         """Add constant value to structure pixel data.

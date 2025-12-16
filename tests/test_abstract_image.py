@@ -13,14 +13,17 @@ from .utils import dicom_ct_path, ibsi_rtst_path
 
 
 def mock_image():
+    """Mock image used in this module."""
     return Image.read_image(dicom_ct_path())
 
 
 def mock_structure():
+    """Mock rt structure used in this module."""
     return RTStructure.read_image(ibsi_rtst_path())
 
 
 def mock_dose():
+    """Mock dose used in this module."""
     REFERENCE_DICOM_PATH = Path(__file__).parent / "Dicom" / "dicompyler_img"
     REFERENCE_DICOM_IMAGE_PATH = REFERENCE_DICOM_PATH / "ct.0.dcm"
     REFERENCE_DICOM_DOSE_PATH = REFERENCE_DICOM_PATH / "rtdose.dcm"
@@ -29,6 +32,7 @@ def mock_dose():
 
 
 def assert_object_compatible(obj1, obj2, obj_type=None):
+    """Check if two objects have the same type and same properties."""
     assert isinstance(obj1, type(obj2))
     assert isinstance(obj2, type(obj1))
     if obj_type:

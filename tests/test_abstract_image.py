@@ -24,11 +24,11 @@ def mock_structure():
 
 def mock_dose():
     """Mock dose used in this module."""
-    REFERENCE_DICOM_PATH = Path(__file__).parent / "Dicom" / "dicompyler_img"
-    REFERENCE_DICOM_IMAGE_PATH = REFERENCE_DICOM_PATH / "ct.0.dcm"
-    REFERENCE_DICOM_DOSE_PATH = REFERENCE_DICOM_PATH / "rtdose.dcm"
-    image = Image.read_image(REFERENCE_DICOM_IMAGE_PATH)
-    return Dose.read_image(REFERENCE_DICOM_DOSE_PATH, reference_image=image)
+    reference_dicom_path = Path(__file__).parent / "Dicom" / "dicompyler_img"
+    reference_dicom_image_path = reference_dicom_path / "ct.0.dcm"
+    reference_dicom_dose_path = reference_dicom_path / "rtdose.dcm"
+    image = Image.read_image(reference_dicom_image_path)
+    return Dose.read_image(reference_dicom_dose_path, reference_image=image)
 
 
 def assert_object_compatible(obj1, obj2, obj_type=None):
@@ -136,8 +136,7 @@ def test_image_astype(image, dtype):
 
 
 @pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
-@pytest.mark.parametrize("dtype", [int, np.float32, np.uint32])
-def test_image_getitem(image, dtype):
+def test_image_getitem(image):
     """Test image getitem (for slicing/cropping)."""
     input_image: Image = image()
     image_type = type(input_image)
@@ -214,13 +213,13 @@ def test_image_coregistration(image):
     assert input_image.origin == reference_image.origin
     input_image.origin = (0, 0, 0)
     assert input_image.origin != reference_image.origin
-    coregistration_args = dict(
-        reference_image=reference_image,
-        fill_value=-1000,
-        coregistration_metric=CoregistrationMetric.correlation,
-        seed=1,
-        num_threads=1,
-    )
+    coregistration_args = {
+        "reference_image": reference_image,
+        "fill_value": -1000,
+        "coregistration_metric": CoregistrationMetric.correlation,
+        "seed": 1,
+        "num_threads": 1,
+    }
     if isinstance(input_image, (RTStructure, Dose)):
         with pytest.raises(NotImplementedError):
             _ = input_image.coregister(

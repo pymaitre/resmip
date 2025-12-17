@@ -26,14 +26,16 @@ def create_contour(series_slice: pydicom.Dataset, contour_data: np.ndarray) -> p
     return contour
 
 
-def get_polygon_contours_from_slice_mask(slice_mask: np.ndarray) -> tuple[np.ndarray]:
+def get_polygon_contours_from_slice_mask(slice_mask: np.ndarray) -> tuple[np.ndarray, ...]:
     """Convert the slice mask to a collection of polygon contours.
 
-    :param slice_mask: Mask of the slice to be converted, of shape (x_dim, y_dim).
-    :type slice_mask: np.ndarray
-    :return: Tuple of polygon vertices (as x, y tuples) of the mask contour, of shape (n_points, 2).
+    Args:
+        slice_mask (np.ndarray): Mask of the slice to be converted, of shape (x_dim, y_dim).
+
+    Returns:
+        tuple[np.ndarray, ...]: Tuple of polygon vertices (as x, y tuples) of
+            the mask contour, of shape (n_points, 2).
         The length of the tuple is the number of polygons in the slice.
-    :rtype: Tuple[np.ndarray]
     """
     polygons = tuple(
         np.flip(np.array(poly), axis=1) - 1
@@ -48,10 +50,11 @@ def get_polygon_contours_from_slice_mask(slice_mask: np.ndarray) -> tuple[np.nda
 def get_contour_from_slice_mask(slice_mask: np.ndarray) -> np.ndarray:
     """Convert the slice mask to a polygon contour.
 
-    :param slice_mask: Mask of the slice to be converted, of shape (x_dim, y_dim).
-    :type slice_mask: np.ndarray
-    :return: Polygon vertices (as x, y tuples) of the mask contour, of shape (n_points, 2).
-    :rtype: np.ndarray
+    Args:
+        slice_mask (np.ndarray): Mask of the slice to be converted, of shape (x_dim, y_dim).
+
+    Returns:
+        np.ndarray: Polygon vertices (as x, y tuples) of the mask contour, of shape (n_points, 2).
     """
     polygons = get_polygon_contours_from_slice_mask(slice_mask)
     # Connect each polygon with the first point of the first polygon,

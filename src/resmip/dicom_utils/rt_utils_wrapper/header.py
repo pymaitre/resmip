@@ -10,10 +10,11 @@ from pydicom.uid import generate_uid
 def add_leading_zero_to_header_value(value) -> str:
     """Add leading zero to numeric value in the header, if missing.
 
-    :param value: Number read from the DICOM header.
-    :type value: any
-    :return: Number string with leading zeros added.
-    :rtype: str
+    Args:
+        value (Any): Number read from the DICOM header.
+
+    Returns:
+        str: Number string with leading zeros added.
     """
     return re.sub(r"(\[| -?)\.", r"\g<1>0.", str(value))
 

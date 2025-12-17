@@ -39,14 +39,16 @@ def check_if_valid_structure(
 
     If the structure is invalid, print more information and return false.
 
-    :param struct_index: ROI Number of the RT Structure.
-    :type struct_index: int | IS
-    :param struct_point_sequence: dictionary containing the sequence of points of the RT Structure.
-        - key: string representing ROI Number
-        - value: Dataset containing RT Structure data (including slice polygons)
-    :type struct_point_sequence: Dict[str, Dataset]
-    :return: true if the structure point sequence is valid.
-    :rtype: bool
+    Args:
+        struct_index (int | IS): ROI Number of the RT Structure.
+        struct_point_sequence (Dict[str, Dataset]): dictionary containing
+            the sequence of points of the RT Structure.
+
+                - key: string representing ROI Number
+                - value: Dataset containing RT Structure data (including slice polygons)
+
+    Returns:
+        bool: true if the structure point sequence is valid.
     """
     if struct_index not in struct_point_sequence:
         logger.debug("No ROIContourSequence found for this structure, skipping.")
@@ -73,18 +75,19 @@ def convert_single_structure(
 ) -> DicomStructure:
     """Convert a DICOM RT Structure to NIFTI.
 
-    :param reference_image: 3D image associated with the structure.
-    :type reference_image: sitk.Image
-    :param struct_point_sequence: dictionary containing the sequence of points of the RT Structure.
-        - key: string representing ROI Number
-        - value: Dataset containing RT Structure data (including slice polygons)
-    :type struct_point_sequence: Dict[str, Dataset]
-    :param struct_ds: single element of the Structure Set ROI Sequence containing ROI information,
-        including ROI Number and ROI Name.
-    :type struct_ds: Dataset
-    :return: object containing structure name and structure image.
-        If the contour is not valid, return an empy DicomStructure(None, None)
-    :rtype: DicomStructure
+    Args:
+        reference_image (sitk.Image): 3D image associated with the structure.
+        struct_point_sequence (dict[str, Dataset]): dictionary containing the
+            sequence of points of the RT Structure.
+
+                - key: string representing ROI Number
+                - value: Dataset containing RT Structure data (including slice polygons)
+        struct_ds (Dataset): single element of the Structure Set ROI Sequence
+            containing ROI information, including ROI Number and ROI Name.
+
+    Returns:
+        DicomStructure: object containing structure name and structure image.
+            If the contour is not valid, return an empy DicomStructure(None, None)
     """
     image_blank = np.zeros(reference_image.GetSize()[::-1], dtype=np.uint8)
 
@@ -145,21 +148,18 @@ def read(  # pylint: disable=too-many-locals
 ) -> list[DicomStructure]:
     """Read DICOM ST Structure Set file and convert it into a list of RTStructure (nifti) objects.
 
-    :param rtst_path: full path of the RT Structure Set.
-    :type rtst_path: Path
-    :param reference_image: 3D image associated with the structure set.
-    :type reference_image: sitk.Image
-    :param structure_names: structure name or list of structure names to convert.
-        Other structures will not be converted.
-        If set to None, all structures found will be converted.
-    :type structure_names: str | list[str] | None
-    :param parallel: read RT Structures in parallel.
-    :type parallel: bool
-    :param regex: if set to true, structure names are searched as regular expression pattern,
-        otherwise only exact matches are returned.
-    :type regex: bool
-    :return: list of matching RTStructure (nifti) objects.
-    :rtype: list[DicomStructure]
+    Args:
+        rtst_path (Path): full path of the RT Structure Set.
+        reference_image (sitk.Image): 3D image associated with the structure set.
+        structure_names (str | list[str] | None): structure name or list
+            of structure names to convert. Other structures will not be converted.
+            If set to None, all structures found will be converted.
+        parallel (bool): read RT Structures in parallel.
+        regex (bool): if set to true, structure names are searched as regular expression pattern,
+            otherwise only exact matches are returned.
+
+    Returns:
+        list[DicomStructure]: list of matching RTStructure (nifti) objects.
     """
     dicom_struct = pydicom.dcmread(rtst_path, force=True)
 
@@ -212,18 +212,14 @@ def write(
 
     Wrapper of convert_nifti from platipy.dicom.io.nifti_to_rtstruct.
 
-    :param rt_structures: collection of structure name and structure mask.
-    :type rt_structures: dict[str, sitk.Image]
-    :param save_path: full path of the generated dicom file.
-    :type save_path: PathLike
-    :param save_path: path of the directory containing the reference dicom image.
-    :type save_path: PathLike
-    :param color_map: Colormap to use for output. Defaults to
-        matplotlib.colormaps.get_cmap("rainbow").
-    :type color_map: matplotlib.colors.Colormap
-    :param series_description: Series Description for the saved DICOM
-        RT Structure Set.
-    :type series_description: str
+    Args:
+        rt_structures (dict[str, sitk.Image]): collection of structure name and structure mask.
+        save_path (PathLike): full path of the generated dicom file.
+        dcm_series_path (PathLike): path of the directory containing the reference dicom image.
+        color_map (matplotlib.colors.Colormap): Colormap to use for output. Defaults to
+            matplotlib.colormaps.get_cmap("rainbow").
+        series_description (str): Series Description for the saved DICOM
+            RT Structure Set.
     """
     logger.info("Will convert the following masks to RTStruct:")
     save_path = Path(save_path)

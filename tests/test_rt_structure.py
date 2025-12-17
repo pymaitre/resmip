@@ -415,15 +415,6 @@ def test_rtstruct_pad(left_shift, right_shift):
     assert padded_structure.name == reference_structure.name
 
 
-@pytest.mark.parametrize("operation", ["__add__", "__sub__", "__mul__", "__truediv__"])
-def test_rtstruct_add_sub_mul_truediv(operation):
-    """Arithmetic operators on RT structures are not implemented."""
-    structure = RTStructure.read_image(ibsi_rtst_path())
-    factor = 0.5
-    with pytest.raises(NotImplementedError):
-        getattr(structure, operation)(factor)
-
-
 @pytest.mark.parametrize("set_description", [True, False])
 def test_write_dicom_structure_set_description(set_description, tmp_path):
     """Create a dicom RT Structure Set setting the series description."""

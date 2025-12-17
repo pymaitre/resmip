@@ -75,24 +75,24 @@ class Image(sitk.Image):
         self._metadata = value
 
     @property
-    def spacing(self) -> tuple[float]:
+    def spacing(self) -> tuple[float, float, float]:
         """Voxel spacing in mm (x, y, z)."""
         return self.GetSpacing()
 
     @spacing.setter
-    def spacing(self, value: tuple[float]):
+    def spacing(self, value: tuple[float, float, float]):
         self.SetSpacing(value)
         # add the spacing to metadata too
         self.metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join([str(x) for x in value[:2]])
         self.metadata[DICOM_FIELDS["SliceThickness"]] = str(value[2])
 
     @property
-    def origin(self) -> tuple[float]:
+    def origin(self) -> tuple[float, float, float]:
         """Coordinates of the top left voxel in mm (x, y, z)."""
         return self.GetOrigin()
 
     @origin.setter
-    def origin(self, value: tuple[float]):
+    def origin(self, value: tuple[float, float, float]):
         """The original DICOM header key is not updated."""
         self.SetOrigin(value)
 
@@ -114,7 +114,7 @@ class Image(sitk.Image):
         )
 
     @property
-    def size(self) -> tuple[float]:
+    def size(self) -> tuple[int, int, int]:
         """Image size in pixels."""
         return self.GetSize()
 
@@ -217,9 +217,7 @@ class Image(sitk.Image):
         Returns:
             Image: new image with specified data type.
         """
-        new_image = Image(sitk.Cast(self, _sitk_image_dtype(dtype)))
-        new_image.metadata = self.metadata
-        return new_image
+        return Image(sitk.Cast(self, _sitk_image_dtype(dtype)), metadata=self.metadata)
 
     @classmethod
     def read_image(cls, filename: PathLike, read_metadata: bool = True) -> Image:
@@ -251,9 +249,7 @@ class Image(sitk.Image):
                 value = sitk_image.GetMetaData(key)
                 value = format_digit_string(value)
                 series_metadata[key] = value
-        new_image = cls(sitk_image)
-        new_image.metadata = series_metadata
-        return new_image
+        return cls(sitk_image, metadata=series_metadata)
 
     def write_image(self, filename: PathLike, *, write_metadata: bool = True) -> None:
         """Save image file (and metadata).
@@ -495,11 +491,10 @@ class Image(sitk.Image):
                 sitk.sitkLinear,
                 fill_value,
                 moving_image.GetPixelID(),
-            )
+            ),
+            metadata=self.metadata,
         )
-        moving_image = moving_image.astype(current_type)
-        moving_image.metadata = self.metadata
-        return moving_image
+        return moving_image.astype(current_type)
 
     def __add__(self, value: int | float) -> Image:
         """Add constant value to pixel data.
@@ -521,9 +516,7 @@ class Image(sitk.Image):
                     "type is unsigned, make sure to cast it to a signed type "
                     "if pixel values become negative."
                 )
-        transformed_image = Image(super(Image, current_image).__add__(value))
-        transformed_image.metadata = self.metadata
-        return transformed_image
+        return Image(super(Image, current_image).__add__(value), metadata=self.metadata)
 
     def __sub__(self, value: int | float) -> Image:
         """Subtract constant value to pixel data.
@@ -544,9 +537,7 @@ class Image(sitk.Image):
                 "type is unsigned, make sure to cast it to a signed type "
                 "if pixel values become negative."
             )
-        transformed_image = Image(super(Image, current_image).__sub__(value))
-        transformed_image.metadata = self.metadata
-        return transformed_image
+        return Image(super(Image, current_image).__sub__(value), metadata=self.metadata)
 
     def __mul__(self, value: int | float) -> Image:
         """Multiply constant value to pixel data.
@@ -568,9 +559,7 @@ class Image(sitk.Image):
                     "type is unsigned, make sure to cast it to a signed type "
                     "if pixel values become negative."
                 )
-        transformed_image = Image(super(Image, current_image).__mul__(value))
-        transformed_image.metadata = self.metadata
-        return transformed_image
+        return Image(super(Image, current_image).__mul__(value), metadata=self.metadata)
 
     def __truediv__(self, value: int | float) -> Image:
         """Divide constant value to pixel data.
@@ -583,6 +572,4 @@ class Image(sitk.Image):
         """
         logger.debug("Casting image type to float")
         current_image = self.astype(float)
-        transformed_image = Image(super(Image, current_image).__truediv__(value))
-        transformed_image.metadata = self.metadata
-        return transformed_image
+        return Image(super(Image, current_image).__truediv__(value), metadata=self.metadata)

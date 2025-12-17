@@ -18,18 +18,19 @@ from resmip.utils import PathLike, format_digit_string
 logger = logging.getLogger(__name__)
 
 
-def get_series_dicom_files(dicom_series_directory_path: PathLike) -> tuple[Path]:
+def get_series_dicom_files(dicom_series_directory_path: PathLike) -> tuple[Path, ...]:
     """Get the list of dicom files of the series to be read.
 
     Read series ids first and then read the modalities. This is done in order to exclude
     RT Dose files.
 
-    :param dicom_series_directory_path: Path of the directory containing the Dicom Series.
-    :type dicom_series_directory_path: PathLike
-    :return: Tuple of all full paths of the dicom slices (empty if no series are found
+    Args:
+        dicom_series_directory_path (PathLike): Path of the directory containing the Dicom Series.
+
+    Returns:
+        tuple[Path, ...]: Tuple of all full paths of the dicom slices (empty if no series are found
         in the directory). The elements are casted from `str` to `Path` in order to return
         correct paths on Windows.
-    :type: Tuple[Path]
     """
     series_ids = sitk.ImageSeriesReader().GetGDCMSeriesIDs(str(dicom_series_directory_path))
     for series_id in series_ids:
@@ -45,17 +46,17 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> tuple[Path]
 
 def get_spacing_from_dicom_header(
     dicom_series_reader: sitk.ImageSeriesReader, slices_number: int
-) -> tuple[float]:
+) -> tuple[float, float, float]:
     """Read correctly-rounded voxel spacing from the DICOM header.
 
     If the series has only one slice, the z spacing is set to 1 mm.
 
-    :param dicom_series_reader: ITK DICOM reader for series.
-    :type dicom_series_reader: sitk.ImageSeriesReader
-    :param slices_number: Number of slices for the DICOM series.
-    :type slices_number: int
-    :return: (x, y, z) voxel spacing in mm.
-    :rtype: tuple[float]
+    Args:
+        dicom_series_reader (sitk.ImageSeriesReader): ITK DICOM reader for series.
+        slices_number (int): Number of slices for the DICOM series.
+
+    Returns:
+        tuple[float, float, float]: (x, y, z) voxel spacing in mm.
     """
     xy_spacing = None
     z_values = []
@@ -91,10 +92,11 @@ def read(dicom_series_directory_path: PathLike) -> tuple[sitk.Image, dict[str, s
 
     Non-unicode characters in the dicom header are escaped into unicode sequences.
 
-    :param dicom_series_directory_path: Path of the directory containing the Dicom Series.
-    :type dicom_series_directory_path: PathLike
-    :return: SimpleITK Image and metadata dictionary.
-    :rtype: Tuple[sitk.Image, Dict[str, str]
+    Args:
+        dicom_series_directory_path (PathLike): Path of the directory containing the Dicom Series.
+
+    Returns:
+        tuple[sitk.Image, dict[str, str]]: SimpleITK Image and metadata dictionary.
     """
     dicom_series_files = get_series_dicom_files(dicom_series_directory_path)
     slices_number = len(dicom_series_files)
@@ -151,14 +153,12 @@ def read(dicom_series_directory_path: PathLike) -> tuple[sitk.Image, dict[str, s
 def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike) -> None:
     """Save the image as a Dicom series.
 
-    :param image: image object to be saved.
-    :type image: sitk.Image
-    :param input_metadata: dictionary containing image metadata used for the creation
-        of the Dicom header.
-    :type input_metadata: Dict[str, str]
-    :param save_path: Path where the image is saved. save_path must be a directory.
-        If it does not already exist, a new dicrectory is created.
-    :type save_path: PathLike
+    Args:
+        image (sitk.Image): image object to be saved.
+        input_metadata (dict[str, str]): dictionary containing image metadata used for the creation
+            of the Dicom header.
+        save_path (PathLike): Path where the image is saved. save_path must be a directory.
+            If it does not already exist, a new dicrectory is created.
     """
     save_path = Path(save_path)
     # the following raises an error if save_path is an existing non-directory file

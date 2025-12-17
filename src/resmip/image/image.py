@@ -13,10 +13,11 @@ import SimpleITK as sitk
 
 import resmip.dicom_utils.series as dicom_series
 from resmip import DICOM_FIELDS
-from resmip.image._data_types import ImageDTypeLike, _is_unsigned, _sitk_image_dtype
 from resmip.image.coregistration import CoregistrationMetric
+from resmip.image.data_types import ImageDTypeLike, _is_unsigned, _sitk_image_dtype
 from resmip.utils import PathLike, format_digit_string
 
+__all__ = ["Image"]
 logger = logging.getLogger(__name__)
 
 

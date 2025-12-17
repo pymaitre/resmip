@@ -2,6 +2,8 @@
 
 from enum import Enum, auto
 
+__all__ = ["CoregistrationMetric"]
+
 
 class CoregistrationMetric(Enum):
     """Metrics used for image coregistration."""

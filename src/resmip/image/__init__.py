@@ -1,4 +1,7 @@
 """Module for processing Image objects."""
 
-from .coregistration import CoregistrationMetric  # noqa: F401
-from .image import Image  # noqa: F401
+from .coregistration import CoregistrationMetric
+from .data_types import ImageDTypeLike
+from .image import Image
+
+__all__ = ["CoregistrationMetric", "Image", "ImageDTypeLike"]

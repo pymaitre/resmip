@@ -6,6 +6,8 @@ import numpy as np
 import numpy.typing as npt
 import SimpleITK as sitk
 
+__all__ = ["ImageDTypeLike"]
+
 ImageDTypeLike = Union[str, int, npt.DTypeLike]
 """Data types used for images."""
 

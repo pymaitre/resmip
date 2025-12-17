@@ -11,9 +11,10 @@ import SimpleITK as sitk
 
 import resmip.dicom_utils.rtst as dicom_rtst
 from resmip import Image
-from resmip.image._data_types import ImageDTypeLike
+from resmip.image.data_types import ImageDTypeLike
 from resmip.utils import PathLike
 
+__all__ = ["RTStructure", "RTStructureSet"]
 logger = logging.getLogger(__name__)
 
 

@@ -215,7 +215,7 @@ def write(
     Args:
         rt_structures (dict[str, sitk.Image]): collection of structure name and structure mask.
         save_path (PathLike): full path of the generated dicom file.
-        save_path (PathLike): path of the directory containing the reference dicom image.
+        dcm_series_path (PathLike): path of the directory containing the reference dicom image.
         color_map (matplotlib.colors.Colormap): Colormap to use for output. Defaults to
             matplotlib.colormaps.get_cmap("rainbow").
         series_description (str): Series Description for the saved DICOM

@@ -41,10 +41,11 @@ def check_if_valid_structure(
 
     Args:
         struct_index (int | IS): ROI Number of the RT Structure.
-        struct_point_sequence (Dict[str, Dataset]): dictionary containing the sequence of points of the RT Structure.
+        struct_point_sequence (Dict[str, Dataset]): dictionary containing
+            the sequence of points of the RT Structure.
 
-            - key: string representing ROI Number
-            - value: Dataset containing RT Structure data (including slice polygons)
+                - key: string representing ROI Number
+                - value: Dataset containing RT Structure data (including slice polygons)
 
     Returns:
         bool: true if the structure point sequence is valid.
@@ -76,12 +77,13 @@ def convert_single_structure(
 
     Args:
         reference_image (sitk.Image): 3D image associated with the structure.
-        struct_point_sequence (dict[str, Dataset]): dictionary containing the sequence of points of the RT Structure.
+        struct_point_sequence (dict[str, Dataset]): dictionary containing the
+            sequence of points of the RT Structure.
 
-            - key: string representing ROI Number
-            - value: Dataset containing RT Structure data (including slice polygons)
-        struct_ds (Dataset): single element of the Structure Set ROI Sequence containing ROI information,
-            including ROI Number and ROI Name.
+                - key: string representing ROI Number
+                - value: Dataset containing RT Structure data (including slice polygons)
+        struct_ds (Dataset): single element of the Structure Set ROI Sequence
+            containing ROI information, including ROI Number and ROI Name.
 
     Returns:
         DicomStructure: object containing structure name and structure image.
@@ -149,8 +151,8 @@ def read(  # pylint: disable=too-many-locals
     Args:
         rtst_path (Path): full path of the RT Structure Set.
         reference_image (sitk.Image): 3D image associated with the structure set.
-        structure_names (str | list[str] | None): structure name or list of structure names to convert.
-            Other structures will not be converted.
+        structure_names (str | list[str] | None): structure name or list
+            of structure names to convert. Other structures will not be converted.
             If set to None, all structures found will be converted.
         parallel (bool): read RT Structures in parallel.
         regex (bool): if set to true, structure names are searched as regular expression pattern,

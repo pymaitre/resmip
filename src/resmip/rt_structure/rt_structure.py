@@ -14,23 +14,11 @@ from resmip import Image
 from resmip.image.data_types import ImageDTypeLike
 from resmip.utils import PathLike
 
+from .utils import get_structure_name_from_filename
+
 __all__ = ["RTStructure", "RTStructureSet"]
+
 logger = logging.getLogger(__name__)
-
-
-def get_structure_name_from_filename(filename: Path) -> str:
-    """Get the structure name from the filename.
-
-    If the file is compressed, e.g.: structure.nii.gz, remove ".nii".
-    :param filename: Name of the file.
-    :type filename: Path
-    :return: Name of the RT Structure.
-    :rtype: str
-    """
-    compress_extensions = [".gz"]
-    if filename.suffix in compress_extensions:
-        return ".".join(filename.stem.split(".")[:-1])
-    return filename.stem
 
 
 class RTStructure(Image):

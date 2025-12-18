@@ -7,6 +7,7 @@ import SimpleITK as sitk
 import resmip.dicom_utils.series as dicom_series
 from resmip import DICOM_FIELDS
 from resmip.image import CoregistrationMetric, Image
+from resmip.image.image import _metadata_file_name
 from resmip.utils import format_digit_string
 
 from .utils import coregistered_image_path, dicom_ct_path
@@ -47,7 +48,7 @@ def test_metadata_file_name(is_string, tmp_path):
         given_nifti_file_name = str(nifti_file_name)
     else:
         given_nifti_file_name = nifti_file_name
-    metadata_file_name = Image().metadata_file_name(given_nifti_file_name)
+    metadata_file_name = _metadata_file_name(given_nifti_file_name)
     assert metadata_file_name == tmp_path / f".{nifti_file_name.stem}.json"
 
 

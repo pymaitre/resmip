@@ -15,6 +15,7 @@ from resmip.image.data_types import ImageDTypeLike
 from resmip.utils import PathLike
 
 __all__ = ["Dose"]
+
 logger = logging.getLogger(__name__)
 
 

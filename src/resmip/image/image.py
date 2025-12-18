@@ -14,11 +14,28 @@ import SimpleITK as sitk
 import resmip.dicom_utils.series as dicom_series
 from resmip import DICOM_FIELDS
 from resmip.image.coregistration import CoregistrationMetric
-from resmip.image.data_types import ImageDTypeLike, _is_unsigned, _sitk_image_dtype
+from resmip.image.data_types import ImageDTypeLike, is_unsigned, sitk_image_dtype
 from resmip.utils import PathLike, format_digit_string
 
 __all__ = ["Image"]
+
 logger = logging.getLogger(__name__)
+
+
+def _metadata_file_name(filename: PathLike) -> Path:
+    """Generate the filename for the metadata.
+
+    Defaults a json file with same name of the output image file (filename).
+    The json filename is prepended with a "." to make it hidden.
+
+    Args:
+        filename (PathLike): name of the output image file name.
+
+    Returns:
+        Path: Path of the json metadata file.
+    """
+    filename = Path(filename)
+    return filename.parent / f".{filename.stem}.json"
 
 
 class Image(sitk.Image):
@@ -151,22 +168,6 @@ class Image(sitk.Image):
         new_image.direction = direction
         return new_image
 
-    @staticmethod
-    def metadata_file_name(filename: PathLike) -> Path:
-        """Generate the filename for the metadata.
-
-        Defaults a json file with same name of the output image file (filename).
-        The json filename is prepended with a "." to make it hidden.
-
-        Args:
-            filename (PathLike): name of the output image file name.
-
-        Returns:
-            Path: Path of the json metadata file.
-        """
-        filename = Path(filename)
-        return filename.parent / f".{filename.stem}.json"
-
     def __array__(self, dtype: str | npt.DTypeLike | None = None, view: bool = False) -> np.ndarray:
         """Convert an image to a numpy array.
 
@@ -218,7 +219,7 @@ class Image(sitk.Image):
         Returns:
             Image: new image with specified data type.
         """
-        return Image(sitk.Cast(self, _sitk_image_dtype(dtype)), metadata=self.metadata)
+        return Image(sitk.Cast(self, sitk_image_dtype(dtype)), metadata=self.metadata)
 
     @classmethod
     def read_image(cls, filename: PathLike, read_metadata: bool = True) -> Image:
@@ -241,8 +242,8 @@ class Image(sitk.Image):
             sitk_image, series_metadata = dicom_series.read(filename)
         else:
             sitk_image = sitk.ReadImage(filename)
-            if read_metadata and Image().metadata_file_name(filename).exists():
-                serialized_metadata = Image().metadata_file_name(filename).read_text()
+            if read_metadata and _metadata_file_name(filename).exists():
+                serialized_metadata = _metadata_file_name(filename).read_text()
                 series_metadata = json.loads(serialized_metadata)
             else:
                 series_metadata = {}
@@ -285,7 +286,7 @@ class Image(sitk.Image):
         sitk.WriteImage(self, filename)
         if write_metadata:
             serialized_metadata = json.dumps(self.metadata)
-            self.metadata_file_name(filename).write_text(serialized_metadata)
+            _metadata_file_name(filename).write_text(serialized_metadata)
 
     def resample(
         self,
@@ -511,7 +512,7 @@ class Image(sitk.Image):
             logger.debug("Casting image type to float.")
             current_image = self.astype(float)
         if value < 0:
-            if _is_unsigned(current_image.GetPixelID()):
+            if is_unsigned(current_image.GetPixelID()):
                 logger.warning(
                     "Adding a negative value when image "
                     "type is unsigned, make sure to cast it to a signed type "
@@ -532,7 +533,7 @@ class Image(sitk.Image):
         if isinstance(value, float):
             logger.debug("Casting image type to float")
             current_image = self.astype(float)
-        if _is_unsigned(current_image.GetPixelID()):
+        if is_unsigned(current_image.GetPixelID()):
             logger.warning(
                 "Subtracting value when image "
                 "type is unsigned, make sure to cast it to a signed type "
@@ -554,7 +555,7 @@ class Image(sitk.Image):
             logger.debug("Casting image type to float")
             current_image = self.astype(float)
         if value < 0:
-            if _is_unsigned(current_image.GetPixelID()):
+            if is_unsigned(current_image.GetPixelID()):
                 logger.warning(
                     "Multipying a negative value when image "
                     "type is unsigned, make sure to cast it to a signed type "

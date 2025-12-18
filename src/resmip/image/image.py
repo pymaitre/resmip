@@ -155,7 +155,7 @@ class Image(sitk.Image):
             origin (tuple[float, float, float]): Coordinates of the top left voxel in mm (x, y, z).
             direction (tuple[float]): Direction cosine matrix.
             metadata (dict[str, str] | None): Metadata containing information from the DICOM header.
-            **kwargs: extra arguments used in `resmip.Image.__init__`.
+            **kwargs: extra arguments used in ``resmip.Image.__init__``.
 
         Returns:
             Image: New image
@@ -176,7 +176,7 @@ class Image(sitk.Image):
         Args:
             dtype (str | npt.DTypeLike | None): The dtype to use for the numpy array.
                 If None, the default dtype of the image is used
-                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+                as defined the global ``FORMAT_TO_TYPESTR`` dictionary.
             view (bool): If set to true, return a view of the underlying data,
                 without copying them. If a dtype is specified, a copy is returned anyway.
 
@@ -199,7 +199,7 @@ class Image(sitk.Image):
         Args:
             dtype (str | npt.DTypeLike | None): The dtype to use for the numpy array.
                 If None, the default dtype of the image is used
-                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+                as defined the global ``FORMAT_TO_TYPESTR`` dictionary.
             view (bool): If set to true, return a view of the underlying data,
                 without copying them. If a dtype is specified, a copy is returned anyway.
 
@@ -214,7 +214,7 @@ class Image(sitk.Image):
         Args:
             dtype (ImageDTypeLike): The dtype to use for the numpy array.
                 If None, the default dtype of the image is used
-                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+                as defined the global ``FORMAT_TO_TYPESTR`` dictionary.
 
         Returns:
             Image: new image with specified data type.
@@ -272,9 +272,9 @@ class Image(sitk.Image):
             dicom_series.write(self, self.metadata, filename)
             return
         filename.parent.mkdir(parents=True, exist_ok=True)
-        self.write_nondicom(filename=filename, write_metadata=write_metadata)
+        self._write_nondicom(filename=filename, write_metadata=write_metadata)
 
-    def write_nondicom(self, filename: PathLike, write_metadata: bool = True) -> None:
+    def _write_nondicom(self, filename: PathLike, write_metadata: bool = True) -> None:
         """Save image file (and metadata) to non-DICOM formats using ITK.
 
         Args:
@@ -331,14 +331,14 @@ class Image(sitk.Image):
     def pad(self, reference_image: Image, **kwargs) -> Image:
         """Pad the image on top of another image.
 
-        Uses the same notation as `numpy.pad`.
+        Uses the same notation as ``numpy.pad``.
         The image is shifted aligning its top-left voxel with the reference image.
         The two images must have the same voxel spacing.
         The shifted image is cropped if it extends out of the reference image.
 
         Args:
             reference_image (Image): Image used as reference for padding.
-            **kwargs: same arguments used in `np.pad`.
+            **kwargs: same arguments used in ``np.pad``.
 
         Returns:
             Image: New image with same shape and spacing of the reference.

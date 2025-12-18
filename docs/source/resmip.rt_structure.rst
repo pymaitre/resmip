@@ -12,6 +12,14 @@ resmip.rt\_structure.rt\_structure module
    :undoc-members:
    :show-inheritance:
 
+resmip.rt\_structure.utils module
+---------------------------------
+
+.. automodule:: resmip.rt_structure.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

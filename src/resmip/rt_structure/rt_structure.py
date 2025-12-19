@@ -418,7 +418,7 @@ class RTStructureSet(dict[str, RTStructure]):
         filename = [Path(f) for f in filename]
         if len(filename) != len(self):
             raise ValueError(
-                "The number of filenames provided is " "different than the number of structures."
+                "The number of filenames provided is different than the number of structures."
             )
         for structure_filename, structure in zip(filename, self.values()):
             structure.write_image(structure_filename, file_format=file_format)

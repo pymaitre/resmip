@@ -12,6 +12,14 @@ resmip.image.coregistration module
    :undoc-members:
    :show-inheritance:
 
+resmip.image.data\_types module
+-------------------------------
+
+.. automodule:: resmip.image.data_types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 resmip.image.image module
 -------------------------
 

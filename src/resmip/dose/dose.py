@@ -10,9 +10,10 @@ import pydicom
 import pydicom.errors
 import SimpleITK as sitk
 
-from resmip.image import Image
-from resmip.image._data_types import ImageDTypeLike
+from resmip.image import Image, ImageDTypeLike
 from resmip.utils import PathLike
+
+__all__ = ["Dose"]
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ class Dose(Image):
         Args:
             dtype (ImageDTypeLike): The dtype to use for the numpy array.
                 If None, the default dtype of the image is used
-                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+                as defined the global ``FORMAT_TO_TYPESTR`` dictionary.
 
         Returns:
             Dose: new dose with specified data type.
@@ -145,7 +146,7 @@ class Dose(Image):
             file_format = filename.suffix
         filename.parent.mkdir(parents=True, exist_ok=True)
         if file_format != ".dcm":
-            return self.write_nondicom(filename)
+            return self._write_nondicom(filename)
         raise NotImplementedError("Saving to DICOM RT Dose is currently not supported.")
 
     def resample(
@@ -175,14 +176,14 @@ class Dose(Image):
     def pad(self, reference_image: Image, **kwargs) -> Dose:
         """Pad the dose on top of another image.
 
-        Uses the same notation as `numpy.pad`.
+        Uses the same notation as ``numpy.pad``.
         The dose is shifted aligning its top-left voxel with the reference image.
         The two images must have the same voxel spacing.
         The shifted dose is cropped if it extends out of the reference image.
 
         Args:
             reference_image (Image): Image used as reference for padding.
-            **kwargs: same arguments used in `np.pad`.
+            **kwargs: same arguments used in ``np.pad``.
 
         Returns:
             Dose: New dose with same shape and spacing of the reference.

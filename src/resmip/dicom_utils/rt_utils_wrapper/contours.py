@@ -34,7 +34,7 @@ def get_polygon_contours_from_slice_mask(slice_mask: np.ndarray) -> tuple[np.nda
 
     Returns:
         tuple[np.ndarray, ...]: Tuple of polygon vertices (as x, y tuples) of
-            the mask contour, of shape (n_points, 2).
+        the mask contour, of shape (n_points, 2).
         The length of the tuple is the number of polygons in the slice.
     """
     polygons = tuple(

@@ -6,11 +6,13 @@ import numpy as np
 import numpy.typing as npt
 import SimpleITK as sitk
 
+__all__ = ["ImageDTypeLike"]
+
 ImageDTypeLike = Union[str, int, npt.DTypeLike]
 """Data types used for images."""
 
 
-def _sitk_image_dtype(dtype: ImageDTypeLike) -> int:
+def sitk_image_dtype(dtype: ImageDTypeLike) -> int:
     """Convert dtype to one of the supported sitk values.
 
     If a sitk type is provided, do nothing.
@@ -42,7 +44,7 @@ def _sitk_image_dtype(dtype: ImageDTypeLike) -> int:
         ) from e
 
 
-def _is_unsigned(dtype: ImageDTypeLike) -> bool:
+def is_unsigned(dtype: ImageDTypeLike) -> bool:
     """Whether the type is unsigned or not."""
     usigned_types_map = {
         sitk.sitkInt8: False,
@@ -58,4 +60,23 @@ def _is_unsigned(dtype: ImageDTypeLike) -> bool:
         sitk.sitkComplexFloat32: False,
         sitk.sitkComplexFloat64: False,
     }
-    return usigned_types_map[_sitk_image_dtype(dtype)]
+    return usigned_types_map[sitk_image_dtype(dtype)]
+
+
+def datatype_from_id(sitk_datatype_id: int) -> npt.DTypeLike:
+    """Convert sitk data type to numpy data type."""
+    conversion_map = {
+        sitk.sitkInt8: np.int8,
+        sitk.sitkUInt8: np.uint8,
+        sitk.sitkInt16: np.int16,
+        sitk.sitkUInt16: np.uint16,
+        sitk.sitkInt32: np.int32,
+        sitk.sitkUInt32: np.uint32,
+        sitk.sitkInt64: np.int64,
+        sitk.sitkUInt64: np.uint64,
+        sitk.sitkFloat32: np.float32,
+        sitk.sitkFloat64: np.float64,
+        sitk.sitkComplexFloat32: np.complex64,
+        sitk.sitkComplexFloat64: np.complex128,
+    }
+    return conversion_map[sitk_datatype_id]

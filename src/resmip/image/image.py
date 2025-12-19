@@ -13,11 +13,34 @@ import SimpleITK as sitk
 
 import resmip.dicom_utils.series as dicom_series
 from resmip import DICOM_FIELDS
-from resmip.image._data_types import ImageDTypeLike, _is_unsigned, _sitk_image_dtype
 from resmip.image.coregistration import CoregistrationMetric
+from resmip.image.data_types import (
+    ImageDTypeLike,
+    datatype_from_id,
+    is_unsigned,
+    sitk_image_dtype,
+)
 from resmip.utils import PathLike, format_digit_string
 
+__all__ = ["Image"]
+
 logger = logging.getLogger(__name__)
+
+
+def _metadata_file_name(filename: PathLike) -> Path:
+    """Generate the filename for the metadata.
+
+    Defaults a json file with same name of the output image file (filename).
+    The json filename is prepended with a "." to make it hidden.
+
+    Args:
+        filename (PathLike): name of the output image file name.
+
+    Returns:
+        Path: Path of the json metadata file.
+    """
+    filename = Path(filename)
+    return filename.parent / f".{filename.stem}.json"
 
 
 class Image(sitk.Image):
@@ -137,7 +160,7 @@ class Image(sitk.Image):
             origin (tuple[float, float, float]): Coordinates of the top left voxel in mm (x, y, z).
             direction (tuple[float]): Direction cosine matrix.
             metadata (dict[str, str] | None): Metadata containing information from the DICOM header.
-            **kwargs: extra arguments used in `resmip.Image.__init__`.
+            **kwargs: extra arguments used in ``resmip.Image.__init__``.
 
         Returns:
             Image: New image
@@ -150,22 +173,6 @@ class Image(sitk.Image):
         new_image.direction = direction
         return new_image
 
-    @staticmethod
-    def metadata_file_name(filename: PathLike) -> Path:
-        """Generate the filename for the metadata.
-
-        Defaults a json file with same name of the output image file (filename).
-        The json filename is prepended with a "." to make it hidden.
-
-        Args:
-            filename (PathLike): name of the output image file name.
-
-        Returns:
-            Path: Path of the json metadata file.
-        """
-        filename = Path(filename)
-        return filename.parent / f".{filename.stem}.json"
-
     def __array__(self, dtype: str | npt.DTypeLike | None = None, view: bool = False) -> np.ndarray:
         """Convert an image to a numpy array.
 
@@ -174,7 +181,7 @@ class Image(sitk.Image):
         Args:
             dtype (str | npt.DTypeLike | None): The dtype to use for the numpy array.
                 If None, the default dtype of the image is used
-                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+                as defined the global ``FORMAT_TO_TYPESTR`` dictionary.
             view (bool): If set to true, return a view of the underlying data,
                 without copying them. If a dtype is specified, a copy is returned anyway.
 
@@ -197,7 +204,7 @@ class Image(sitk.Image):
         Args:
             dtype (str | npt.DTypeLike | None): The dtype to use for the numpy array.
                 If None, the default dtype of the image is used
-                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+                as defined the global ``FORMAT_TO_TYPESTR`` dictionary.
             view (bool): If set to true, return a view of the underlying data,
                 without copying them. If a dtype is specified, a copy is returned anyway.
 
@@ -206,18 +213,23 @@ class Image(sitk.Image):
         """
         return self.__array__(dtype=dtype, view=view)
 
+    @property
+    def dtype(self) -> npt.DTypeLike:
+        """Data type of the Image."""
+        return datatype_from_id(self.GetPixelID())
+
     def astype(self, dtype: ImageDTypeLike) -> Image:
         """Convert pixel array type to the specified value, by casting a new image.
 
         Args:
             dtype (ImageDTypeLike): The dtype to use for the numpy array.
                 If None, the default dtype of the image is used
-                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+                as defined the global ``FORMAT_TO_TYPESTR`` dictionary.
 
         Returns:
             Image: new image with specified data type.
         """
-        return Image(sitk.Cast(self, _sitk_image_dtype(dtype)), metadata=self.metadata)
+        return Image(sitk.Cast(self, sitk_image_dtype(dtype)), metadata=self.metadata)
 
     @classmethod
     def read_image(cls, filename: PathLike, read_metadata: bool = True) -> Image:
@@ -240,8 +252,8 @@ class Image(sitk.Image):
             sitk_image, series_metadata = dicom_series.read(filename)
         else:
             sitk_image = sitk.ReadImage(filename)
-            if read_metadata and Image().metadata_file_name(filename).exists():
-                serialized_metadata = Image().metadata_file_name(filename).read_text()
+            if read_metadata and _metadata_file_name(filename).exists():
+                serialized_metadata = _metadata_file_name(filename).read_text()
                 series_metadata = json.loads(serialized_metadata)
             else:
                 series_metadata = {}
@@ -270,9 +282,9 @@ class Image(sitk.Image):
             dicom_series.write(self, self.metadata, filename)
             return
         filename.parent.mkdir(parents=True, exist_ok=True)
-        self.write_nondicom(filename=filename, write_metadata=write_metadata)
+        self._write_nondicom(filename=filename, write_metadata=write_metadata)
 
-    def write_nondicom(self, filename: PathLike, write_metadata: bool = True) -> None:
+    def _write_nondicom(self, filename: PathLike, write_metadata: bool = True) -> None:
         """Save image file (and metadata) to non-DICOM formats using ITK.
 
         Args:
@@ -284,7 +296,7 @@ class Image(sitk.Image):
         sitk.WriteImage(self, filename)
         if write_metadata:
             serialized_metadata = json.dumps(self.metadata)
-            self.metadata_file_name(filename).write_text(serialized_metadata)
+            _metadata_file_name(filename).write_text(serialized_metadata)
 
     def resample(
         self,
@@ -329,14 +341,14 @@ class Image(sitk.Image):
     def pad(self, reference_image: Image, **kwargs) -> Image:
         """Pad the image on top of another image.
 
-        Uses the same notation as `numpy.pad`.
+        Uses the same notation as ``numpy.pad``.
         The image is shifted aligning its top-left voxel with the reference image.
         The two images must have the same voxel spacing.
         The shifted image is cropped if it extends out of the reference image.
 
         Args:
             reference_image (Image): Image used as reference for padding.
-            **kwargs: same arguments used in `np.pad`.
+            **kwargs: same arguments used in ``np.pad``.
 
         Returns:
             Image: New image with same shape and spacing of the reference.
@@ -510,7 +522,7 @@ class Image(sitk.Image):
             logger.debug("Casting image type to float.")
             current_image = self.astype(float)
         if value < 0:
-            if _is_unsigned(current_image.GetPixelID()):
+            if is_unsigned(current_image.GetPixelID()):
                 logger.warning(
                     "Adding a negative value when image "
                     "type is unsigned, make sure to cast it to a signed type "
@@ -531,7 +543,7 @@ class Image(sitk.Image):
         if isinstance(value, float):
             logger.debug("Casting image type to float")
             current_image = self.astype(float)
-        if _is_unsigned(current_image.GetPixelID()):
+        if is_unsigned(current_image.GetPixelID()):
             logger.warning(
                 "Subtracting value when image "
                 "type is unsigned, make sure to cast it to a signed type "
@@ -553,7 +565,7 @@ class Image(sitk.Image):
             logger.debug("Casting image type to float")
             current_image = self.astype(float)
         if value < 0:
-            if _is_unsigned(current_image.GetPixelID()):
+            if is_unsigned(current_image.GetPixelID()):
                 logger.warning(
                     "Multipying a negative value when image "
                     "type is unsigned, make sure to cast it to a signed type "

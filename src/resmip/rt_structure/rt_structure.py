@@ -11,25 +11,14 @@ import SimpleITK as sitk
 
 import resmip.dicom_utils.rtst as dicom_rtst
 from resmip import Image
-from resmip.image._data_types import ImageDTypeLike
+from resmip.image.data_types import ImageDTypeLike
 from resmip.utils import PathLike
 
+from .utils import get_structure_name_from_filename
+
+__all__ = ["RTStructure", "RTStructureSet"]
+
 logger = logging.getLogger(__name__)
-
-
-def get_structure_name_from_filename(filename: Path) -> str:
-    """Get the structure name from the filename.
-
-    If the file is compressed, e.g.: structure.nii.gz, remove ".nii".
-    :param filename: Name of the file.
-    :type filename: Path
-    :return: Name of the RT Structure.
-    :rtype: str
-    """
-    compress_extensions = [".gz"]
-    if filename.suffix in compress_extensions:
-        return ".".join(filename.stem.split(".")[:-1])
-    return filename.stem
 
 
 class RTStructure(Image):
@@ -39,9 +28,9 @@ class RTStructure(Image):
         """Call resmip.Image constructor and set a name for the RT Structure.
 
         Args:
-            *args: arguments provided to `resmip.Image.__init__`.
+            *args: arguments provided to ``resmip.Image.__init__``.
             name (str): name of the RT Structure. Defaults to an empty string.
-            **kwargs: extra arguments used in `resmip.Image.__init__`.
+            **kwargs: extra arguments used in ``resmip.Image.__init__``.
         """
         if not isinstance(name, str):
             raise ValueError(
@@ -95,7 +84,7 @@ class RTStructure(Image):
         Args:
             dtype (ImageDTypeLike): The dtype to use for the numpy array.
                 If None, the default dtype of the image is used
-                as defined the global `FORMAT_TO_TYPESTR` dictionary.
+                as defined the global ``FORMAT_TO_TYPESTR`` dictionary.
 
         Returns:
             RTStructure: new structure with specified data type.
@@ -163,7 +152,7 @@ class RTStructure(Image):
             direction (tuple[float]): Direction cosine matrix.
             metadata (dict[str, str] | None): Metadata containing information from the DICOM header.
             name (str): Name of the structure.
-            **kwargs: extra arguments used in `resmip.Image.__init__`.
+            **kwargs: extra arguments used in ``resmip.Image.__init__``.
 
         Returns:
             RTStructure: New structure
@@ -209,7 +198,7 @@ class RTStructure(Image):
         if file_format is None:
             file_format = Path(filename).suffix
         if file_format != ".dcm":
-            return self.write_nondicom(filename, file_format=file_format)
+            return self._write_nondicom(filename, file_format=file_format)
         return RTStructureSet([self]).write_image(
             filename,
             file_format=file_format,
@@ -217,7 +206,7 @@ class RTStructure(Image):
             series_description=series_description,
         )
 
-    def write_nondicom(
+    def _write_nondicom(
         self, filename: PathLike, write_metadata: bool = False, file_format: str | None = None
     ) -> None:
         """Save RT Structure for formats other than dicom.
@@ -271,14 +260,14 @@ class RTStructure(Image):
     def pad(self, reference_image: Image, **kwargs) -> RTStructure:
         """Pad the structure on top of another image.
 
-        Uses the same notation as `numpy.pad`.
+        Uses the same notation as ``numpy.pad``.
         The struct is shifted aligning its top-left voxel with the reference image.
         The two images must have the same voxel spacing.
         The shifted structure is cropped if it extends out of the reference image.
 
         Args:
             reference_image (Image): Image used as reference for padding.
-            **kwargs: same arguments used in `np.pad`.
+            **kwargs: same arguments used in ``np.pad``.
 
         Returns:
             RTStructure: New structure with same shape and spacing of the reference.
@@ -365,7 +354,7 @@ class RTStructureSet(dict[str, RTStructure]):
             structure_names (list[str] | None): Names of the structures to be read.
                 Used for reading only specific structures in a dicom files,
                 can also be a regular expression.
-            regex (bool): Whether to consider `structure_names` as a regular expression or not.
+            regex (bool): Whether to consider ``structure_names`` as a regular expression or not.
             parallel (bool): Whether to read structures in parallel or not.
             reference_image (Image | None): 3D image used as reference for dicom Structures
                 (not used for other formats).
@@ -415,13 +404,21 @@ class RTStructureSet(dict[str, RTStructure]):
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
-            dicom_rtst.write(
-                self, filename, reference_image_path, series_description=series_description
-            )
-            return
+            if not filename.is_dir():
+                dicom_rtst.write(
+                    self, filename, reference_image_path, series_description=series_description
+                )
+                return
+            if file_format is None:
+                raise ValueError(
+                    "File format must be specified when "
+                    "saving a non-DICOM RT structure set to a directory."
+                )
+            filename = [filename / f"{struct_name}{file_format}" for struct_name in self]
         filename = [Path(f) for f in filename]
-        assert len(filename) == len(self)
-        for f in filename:
-            assert isinstance(f, Path)
+        if len(filename) != len(self):
+            raise ValueError(
+                "The number of filenames provided is different than the number of structures."
+            )
         for structure_filename, structure in zip(filename, self.values()):
-            structure.write_nondicom(structure_filename, file_format)
+            structure.write_image(structure_filename, file_format=file_format)

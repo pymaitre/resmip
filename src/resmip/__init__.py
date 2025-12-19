@@ -7,11 +7,26 @@ from .dicom_utils import (  # noqa: F401
     get_contour_from_slice_mask,
     get_polygon_contours_from_slice_mask,
 )
-from .dose import Dose  # noqa: F401
-from .image import Image
+from .dose import Dose
+from .image import CoregistrationMetric, Image, ImageDTypeLike
 from .rt_structure import RTStructure, RTStructureSet
 
 __version__ = im.version(__package__)
+
+__all__ = [
+    "CoregistrationMetric",
+    "Dose",
+    "get_contour_from_slice_mask",
+    "get_polygon_contours_from_slice_mask",
+    "Image",
+    "ImageDTypeLike",
+    "read_image",
+    "read_structure",
+    "read_structure_set",
+    "RTStructure",
+    "RTStructureSet",
+    "write_image",
+]
 
 
 def read_image(*args, **kwargs) -> Image:

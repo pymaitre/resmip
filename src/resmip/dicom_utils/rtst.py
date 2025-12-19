@@ -87,7 +87,7 @@ def convert_single_structure(
 
     Returns:
         DicomStructure: object containing structure name and structure image.
-            If the contour is not valid, return an empy DicomStructure(None, None)
+        If the contour is not valid, return an empy DicomStructure(None, None)
     """
     image_blank = np.zeros(reference_image.GetSize()[::-1], dtype=np.uint8)
 

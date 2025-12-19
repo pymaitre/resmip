@@ -460,3 +460,68 @@ def test_crop_structure():
         padded_structure.numpy(),
         structure.numpy(),
     )
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+def test_write_structure_set_to_nifti(extension, tmp_path):
+    """Create a nifti RT Structure Set."""
+    image = resmip.Image.read_image(dicom_ct_path())
+    structure_names = ["GTV-1", "GTV-2"]
+    rtst = RTStructureSet.read_image(
+        dicom_rtst_path_with_hole(), structure_names=structure_names, reference_image=image
+    )
+
+    # save all structures
+    save_paths = []
+    for structure in structure_names:
+        save_paths.append(tmp_path / f"{structure}.{extension}")
+    rtst.write_image(save_paths, file_format=None)
+
+    for structure in structure_names:
+        saved_structure = sitk.ReadImage(tmp_path / f"{structure}.{extension}")
+        np.testing.assert_array_equal(
+            rtst[structure].numpy(), sitk.GetArrayFromImage(saved_structure)
+        )
+
+    # save all structures specifying file format
+    save_paths = []
+    for structure in structure_names:
+        save_paths.append(tmp_path / f"{structure}.{extension}")
+    rtst.write_image(save_paths, file_format=f".{extension}")
+
+    for structure in structure_names:
+        saved_structure = sitk.ReadImage(tmp_path / f"{structure}.{extension}")
+        np.testing.assert_array_equal(
+            rtst[structure].numpy(), sitk.GetArrayFromImage(saved_structure)
+        )
+
+    # save all structures in directory (not supported)
+    with pytest.raises(ValueError):
+        rtst.write_image(tmp_path, file_format=None)
+
+    # save all structures in directory specifying file format
+    rtst.write_image(tmp_path, file_format=f".{extension}")
+
+    for structure in structure_names:
+        saved_structure = sitk.ReadImage(tmp_path / f"{structure}.{extension}")
+        np.testing.assert_array_equal(
+            rtst[structure].numpy(), sitk.GetArrayFromImage(saved_structure)
+        )
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+def test_write_structure_set_to_nifti_wrong_number(extension, tmp_path):
+    """Create a nifti RT Structure Set providing a wrong number of filenames."""
+    image = resmip.Image.read_image(dicom_ct_path())
+    structure_names = ["GTV-1"]
+    rtst = RTStructureSet.read_image(
+        dicom_rtst_path_with_hole(), structure_names=structure_names, reference_image=image
+    )
+    save_paths = [
+        tmp_path / "GTV-1.nii",
+        tmp_path / "GTV-2.nii",
+    ]
+    for structure in structure_names:
+        save_paths.append(tmp_path / f"{structure}.{extension}")
+    with pytest.raises(ValueError):
+        rtst.write_image(save_paths, file_format=f".{extension}")

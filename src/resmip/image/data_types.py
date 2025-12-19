@@ -64,6 +64,7 @@ def is_unsigned(dtype: ImageDTypeLike) -> bool:
 
 
 def datatype_from_id(sitk_datatype_id: int) -> npt.DTypeLike:
+    """Convert sitk data type to numpy data type."""
     conversion_map = {
         sitk.sitkInt8: np.int8,
         sitk.sitkUInt8: np.uint8,

@@ -14,7 +14,12 @@ import SimpleITK as sitk
 import resmip.dicom_utils.series as dicom_series
 from resmip import DICOM_FIELDS
 from resmip.image.coregistration import CoregistrationMetric
-from resmip.image.data_types import ImageDTypeLike, is_unsigned, sitk_image_dtype
+from resmip.image.data_types import (
+    ImageDTypeLike,
+    datatype_from_id,
+    is_unsigned,
+    sitk_image_dtype,
+)
 from resmip.utils import PathLike, format_digit_string
 
 __all__ = ["Image"]
@@ -207,6 +212,11 @@ class Image(sitk.Image):
             np.ndarray: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         """
         return self.__array__(dtype=dtype, view=view)
+
+    @property
+    def dtype(self) -> npt.DTypeLike:
+        """Data type of the Image."""
+        return datatype_from_id(self.GetPixelID())
 
     def astype(self, dtype: ImageDTypeLike) -> Image:
         """Convert pixel array type to the specified value, by casting a new image.

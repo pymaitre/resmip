@@ -7,6 +7,7 @@ import SimpleITK as sitk
 import resmip.dicom_utils.series as dicom_series
 from resmip import DICOM_FIELDS
 from resmip.image import CoregistrationMetric, Image
+from resmip.image.data_types import sitk_image_dtype
 from resmip.image.image import _metadata_file_name
 from resmip.utils import format_digit_string
 
@@ -467,3 +468,12 @@ def test_image_coregistration(coregistration_metric):
         coregistered_image.numpy(),
         reference_coregistered_image.numpy(),
     )
+
+
+@pytest.mark.parametrize(
+    "image_type", [sitk.sitkInt16, sitk.sitkFloat32, int, float, np.int16, np.float32]
+)
+def test_get_image_dtype(image_type):
+    """Get datatype from image."""
+    input_image = Image.read_image(dicom_ct_path()).astype(image_type)
+    assert sitk_image_dtype(input_image.dtype) == sitk_image_dtype(image_type)

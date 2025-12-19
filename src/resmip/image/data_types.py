@@ -61,3 +61,21 @@ def is_unsigned(dtype: ImageDTypeLike) -> bool:
         sitk.sitkComplexFloat64: False,
     }
     return usigned_types_map[sitk_image_dtype(dtype)]
+
+
+def datatype_from_id(sitk_datatype_id: int) -> npt.DTypeLike:
+    conversion_map = {
+        sitk.sitkInt8: np.int8,
+        sitk.sitkUInt8: np.uint8,
+        sitk.sitkInt16: np.int16,
+        sitk.sitkUInt16: np.uint16,
+        sitk.sitkInt32: np.int32,
+        sitk.sitkUInt32: np.uint32,
+        sitk.sitkInt64: np.int64,
+        sitk.sitkUInt64: np.uint64,
+        sitk.sitkFloat32: np.float32,
+        sitk.sitkFloat64: np.float64,
+        sitk.sitkComplexFloat32: np.complex64,
+        sitk.sitkComplexFloat64: np.complex128,
+    }
+    return conversion_map[sitk_datatype_id]

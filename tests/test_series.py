@@ -1,5 +1,7 @@
 """Test module for series.py."""
 
+# pylint: disable=W0621
+
 import json
 from pathlib import Path
 
@@ -57,17 +59,14 @@ def test_dicom_image_pixel_array():
     compare_dicom_pixels(new_image, dicom_ct_path())
 
 
-def test_saved_dicom_series_pixels(tmp_path):
+def test_saved_dicom_series_pixels(mock_dicom_image: Image, tmp_path):
     """Check if the saved Dicom series pixel grid is saved correctly."""
-    input_image = Image().read_image(dicom_ct_path())
-    input_image.write_image(tmp_path)
-    compare_dicom_images(input_image, tmp_path)
+    mock_dicom_image.write_image(tmp_path)
+    compare_dicom_images(mock_dicom_image, tmp_path)
 
 
-def test_saved_dicom_series_pixels_different_direction(tmp_path):
+def test_saved_dicom_series_pixels_different_direction(mock_dicom_image: Image, tmp_path):
     """Check if the saved Dicom series pixel grid is saved correctly."""
-    input_image = Image().read_image(dicom_ct_path())
-
     np.random.seed(0)
     x_dir = np.random.random(3)
     x_dir /= np.linalg.norm(x_dir)
@@ -75,54 +74,50 @@ def test_saved_dicom_series_pixels_different_direction(tmp_path):
     y_dir -= y_dir @ x_dir * x_dir
     y_dir /= np.linalg.norm(y_dir)
     z_dir = np.cross(x_dir, y_dir)
-    input_image.direction = (*x_dir, *y_dir, *z_dir)
-    input_image.write_image(tmp_path)
+    mock_dicom_image.direction = (*x_dir, *y_dir, *z_dir)
+    mock_dicom_image.write_image(tmp_path)
 
-    compare_dicom_images(input_image, tmp_path)
+    compare_dicom_images(mock_dicom_image, tmp_path)
 
 
-def test_saved_dicom_series_patient_data(tmp_path):
+def test_saved_dicom_series_patient_data(mock_dicom_image: Image, tmp_path):
     """Check if dicom header values are the same."""
-    input_image = Image.read_image(dicom_ct_path())
-    input_image.write_image(tmp_path)
+    mock_dicom_image.write_image(tmp_path)
 
     for dicom_file in tmp_path.glob("*.dcm"):
         dataset = pydicom.dcmread(dicom_file)
         for name, tag in DICOM_FIELDS.items():
             if name in SERIES_DEPENDENT_FIELDS:
                 continue
-            if tag in input_image.metadata:
+            if tag in mock_dicom_image.metadata:
                 if dataset[name].VR == "DS":  # DecimalString
                     # Empty field in the header
-                    if input_image.metadata[tag] == "":
+                    if mock_dicom_image.metadata[tag] == "":
                         assert dataset[name].value is None
                         continue
                     try:
-                        assert float(dataset[name].value) == float(input_image.metadata[tag])
+                        assert float(dataset[name].value) == float(mock_dicom_image.metadata[tag])
                     except TypeError:  # list[float]
-                        elements = input_image.metadata[tag].split("\\")
+                        elements = mock_dicom_image.metadata[tag].split("\\")
                         for i, element in enumerate(dataset[name].value):
                             assert float(element) == float(elements[i])
                 else:
-                    assert dataset[name].value == input_image.metadata[tag]
+                    assert dataset[name].value == mock_dicom_image.metadata[tag]
 
 
-def test_read_image_from_main():
+def test_read_image_from_main(mock_dicom_image: Image):
     """Check if the read_image function behaves as expected."""
-    input_image_class = Image().read_image(dicom_ct_path())
     input_image_main = read_image(dicom_ct_path())
-    assert input_image_main == input_image_class
+    assert input_image_main == mock_dicom_image
 
 
-def test_write_image_from_main(tmp_path):
+def test_write_image_from_main(mock_dicom_image: Image, tmp_path):
     """Check if the read_image function behaves as expected."""
-    input_image = Image().read_image(dicom_ct_path())
+    mock_dicom_image.write_image(tmp_path / "from_class")
+    write_image(mock_dicom_image, tmp_path / "from_main")
 
-    input_image.write_image(tmp_path / "from_class")
-    write_image(input_image, tmp_path / "from_main")
-
-    image_from_class = Image().read_image(tmp_path / "from_class")
-    image_from_main = Image().read_image(tmp_path / "from_main")
+    image_from_class = Image.read(tmp_path / "from_class")
+    image_from_main = Image.read(tmp_path / "from_main")
 
     assert image_from_class == image_from_main
 
@@ -143,7 +138,7 @@ def test_read_series_in_empty_folder(tmp_path):
 def test_spacing_single_slice_series(caplog):
     """Test voxel spacing for series with only one z slice."""
     image_path = Path(__file__).parent / "Dicom" / "dicompyler_img"
-    image = Image().read_image(image_path)
+    image = Image.read(image_path)
     sitk_image = sitk.ReadImage(str(image_path / "ct.0.dcm"))
     assert image.metadata[DICOM_FIELDS["Modality"]] == "CT"
     assert sitk_image.GetSpacing() == image.spacing

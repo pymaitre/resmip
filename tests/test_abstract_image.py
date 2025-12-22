@@ -14,7 +14,7 @@ from .utils import dicom_ct_path, ibsi_rtst_path
 
 def mock_image():
     """Mock image used in this module."""
-    return Image.read_image(dicom_ct_path())
+    return Image.read(dicom_ct_path())
 
 
 def mock_structure():
@@ -27,7 +27,7 @@ def mock_dose():
     reference_dicom_path = Path(__file__).parent / "Dicom" / "dicompyler_img"
     reference_dicom_image_path = reference_dicom_path / "ct.0.dcm"
     reference_dicom_dose_path = reference_dicom_path / "rtdose.dcm"
-    image = Image.read_image(reference_dicom_image_path)
+    image = Image.read(reference_dicom_image_path)
     return Dose.read_image(reference_dicom_dose_path, reference_image=image)
 
 

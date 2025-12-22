@@ -128,7 +128,7 @@ class RTStructure(Image):
             return new_rt_structure
         if structure_name is None:
             structure_name = get_structure_name_from_filename(filename)
-        new_rt_structure = cls(Image().read_image(filename), name=structure_name)
+        new_rt_structure = cls(Image.read(filename), name=structure_name)
         return new_rt_structure
 
     @classmethod

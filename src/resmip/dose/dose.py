@@ -92,7 +92,7 @@ class Dose(Image):
         Returns:
             Dose: RT Dose.
         """
-        image = super().read_image(filename=filename, read_metadata=read_metadata)
+        image = super().read(filename=filename, read_metadata=read_metadata)
         new_dose = cls(image)
         try:
             dicom_header = pydicom.dcmread(filename)

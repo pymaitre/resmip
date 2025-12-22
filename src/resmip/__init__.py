@@ -34,7 +34,7 @@ def read_image(*args, **kwargs) -> Image:
 
     Done in the most similar way we do for SimpleITK.read_image.
     """
-    return Image().read_image(*args, **kwargs)
+    return Image.read(*args, **kwargs)
 
 
 def write_image(image: Image, *args, **kwargs):

@@ -17,7 +17,7 @@ Image processing
 
 
     dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "IBSI1_CT_phantom" / "CT_00000"
-    image = Image.read_image(dicom_ct_directory)
+    image = Image.read(dicom_ct_directory)
 
 Voxel spacing
 -------------

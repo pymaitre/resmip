@@ -35,7 +35,7 @@ def test_read_dose_without_reference(caplog):
 
 def test_read_dose_with_reference():
     """Read DICOM RT Dose with reference image."""
-    image = Image.read_image(REFERENCE_DICOM_IMAGE_PATH)
+    image = Image.read(REFERENCE_DICOM_IMAGE_PATH)
     dose = Dose.read_image(REFERENCE_DICOM_DOSE_PATH, reference_image=image)
     assert dose.numpy().shape == image.numpy().shape
     assert dose.origin == image.origin
@@ -52,14 +52,14 @@ def test_read_dose_without_scaling(tmp_path):
     modified_dicom_dose_path = tmp_path / "dose.dcm"
     header.save_as(modified_dicom_dose_path)
 
-    image = Image.read_image(REFERENCE_DICOM_IMAGE_PATH)
+    image = Image.read(REFERENCE_DICOM_IMAGE_PATH)
     with pytest.raises(KeyError):
         Dose.read_image(modified_dicom_dose_path, reference_image=image)
 
 
 def test_write_dose_nifti(tmp_path):
     """Write dose to nifti file."""
-    image = Image.read_image(REFERENCE_DICOM_IMAGE_PATH)
+    image = Image.read(REFERENCE_DICOM_IMAGE_PATH)
     dose = Dose.read_image(REFERENCE_DICOM_DOSE_PATH, reference_image=image)
     nifti_dose_path = tmp_path / "dose.nii.gz"
     dose.write_image(nifti_dose_path)

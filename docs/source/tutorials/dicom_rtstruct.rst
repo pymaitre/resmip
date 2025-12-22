@@ -39,7 +39,7 @@ First of all, we define the path of the ditectory containing the Dicom CT and RT
     from resmip.rt_structure import RTStructureSet
 
 
-    dicom_image = Image().read_image(dicom_ct_directory)
+    dicom_image = Image.read(dicom_ct_directory)
     dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, reference_image = dicom_image)
 
 The resulting object is a dictionary containing all RT Structures found, indexed by their name.
@@ -71,7 +71,7 @@ Regular expressions are supported too.
 
 .. testcode:: python
 
-    dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, structure_names = "GTV-\d+", regex = True, reference_image = dicom_image)
+    dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, structure_names = r"GTV-\d+", regex = True, reference_image = dicom_image)
     print(dicom_rtst.keys())
 
 .. testoutput:: python
@@ -111,7 +111,7 @@ First of all, a reference dicom image is required. When dealing with nifti image
     from resmip.rt_structure import RTStructureSet
 
 
-    dicom_image = Image().read_image(dicom_ct_directory)
+    dicom_image = Image.read(dicom_ct_directory)
     dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, reference_image = dicom_image)
 
     # Save image to dicom

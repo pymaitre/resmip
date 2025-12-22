@@ -43,7 +43,7 @@ First of all, we define the path of the ditectory containing the Dicom CT and RT
     from resmip.dose import Dose
 
 
-    dicom_image = Image().read_image(dicom_ct_directory)
+    dicom_image = Image.read(dicom_ct_directory)
     dicom_dose = Dose().read_image(dicom_dose_path, reference_image = dicom_image)
 
 The resulting object is a ``Dose`` object, with the same properties of an ``Image``.

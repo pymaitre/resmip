@@ -48,8 +48,8 @@ As a consequence, the size of the image changes accordingly:
 
 .. testcode:: python
 
-    print(f"Original image size: {image.GetSize()}")
-    print(f"Resampled image size: {resampled_image.GetSize()}")
+    print(f"Original image size: {image.size}")
+    print(f"Resampled image size: {resampled_image.size}")
 
 .. testoutput:: python
 

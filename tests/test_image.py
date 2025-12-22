@@ -288,7 +288,7 @@ def test_image_from_array(copy):
         direction=input_image.direction,
         metadata=input_image.metadata,
     )
-    assert new_image.GetSize() == input_image.GetSize()
+    assert new_image.size == input_image.size
     assert new_image.spacing == input_image.spacing
     assert new_image.origin == input_image.origin
     assert new_image.direction == input_image.direction

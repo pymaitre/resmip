@@ -115,7 +115,7 @@ First of all, a reference dicom image is required. When dealing with nifti image
     dicom_rtst = RTStructureSet.read(dicom_rtst_path, reference_image = dicom_image)
 
     # Save image to dicom
-    dicom_image.write_image(dicom_ct_destination_directory)
+    dicom_image.write(dicom_ct_destination_directory)
     # Save RT Structure Set
     dicom_rtst.write_image(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory)
 

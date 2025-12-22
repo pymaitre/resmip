@@ -61,7 +61,7 @@ def test_dicom_image_pixel_array():
 
 def test_saved_dicom_series_pixels(mock_dicom_image: Image, tmp_path):
     """Check if the saved Dicom series pixel grid is saved correctly."""
-    mock_dicom_image.write_image(tmp_path)
+    mock_dicom_image.write(tmp_path)
     compare_dicom_images(mock_dicom_image, tmp_path)
 
 
@@ -75,14 +75,14 @@ def test_saved_dicom_series_pixels_different_direction(mock_dicom_image: Image, 
     y_dir /= np.linalg.norm(y_dir)
     z_dir = np.cross(x_dir, y_dir)
     mock_dicom_image.direction = (*x_dir, *y_dir, *z_dir)
-    mock_dicom_image.write_image(tmp_path)
+    mock_dicom_image.write(tmp_path)
 
     compare_dicom_images(mock_dicom_image, tmp_path)
 
 
 def test_saved_dicom_series_patient_data(mock_dicom_image: Image, tmp_path):
     """Check if dicom header values are the same."""
-    mock_dicom_image.write_image(tmp_path)
+    mock_dicom_image.write(tmp_path)
 
     for dicom_file in tmp_path.glob("*.dcm"):
         dataset = pydicom.dcmread(dicom_file)
@@ -112,8 +112,8 @@ def test_read_image_from_main(mock_dicom_image: Image):
 
 
 def test_write_image_from_main(mock_dicom_image: Image, tmp_path):
-    """Check if the read_image function behaves as expected."""
-    mock_dicom_image.write_image(tmp_path / "from_class")
+    """Check if the write_image function behaves as expected."""
+    mock_dicom_image.write(tmp_path / "from_class")
     write_image(mock_dicom_image, tmp_path / "from_main")
 
     image_from_class = Image.read(tmp_path / "from_class")

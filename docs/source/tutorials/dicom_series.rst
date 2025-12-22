@@ -48,7 +48,7 @@ Alternatively, images can be imported with the ``read_image`` method:
 Save a Dicom series
 -------------------
 
-Images can be saved to Dicom using the ``write_image`` method of ``Image``, as long as the destination path is a directory:
+Images can be saved to Dicom using the ``write`` method of ``Image``, as long as the destination path is a directory:
 
 .. testcode:: python
     :hide:
@@ -75,7 +75,7 @@ First of all, we define the path of the ditectory containing the Dicom CT and th
 
 
     dicom_image = Image.read(dicom_ct_directory)
-    dicom_image.write_image(dicom_ct_destination_directory)
+    dicom_image.write(dicom_ct_destination_directory)
 
 
 Alternatively, images can be saved to dicom with the ``write_image`` method:

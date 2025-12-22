@@ -35,7 +35,7 @@ def test_metadata_contains_only_strings(file_format, mock_dicom_image: Image, tm
     """Check that all elements in the read Dicom header are python strings."""
     if file_format == "nifti":
         nifti_image_path = tmp_path / "image.nii"
-        mock_dicom_image.write_image(nifti_image_path)
+        mock_dicom_image.write(nifti_image_path)
         dicom_image = Image().read(nifti_image_path)
     else:
         dicom_image = mock_dicom_image
@@ -114,7 +114,7 @@ def test_image_size_getter(mock_dicom_image: Image):
 def test_saved_nifti_file_pixels(mock_dicom_image: Image, tmp_path):
     """Check if the saved nifti file corresponds to the one read by SimpleITK."""
     nifti_file_path = tmp_path / "testfile.nii"
-    mock_dicom_image.write_image(nifti_file_path)
+    mock_dicom_image.write(nifti_file_path)
     sitk_image = sitk.ReadImage(nifti_file_path)
     assert np.all(sitk.GetArrayFromImage(sitk_image) == mock_dicom_image.numpy())
 
@@ -135,7 +135,7 @@ def test_numpy(dtype, mock_dicom_image: Image):
 def test_saved_nifti_file_metadata(tmp_path, mock_dicom_image: Image):
     """Check if the saved nifti file metadata corresponds to the one read from the dicom."""
     nifti_file_path = tmp_path / "testfile.nii"
-    mock_dicom_image.write_image(nifti_file_path)
+    mock_dicom_image.write(nifti_file_path)
     nifti_image = Image().read(nifti_file_path)
     for key, value in mock_dicom_image.metadata.items():
         assert nifti_image.metadata[key] == value
@@ -166,7 +166,7 @@ def test_import_nifti_without_metadata(tmp_path, mock_dicom_image: Image):
 
 @pytest.mark.parametrize("file_format", ["dicom", "nifti"])
 def test_write_image(file_format, mock_dicom_image: Image, tmp_path):
-    """Test if write_image correctly overrides all write functions."""
+    """Test if write correctly overrides all write functions."""
     if file_format == "nifti":
         output_file_name = tmp_path / "nifti" / "nifti_image.nii"
     elif file_format == "dicom":
@@ -174,7 +174,7 @@ def test_write_image(file_format, mock_dicom_image: Image, tmp_path):
     else:
         raise NotImplementedError
 
-    mock_dicom_image.write_image(output_file_name)
+    mock_dicom_image.write(output_file_name)
 
     if file_format == "nifti":
         new_image = sitk.ReadImage(output_file_name, imageIO="NiftiImageIO")
@@ -189,7 +189,7 @@ def test_write_image(file_format, mock_dicom_image: Image, tmp_path):
 
 @pytest.mark.parametrize("file_format", ["dicom", "nifti"])
 def test_read_image(file_format, mock_dicom_image: Image, tmp_path):
-    """Test if read_image correctly overrides all read functions."""
+    """Test if read correctly overrides all read functions."""
     if file_format == "nifti":
         output_file_name = tmp_path / "nifti" / "nifti_image.nii"
     elif file_format == "dicom":
@@ -197,7 +197,7 @@ def test_read_image(file_format, mock_dicom_image: Image, tmp_path):
     else:
         raise NotImplementedError
 
-    mock_dicom_image.write_image(output_file_name)
+    mock_dicom_image.write(output_file_name)
     new_image = Image.read(output_file_name)
 
     if file_format == "nifti":
@@ -211,9 +211,9 @@ def test_read_image(file_format, mock_dicom_image: Image, tmp_path):
 
 
 def test_default_read_image_metadata(mock_dicom_image: Image, tmp_path):
-    """Test default arguments of read_image."""
+    """Test default arguments of read."""
     output_file_name = tmp_path / "nifti" / "nifti_image.nii"
-    mock_dicom_image.write_image(output_file_name)
+    mock_dicom_image.write(output_file_name)
     new_image_default = Image.read(output_file_name)
     new_image = Image.read(output_file_name, read_metadata=True)
 
@@ -221,9 +221,9 @@ def test_default_read_image_metadata(mock_dicom_image: Image, tmp_path):
 
 
 def test_read_image_without_metadata(mock_dicom_image: Image, tmp_path):
-    """Test read_metadata argument of read_image."""
+    """Test read_metadata argument of read."""
     output_file_name = tmp_path / "nifti" / "nifti_image.nii"
-    mock_dicom_image.write_image(output_file_name)
+    mock_dicom_image.write(output_file_name)
     reference_image = sitk.ReadImage(output_file_name)
     new_image = Image.read(output_file_name, read_metadata=False)
     new_image_metadata = {}
@@ -235,11 +235,11 @@ def test_read_image_without_metadata(mock_dicom_image: Image, tmp_path):
 
 
 def test_default_write_image_metadata(mock_dicom_image: Image, tmp_path):
-    """Test default arguments of write_image."""
+    """Test default arguments of write."""
     output_file_name = tmp_path / "nifti" / "nifti_image.nii"
     default_output_file_name = tmp_path / "nifti_default" / "nifti_image.nii"
-    mock_dicom_image.write_image(default_output_file_name)
-    mock_dicom_image.write_image(output_file_name, write_metadata=True)
+    mock_dicom_image.write(default_output_file_name)
+    mock_dicom_image.write(output_file_name, write_metadata=True)
 
     new_image_default = Image().read(default_output_file_name)
     new_image = Image().read(output_file_name)
@@ -248,12 +248,12 @@ def test_default_write_image_metadata(mock_dicom_image: Image, tmp_path):
 
 
 def test_write_image_without_metadata(mock_dicom_image: Image, tmp_path):
-    """Test read_metadata argument of write_image."""
+    """Test read_metadata argument of write."""
     output_file_name = tmp_path / "nifti" / "nifti_image.nii"
     reference_output_file_name = tmp_path / "nifti_default" / "nifti_image.nii"
     reference_output_file_name.parent.mkdir()
 
-    mock_dicom_image.write_image(output_file_name, write_metadata=False)
+    mock_dicom_image.write(output_file_name, write_metadata=False)
     sitk.WriteImage(mock_dicom_image, reference_output_file_name)
 
     reference_image = Image().read(reference_output_file_name)

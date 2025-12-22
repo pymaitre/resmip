@@ -44,7 +44,7 @@ First of all, we define the path of the ditectory containing the Dicom CT and RT
 
 
     dicom_image = Image.read(dicom_ct_directory)
-    dicom_dose = Dose().read_image(dicom_dose_path, reference_image = dicom_image)
+    dicom_dose = Dose.read(dicom_dose_path, reference_image = dicom_image)
 
 The resulting object is a ``Dose`` object, with the same properties of an ``Image``.
 The dose is automatically co-registered to the referenced series.
@@ -54,7 +54,7 @@ The dose is automatically co-registered to the referenced series.
     print(f"Dose origin: {dicom_dose.origin}, Series origin: {dicom_image.origin}")
     print(f"Dose spacing: {dicom_dose.spacing}, Series spacing: {dicom_image.spacing}")
     print(f"Dose orientation: {dicom_dose.direction}, Series orientation: {dicom_image.direction}")
-    print(f"Dose size: {dicom_dose.GetSize()}, Series size: {dicom_image.GetSize()}")
+    print(f"Dose size: {dicom_dose.size}, Series size: {dicom_image.size}")
 
 .. testoutput:: python
 

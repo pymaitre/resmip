@@ -28,7 +28,7 @@ def mock_dose():
     reference_dicom_image_path = reference_dicom_path / "ct.0.dcm"
     reference_dicom_dose_path = reference_dicom_path / "rtdose.dcm"
     image = Image.read(reference_dicom_image_path)
-    return Dose.read_image(reference_dicom_dose_path, reference_image=image)
+    return Dose.read(reference_dicom_dose_path, reference_image=image)
 
 
 def assert_object_compatible(obj1, obj2, obj_type=None):

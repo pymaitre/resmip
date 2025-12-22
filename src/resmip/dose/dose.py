@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from pathlib import Path
 from typing import Iterable
 
@@ -65,7 +66,7 @@ class Dose(Image):
         return Dose(super().astype(dtype=dtype))
 
     @classmethod
-    def read_image(
+    def read(
         cls,
         filename: PathLike,
         read_metadata: bool = True,
@@ -116,6 +117,46 @@ class Dose(Image):
         new_dose = new_dose.resample(new_spacing=reference_image.spacing)
         new_dose = new_dose.pad(reference_image=reference_image)
         return cls(new_dose) * scaling
+
+    @classmethod
+    def read_image(
+        cls,
+        filename: PathLike,
+        read_metadata: bool = True,
+        reference_image: Image | None = None,
+    ) -> Dose:  # pragma: no cover
+        """Read rt dose from file.
+
+        Doses could have different origin and/or
+        spacing compared to the referenced series.
+        This function, shifts the dose accordingly.
+        Dose values are scaled by "DoseGridScaling", if present.
+        https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e
+
+        .. warning::
+            ``Image.read_image`` is deprecated and will be removed in a future release.
+            Use ``Dose.read`` instead.
+
+        Args:
+            filename (PathLike): Name of the file. If filename ends with ".dcm",
+                the reader assumes to read a Dicom rtdose. Otherwise, it assumes a metatadata
+                file with the following format exists: f".{filename.stem}.json".
+            read_metadata (bool): If true, read the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            reference_image (Image | None): 3D image used as reference for dicom Doses, in case
+                origin and/or spacing differ. When set to None, a warning is raised and no
+                shift / resampling is applied.
+
+        Returns:
+            Dose: RT Dose.
+        """
+        warnings.warn(
+            "'Image.read_image' is deprecated and will be removed in a future release. "
+            "Use 'Dose.read' instead."
+        )
+        return cls.read(
+            filename=filename, read_metadata=read_metadata, reference_image=reference_image
+        )
 
     def write_image(
         self,

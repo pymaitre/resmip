@@ -1,5 +1,7 @@
 """Test module for image.py."""
 
+# pylint: disable=W0621
+
 import numpy as np
 import pytest
 import SimpleITK as sitk
@@ -275,12 +277,12 @@ def test_write_image_without_metadata(tmp_path):
     assert new_image.metadata == reference_image.metadata
 
 
-@pytest.mark.parametrize("view", [True, False])
-def test_image_from_array(view):
+@pytest.mark.parametrize("copy", [True, False])
+def test_image_from_array(copy):
     """Test image creation from a numpy array."""
     input_image = Image().read_image(dicom_ct_path())
     new_image = Image().from_array(
-        input_image.numpy(view=view),
+        input_image.numpy(copy=copy),
         spacing=input_image.spacing,
         origin=input_image.origin,
         direction=input_image.direction,
@@ -290,19 +292,52 @@ def test_image_from_array(view):
     assert new_image.spacing == input_image.spacing
     assert new_image.origin == input_image.origin
     assert new_image.direction == input_image.direction
-    assert np.all(new_image.numpy(view=view) == input_image.numpy(view=view))
+    assert np.all(new_image.numpy(copy=copy) == input_image.numpy(copy=copy))
     assert new_image.metadata == input_image.metadata
 
 
-@pytest.mark.parametrize("view", [True, False])
-def test_image_view_from_array(view):
+@pytest.mark.parametrize("copy", [True, False, None])
+def test_image_view_from_array(copy):
     """Test array generation from image."""
     input_image = Image.read_image(dicom_ct_path())
-    if view:
-        with pytest.raises(ValueError):
-            input_image.numpy(view=view)[:] = 0
+    if copy is True:
+        input_image.numpy(copy=copy)[:] = 0
+        np.asarray(input_image, copy=copy)[:] = 0
     else:
-        input_image.numpy(view=view)[:] = 0
+        with pytest.raises(ValueError):
+            input_image.numpy(copy=copy)[:] = 0
+        with pytest.raises(ValueError):
+            np.asarray(input_image, copy=copy)[:] = 0
+
+
+@pytest.mark.parametrize("copy", [True, False, None])
+def test_image_view_from_array_same_dtype(copy):
+    """Test array generation from image casting the same dtype."""
+    input_image = Image.read_image(dicom_ct_path())
+    image_type = input_image.dtype
+    if copy is True:
+        input_image.numpy(dtype=image_type, copy=copy)[:] = 0
+        np.asarray(input_image, dtype=image_type, copy=copy)[:] = 0
+    else:
+        with pytest.raises(ValueError):
+            input_image.numpy(dtype=image_type, copy=copy)[:] = 0
+        with pytest.raises(ValueError):
+            np.asarray(input_image, dtype=image_type, copy=copy)[:] = 0
+
+
+@pytest.mark.parametrize("copy", [True, False, None])
+@pytest.mark.parametrize("dtype", [np.float32, np.float64])
+def test_image_view_from_array_different_dtype(copy, dtype):
+    """Test array generation from image casting the same dtype."""
+    input_image = Image.read_image(dicom_ct_path())
+    if copy is True or copy is None:
+        input_image.numpy(dtype=dtype, copy=copy)[:] = 0
+        np.asarray(input_image, dtype=dtype, copy=copy)[:] = 0
+    else:
+        with pytest.raises(ValueError):
+            input_image.numpy(dtype=dtype, copy=copy)[:] = 0
+        with pytest.raises(ValueError):
+            np.asarray(input_image, dtype=dtype, copy=copy)[:] = 0
 
 
 @pytest.mark.parametrize("scale", [0.5, 2])
@@ -477,3 +512,173 @@ def test_get_image_dtype(image_type):
     """Get datatype from image."""
     input_image = Image.read_image(dicom_ct_path()).astype(image_type)
     assert sitk_image_dtype(input_image.dtype) == sitk_image_dtype(image_type)
+
+
+@pytest.fixture
+def mock_ct():
+    """One-pixel CT used for testing operators."""
+    return Image.from_array(
+        [[[2]]], origin=(0, 0, 0), spacing=(1, 1, 1), direction=(1, 0, 0, 0, 1, 0, 0, 0, 1)
+    ).astype(np.int16)
+
+
+possible_dtypes = [
+    int,
+    float,
+    np.uint16,
+    np.uint32,
+    np.int16,
+    np.int32,
+    np.int64,
+    np.float32,
+    np.float64,
+]
+
+
+@pytest.mark.parametrize("value_type", possible_dtypes)
+def test_image_add_types(value_type, mock_ct: Image):
+    """Check output types when adding constants to images."""
+    mock_arr = mock_ct.numpy()
+    assert mock_ct.dtype == mock_arr.dtype
+    other_value = value_type(1)
+    new_arr = mock_arr + other_value
+    new_ct = mock_ct + other_value
+    np.testing.assert_equal(new_arr, np.asarray(new_ct))
+    if not np.issubdtype(value_type, np.integer):
+        assert new_arr.dtype == new_ct.dtype
+
+
+@pytest.mark.xfail
+@pytest.mark.parametrize("value_type", possible_dtypes)
+def test_image_radd_types(value_type, mock_ct: Image):
+    """Check output types when adding constants to images."""
+    mock_arr = mock_ct.numpy()
+    assert mock_ct.dtype == mock_arr.dtype
+    other_value = value_type(1)
+    new_arr = mock_arr + other_value
+    new_ct = other_value + mock_ct
+    assert isinstance(new_ct, Image)
+    np.testing.assert_equal(new_arr, np.asarray(new_ct))
+    if not np.issubdtype(value_type, np.integer):
+        assert new_arr.dtype == new_ct.dtype
+
+
+@pytest.mark.xfail
+@pytest.mark.parametrize("value_type", possible_dtypes)
+def test_image_iadd_types(value_type, mock_ct: Image):
+    """Check output types when adding constants to images."""
+    mock_arr = mock_ct.numpy()
+    assert mock_ct.dtype == mock_arr.dtype
+    other_value = value_type(1)
+    new_arr = mock_arr + other_value
+    mock_ct += other_value
+    assert isinstance(mock_ct, Image)
+    np.testing.assert_equal(new_arr, np.asarray(mock_ct))
+    if not np.issubdtype(value_type, np.integer):
+        assert new_arr.dtype == mock_ct.dtype
+
+
+@pytest.mark.parametrize("value_type", possible_dtypes)
+def test_image_sub_types(value_type, mock_ct: Image):
+    """Check output types when subtracting constants from images."""
+    mock_arr = mock_ct.numpy()
+    assert mock_ct.dtype == mock_arr.dtype
+    other_value = value_type(1)
+    new_arr = mock_arr - other_value
+    new_ct = mock_ct - other_value
+    assert isinstance(new_ct, Image)
+    np.testing.assert_equal(new_arr, np.asarray(new_ct))
+    if not np.issubdtype(value_type, np.integer):
+        assert new_arr.dtype == new_ct.dtype
+
+
+@pytest.mark.xfail
+@pytest.mark.parametrize("value_type", possible_dtypes)
+def test_image_isub_types(value_type, mock_ct: Image):
+    """Check output types when subtracting constants from images."""
+    mock_arr = mock_ct.numpy()
+    assert mock_ct.dtype == mock_arr.dtype
+    other_value = value_type(1)
+    new_arr = mock_arr - other_value
+    mock_ct -= other_value
+    assert isinstance(mock_ct, Image)
+    np.testing.assert_equal(new_arr, np.asarray(mock_ct))
+    if not np.issubdtype(value_type, np.integer):
+        assert new_arr.dtype == mock_ct.dtype
+
+
+@pytest.mark.parametrize("value_type", possible_dtypes)
+def test_image_mul_types(value_type, mock_ct: Image):
+    """Check output types when multiplying constants to images."""
+    mock_arr = mock_ct.numpy()
+    assert mock_ct.dtype == mock_arr.dtype
+    other_value = value_type(1)
+    new_arr = mock_arr * other_value
+    new_ct = mock_ct * other_value
+    assert isinstance(new_ct, Image)
+    np.testing.assert_equal(new_arr, np.asarray(new_ct))
+    if not np.issubdtype(value_type, np.integer):
+        assert new_arr.dtype == new_ct.dtype
+
+
+@pytest.mark.xfail
+@pytest.mark.parametrize("value_type", possible_dtypes)
+def test_image_rmul_types(value_type, mock_ct: Image):
+    """Check output types when multiplying constants to images."""
+    mock_arr = mock_ct.numpy()
+    assert mock_ct.dtype == mock_arr.dtype
+    other_value = value_type(1)
+    new_arr = mock_arr * other_value
+    new_ct = other_value * mock_ct
+    assert isinstance(new_ct, Image)
+    np.testing.assert_equal(new_arr, np.asarray(new_ct))
+    if not np.issubdtype(value_type, np.integer):
+        assert new_arr.dtype == new_ct.dtype
+
+
+@pytest.mark.xfail
+@pytest.mark.parametrize("value_type", possible_dtypes)
+def test_image_imul_types(value_type, mock_ct: Image):
+    """Check output types when multiplying constants to images."""
+    mock_arr = mock_ct.numpy()
+    assert mock_ct.dtype == mock_arr.dtype
+    other_value = value_type(1)
+    new_arr = mock_arr * other_value
+    mock_ct *= other_value
+    assert isinstance(mock_ct, Image)
+    np.testing.assert_equal(new_arr, np.asarray(mock_ct))
+    if not np.issubdtype(value_type, np.integer):
+        assert new_arr.dtype == mock_ct.dtype
+
+
+@pytest.mark.parametrize("value_type", possible_dtypes)
+def test_image_truediv_types(value_type, mock_ct: Image):
+    """Check output types when dividing constants from images."""
+    mock_arr = mock_ct.numpy()
+    assert mock_ct.dtype == mock_arr.dtype
+    other_value = value_type(1)
+    new_arr = mock_arr / other_value
+    new_ct = mock_ct / other_value
+    assert isinstance(new_ct, Image)
+    np.testing.assert_equal(new_arr, np.asarray(new_ct))
+    if value_type == np.float32:
+        assert new_ct.dtype == np.float64
+    else:
+        assert new_arr.dtype == new_ct.dtype
+
+
+@pytest.mark.xfail
+@pytest.mark.parametrize("value_type", possible_dtypes)
+def test_image_itruediv_types(value_type, mock_ct: Image):
+    """Check output types when dividing constants from images."""
+    mock_arr = mock_ct.numpy()
+    assert mock_ct.dtype == mock_arr.dtype
+    other_value = value_type(1)
+    new_arr = mock_arr / other_value
+    mock_ct /= other_value
+    assert isinstance(mock_ct, Image)
+    np.testing.assert_equal(new_arr, np.asarray(mock_ct))
+    if value_type == np.float32:
+        assert mock_ct.dtype == np.float64
+    else:
+        assert new_arr.dtype == mock_ct.dtype

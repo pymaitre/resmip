@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import warnings
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -173,45 +174,99 @@ class Image(sitk.Image):
         new_image.direction = direction
         return new_image
 
-    def __array__(self, dtype: str | npt.DTypeLike | None = None, view: bool = False) -> np.ndarray:
+    def __array__(
+        self,
+        dtype: str | npt.DTypeLike | None = None,
+        copy: bool | None = None,
+        view: bool | None = None,
+    ) -> np.ndarray:
         """Convert an image to a numpy array.
 
         Wrapper of sitk.GetArrayFromImage().
 
+        .. note::
+            ``copy`` and ``view`` are mutually exclusive.
+        .. warning::
+            ``view`` is deprecated and will be removed in a future release.
+
         Args:
             dtype (str | npt.DTypeLike | None): The dtype to use for the numpy array.
                 If None, the default dtype of the image is used
                 as defined the global ``FORMAT_TO_TYPESTR`` dictionary.
-            view (bool): If set to true, return a view of the underlying data,
+            copy (bool | None): If True, then new array is copied to memory.
+                If None then the array is copied only if needed, i.e. if type casting
+                specified by ``dtype`` is required.
+                For False it raises a ValueError if a copy cannot be avoided.
+            view (bool | None): If set to true, return a view of the underlying data,
                 without copying them. If a dtype is specified, a copy is returned anyway.
 
         Returns:
             np.ndarray: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         """
-        if view:
-            image_array = sitk.GetArrayViewFromImage(self)
-        else:
-            image_array = sitk.GetArrayFromImage(self)
-        if dtype is not None:
-            image_array = image_array.astype(dtype)
-        return image_array
+        if copy is not None and view is not None:
+            raise ValueError(
+                "__array__() received both 'copy' and deprecated 'view'. Use only 'copy'."
+            )
+        if view is not None:
+            if view is True:
+                warning_message = "Use 'copy=False' instead."
+            else:
+                warning_message = "Use 'copy=True' instead."
+            warnings.warn(
+                "'view' is deprecated and will be removed in a future release. " + warning_message
+            )
+            copy = not view
 
-    def numpy(self, dtype: str | npt.DTypeLike | None = None, view: bool = False) -> np.ndarray:
+        needs_copy = False
+        if dtype:
+            if dtype != self.dtype:
+                needs_copy = True
+
+        if copy is False:
+            if needs_copy:
+                raise ValueError(
+                    "Cannot return a view when asking to cast "
+                    f"the image to a different dtype ({dtype}). "
+                    f"Current dtype is {self.dtype}."
+                )
+            return sitk.GetArrayViewFromImage(self)
+        if copy is True or needs_copy:
+            image_array = sitk.GetArrayFromImage(self)
+            if dtype is not None:
+                image_array = image_array.astype(dtype=dtype)
+            return image_array
+        return sitk.GetArrayViewFromImage(self)
+
+    def numpy(
+        self,
+        dtype: str | npt.DTypeLike | None = None,
+        copy: bool | None = True,
+        view: bool | None = None,
+    ) -> np.ndarray:
         """Generate a numpy array of pixels from the image.
 
         Wrapper of sitk.GetArrayFromImage().
 
+        .. note::
+            ``copy`` and ``view`` are mutually exclusive.
+        .. warning::
+            ``view`` is deprecated and will be removed in a future release.
+
         Args:
             dtype (str | npt.DTypeLike | None): The dtype to use for the numpy array.
                 If None, the default dtype of the image is used
                 as defined the global ``FORMAT_TO_TYPESTR`` dictionary.
-            view (bool): If set to true, return a view of the underlying data,
+            copy (bool | None): If True, then new array is copied to memory.
+                If None then the array is copied only if needed, i.e. if type casting
+                specified by ``dtype`` is required.
+                For False it raises a ValueError if a copy cannot be avoided.
+            view (bool | None): If set to true, return a view of the underlying data,
                 without copying them. If a dtype is specified, a copy is returned anyway.
 
         Returns:
             np.ndarray: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         """
-        return self.__array__(dtype=dtype, view=view)
+        return self.__array__(dtype=dtype, copy=copy, view=view)
 
     @property
     def dtype(self) -> npt.DTypeLike:
@@ -517,10 +572,11 @@ class Image(sitk.Image):
         Returns:
             Image: Image with constant value added to pixel data.
         """
-        current_image = self
-        if isinstance(value, float):
-            logger.debug("Casting image type to float.")
-            current_image = self.astype(float)
+        if np.issubdtype(type(value), np.floating) and not np.issubdtype(self.dtype, np.floating):
+            logger.debug("Casting image type to float")
+            current_image = self.astype(np.dtype(type(value)))
+        else:
+            current_image = self
         if value < 0:
             if is_unsigned(current_image.GetPixelID()):
                 logger.warning(
@@ -539,10 +595,11 @@ class Image(sitk.Image):
         Returns:
             Image: Image with constant value subtracted to pixel data.
         """
-        current_image = self
-        if isinstance(value, float):
+        if np.issubdtype(type(value), np.floating) and not np.issubdtype(self.dtype, np.floating):
             logger.debug("Casting image type to float")
-            current_image = self.astype(float)
+            current_image = self.astype(np.dtype(type(value)))
+        else:
+            current_image = self
         if is_unsigned(current_image.GetPixelID()):
             logger.warning(
                 "Subtracting value when image "
@@ -560,10 +617,11 @@ class Image(sitk.Image):
         Returns:
             Image: Image with constant value multiplied to pixel data.
         """
-        current_image = self
-        if isinstance(value, float):
+        if np.issubdtype(type(value), np.floating) and not np.issubdtype(self.dtype, np.floating):
             logger.debug("Casting image type to float")
-            current_image = self.astype(float)
+            current_image = self.astype(np.dtype(type(value)))
+        else:
+            current_image = self
         if value < 0:
             if is_unsigned(current_image.GetPixelID()):
                 logger.warning(
@@ -583,5 +641,8 @@ class Image(sitk.Image):
             Image: Image with constant value multiplied to pixel data.
         """
         logger.debug("Casting image type to float")
-        current_image = self.astype(float)
+        if np.issubdtype(self.dtype, np.integer):
+            current_image = self.astype(np.float64)
+        else:
+            current_image = self
         return Image(super(Image, current_image).__truediv__(value), metadata=self.metadata)

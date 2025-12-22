@@ -30,26 +30,26 @@ __all__ = [
 
 
 def read_image(*args, **kwargs) -> Image:
-    """Call Image().read_image directly from a function.
+    """Call ``Image.read`` directly from a function.
 
-    Done in the most similar way we do for SimpleITK.read_image.
+    Done in the most similar way we do for ``SimpleITK.read_image``.
     """
     return Image.read(*args, **kwargs)
 
 
 def write_image(image: Image, *args, **kwargs):
-    """Call image.write_image directly from a function.
+    """Call ``image.write_image`` directly from a function.
 
-    Done in the most similar way we do for SimpleITK.write_image.
+    Done in the most similar way we do for ``SimpleITK.write_image``.
     """
     return image.write_image(*args, **kwargs)
 
 
 def read_structure(*args, **kwargs) -> RTStructure:
-    """Call RTStructure().read_image directly from a function."""
-    return RTStructure().read_image(*args, **kwargs)
+    """Call ``RTStructure.read`` directly from a function."""
+    return RTStructure.read(*args, **kwargs)
 
 
 def read_structure_set(*args, **kwargs) -> RTStructureSet:
-    """Call Image().read_image directly from a function."""
+    """Call ``RTStructureSet.read_image`` directly from a function."""
     return RTStructureSet().read_image(*args, **kwargs)

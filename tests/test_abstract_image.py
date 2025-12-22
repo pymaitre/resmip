@@ -19,7 +19,7 @@ def mock_image():
 
 def mock_structure():
     """Mock rt structure used in this module."""
-    return RTStructure.read_image(ibsi_rtst_path())
+    return RTStructure.read(ibsi_rtst_path())
 
 
 def mock_dose():

@@ -17,54 +17,50 @@ from resmip.dicom_utils.rt_utils_wrapper.header import (
 )
 from resmip.dicom_utils.rt_utils_wrapper.roidata import ROIData
 
-from .utils import dicom_ct_path, dicom_rtst_path
+from .utils import dicom_ct_path
 
 
-def test_validate_mask_array_wrong_type(mock_dicom_image: resmip.Image):
+def test_validate_mask_array_wrong_type(
+    mock_dicom_image: resmip.Image, mock_dicom_structure: resmip.RTStructure
+):
     """Test validate_mask_array with wrong array type."""
-    structure = resmip.RTStructure.read_image(
-        dicom_rtst_path(), structure_name="GTV-1", reference_image=mock_dicom_image
-    )
     rtst = RTStruct.create_new(dicom_ct_path())
-    roidata = ROIData(structure, 1, structure.name, "0")
+    roidata = ROIData(mock_dicom_structure, 1, mock_dicom_structure.name, "0")
     mask = np.zeros(mock_dicom_image.GetSize(), dtype=np.uint8)
     with pytest.raises(TypeError):
         roidata.validate_mask_array(mask, rtst.series_data)
 
 
-def test_validate_mask_array_wrong_shape(mock_dicom_image: resmip.Image):
+def test_validate_mask_array_wrong_shape(
+    mock_dicom_image: resmip.Image, mock_dicom_structure: resmip.RTStructure
+):
     """Test validate_mask_array with wrong array shape."""
-    structure = resmip.RTStructure.read_image(
-        dicom_rtst_path(), structure_name="GTV-1", reference_image=mock_dicom_image
-    )
     rtst = RTStruct.create_new(dicom_ct_path())
-    roidata = ROIData(structure, 1, structure.name, "0")
+    roidata = ROIData(mock_dicom_structure, 1, mock_dicom_structure.name, "0")
     wrong_shape = np.array(mock_dicom_image.GetSize()) - 1
     mask = np.zeros(wrong_shape, dtype=bool)
     with pytest.raises(ValueError):
         roidata.validate_mask_array(mask, rtst.series_data)
 
 
-def test_validate_mask_array_wrong_dimension(mock_dicom_image: resmip.Image):
+def test_validate_mask_array_wrong_dimension(
+    mock_dicom_image: resmip.Image, mock_dicom_structure: resmip.RTStructure
+):
     """Test validate_mask_array with wrong dimension (2D array)."""
-    structure = resmip.RTStructure.read_image(
-        dicom_rtst_path(), structure_name="GTV-1", reference_image=mock_dicom_image
-    )
     rtst = RTStruct.create_new(dicom_ct_path())
-    roidata = ROIData(structure, 1, structure.name, "0")
+    roidata = ROIData(mock_dicom_structure, 1, mock_dicom_structure.name, "0")
     wrong_shape = mock_dicom_image.GetSize()[:2]
     mask = np.zeros(wrong_shape, dtype=bool)
     with pytest.raises(ValueError):
         roidata.validate_mask_array(mask, rtst.series_data)
 
 
-def test_validate_mask_array_empty(mock_dicom_image: resmip.Image, caplog):
+def test_validate_mask_array_empty(
+    mock_dicom_image: resmip.Image, mock_dicom_structure: resmip.RTStructure, caplog
+):
     """Test validate_mask_array with all zeros."""
-    structure = resmip.RTStructure.read_image(
-        dicom_rtst_path(), structure_name="GTV-1", reference_image=mock_dicom_image
-    )
     rtst = RTStruct.create_new(dicom_ct_path())
-    roidata = ROIData(structure, 1, structure.name, "0")
+    roidata = ROIData(mock_dicom_structure, 1, mock_dicom_structure.name, "0")
     mask = np.zeros(mock_dicom_image.GetSize(), dtype=bool)
     with caplog.at_level(logging.INFO):
         roidata.validate_mask_array(mask, rtst.series_data)
@@ -73,36 +69,28 @@ def test_validate_mask_array_empty(mock_dicom_image: resmip.Image, caplog):
     assert "ROI mask is empty" in caplog.text
 
 
-def test_validate_mask_wrong_spacing(mock_dicom_image: resmip.Image):
+def test_validate_mask_wrong_spacing(mock_dicom_structure: resmip.RTStructure):
     """Test validate_mask_array with wrong voxel spacing."""
     rtst = RTStruct.create_new(dicom_ct_path())
-    structure = resmip.RTStructure.read_image(
-        dicom_rtst_path(), structure_name="GTV-1", reference_image=mock_dicom_image
-    ).resample((0.5, 0.5, 0.5))
+    structure = mock_dicom_structure.resample((0.5, 0.5, 0.5))
     with pytest.raises(ValueError):
         rtst.validate_mask(structure)
 
 
-def test_validate_mask_wrong_origin(mock_dicom_image: resmip.Image):
+def test_validate_mask_wrong_origin(mock_dicom_structure: resmip.RTStructure):
     """Test validate_mask_array with wrong origin."""
     rtst = RTStruct.create_new(dicom_ct_path())
-    structure = resmip.RTStructure.read_image(
-        dicom_rtst_path(), structure_name="GTV-1", reference_image=mock_dicom_image
-    )
-    structure.origin = (0, 0, 0)
+    mock_dicom_structure.origin = (0, 0, 0)
     with pytest.raises(ValueError):
-        rtst.validate_mask(structure)
+        rtst.validate_mask(mock_dicom_structure)
 
 
-def test_validate_mask_wrong_direction(mock_dicom_image: resmip.Image):
+def test_validate_mask_wrong_direction(mock_dicom_structure: resmip.RTStructure):
     """Test validate_mask_array with wrong orientation."""
     rtst = RTStruct.create_new(dicom_ct_path())
-    structure = resmip.RTStructure.read_image(
-        dicom_rtst_path(), structure_name="GTV-1", reference_image=mock_dicom_image
-    )
-    structure.direction = (0, 1, 0, 1, 0, 0, 0, 0, 1)
+    mock_dicom_structure.direction = (0, 1, 0, 1, 0, 0, 0, 0, 1)
     with pytest.raises(ValueError):
-        rtst.validate_mask(structure)
+        rtst.validate_mask(mock_dicom_structure)
 
 
 @pytest.mark.parametrize(

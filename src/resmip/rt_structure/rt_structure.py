@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -92,7 +93,7 @@ class RTStructure(Image):
         return RTStructure(super().astype(dtype=dtype), name=self.name)
 
     @classmethod
-    def read_image(
+    def read(
         cls,
         filename: PathLike,
         read_metadata: bool = True,
@@ -130,6 +131,47 @@ class RTStructure(Image):
             structure_name = get_structure_name_from_filename(filename)
         new_rt_structure = cls(Image.read(filename), name=structure_name)
         return new_rt_structure
+
+    @classmethod
+    def read_image(
+        cls,
+        filename: PathLike,
+        read_metadata: bool = True,
+        structure_name: str | None = None,
+        reference_image: Image | None = None,
+    ) -> RTStructure:
+        """Read RT Structure from file.
+
+        The image format is automatically determined from filename's suffix.
+
+        .. warning::
+            ``RTStructure.read_image`` is deprecated and will be removed in a future release.
+            Use ``RTStructure.read`` instead.
+
+        Args:
+            filename (PathLike): Name of the file. If filename ends with ".dcm",
+                the reader assumes to read a Dicom rtstruct. Otherwise, it assumes a metatadata
+                file with the following format exists: f".{filename.stem}.json".
+            read_metadata (bool): If true, read the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            structure_name (str | None): Name of the RT Structure (case-sensitive).
+                Required for dicom files. Optional for other files (if set to None, use filename).
+            reference_image (Image | None): 3D image used as reference for dicom Structures
+                (not used for other formats).
+
+        Returns:
+            RTStructure: RT Structure.
+        """
+        warnings.warn(
+            "'RTStructure.read_image' is deprecated and will be removed in a future release. "
+            "Use 'RTStructure.read' instead."
+        )
+        return cls.read(
+            filename=filename,
+            read_metadata=read_metadata,
+            structure_name=structure_name,
+            reference_image=reference_image,
+        )
 
     @classmethod
     def from_array(
@@ -376,7 +418,7 @@ class RTStructureSet(dict[str, RTStructure]):
             )
         structures = []
         for f in filename:
-            structures.append(RTStructure().read_image(f))
+            structures.append(RTStructure.read(f))
         return cls(structures)
 
     def write_image(

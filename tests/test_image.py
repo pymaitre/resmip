@@ -1,5 +1,7 @@
 """Test module for image.py."""
 
+# pylint: disable=W0621
+
 import numpy as np
 import pytest
 import SimpleITK as sitk

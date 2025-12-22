@@ -205,7 +205,7 @@ class Image(sitk.Image):
         """
         if copy is not None and view is not None:
             raise ValueError(
-                "__array__() received both 'copy' and deprecated 'view'. " "Use only 'copy'."
+                "__array__() received both 'copy' and deprecated 'view'. Use only 'copy'."
             )
         if view is not None:
             if view is True:

@@ -139,7 +139,7 @@ class RTStructure(Image):
         read_metadata: bool = True,
         structure_name: str | None = None,
         reference_image: Image | None = None,
-    ) -> RTStructure:
+    ) -> RTStructure:  # pragma: no cover
         """Read RT Structure from file.
 
         The image format is automatically determined from filename's suffix.
@@ -379,7 +379,7 @@ class RTStructureSet(dict[str, RTStructure]):
         self.update({structure.name: structure for structure in structures})
 
     @classmethod
-    def read_image(
+    def read(
         cls,
         filename: PathLike | list[PathLike],
         *,
@@ -420,6 +420,48 @@ class RTStructureSet(dict[str, RTStructure]):
         for f in filename:
             structures.append(RTStructure.read(f))
         return cls(structures)
+
+    @classmethod
+    def read_image(
+        cls,
+        filename: PathLike | list[PathLike],
+        *,
+        structure_names: list[str] | None = None,
+        regex: bool = False,
+        reference_image: Image | None = None,
+        parallel: bool = True,
+    ) -> RTStructureSet:  # pragma: no cover
+        """Read RT Structure Set file(s).
+
+        .. warning::
+            ``RTStructureSet.read_image`` is deprecated and will be removed in a future release.
+            Use ``RTStructureSet.read`` instead.
+
+        Args:
+            filename (PathLike | list[PathLike]): Name of the DICOM RT structure set.
+                If reading from NIfTI, use a list of paths to the structures,
+            structure_names (list[str] | None): Names of the structures to be read.
+                Used for reading only specific structures in a dicom files,
+                can also be a regular expression.
+            regex (bool): Whether to consider ``structure_names`` as a regular expression or not.
+            parallel (bool): Whether to read structures in parallel or not.
+            reference_image (Image | None): 3D image used as reference for dicom Structures
+                (not used for other formats).
+
+        Returns:
+            RTStructureSet: RT Structure Set.
+        """
+        warnings.warn(
+            "'RTStructureSet.read_image' is deprecated and will be removed in a future release. "
+            "Use 'RTStructureSet.read' instead."
+        )
+        return cls.read(
+            filename=filename,
+            structure_names=structure_names,
+            regex=regex,
+            reference_image=reference_image,
+            parallel=parallel,
+        )
 
     def write_image(
         self,

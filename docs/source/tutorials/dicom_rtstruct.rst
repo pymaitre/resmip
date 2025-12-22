@@ -40,7 +40,7 @@ First of all, we define the path of the ditectory containing the Dicom CT and RT
 
 
     dicom_image = Image.read(dicom_ct_directory)
-    dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, reference_image = dicom_image)
+    dicom_rtst = RTStructureSet.read(dicom_rtst_path, reference_image = dicom_image)
 
 The resulting object is a dictionary containing all RT Structures found, indexed by their name.
 
@@ -56,11 +56,11 @@ Read only desired Structures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order to speed-up the conversion of dicom RT Structures to nifti, a structure name (or list of structure names)
-can be passed to ``read_image()``. The conversion is single-threaded by default, but it can be done in parallel.
+can be passed to ``read()``. The conversion is single-threaded by default, but it can be done in parallel.
 
 .. testcode:: python
 
-    dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, structure_names = "GTV-1", reference_image = dicom_image)
+    dicom_rtst = RTStructureSet.read(dicom_rtst_path, structure_names = "GTV-1", reference_image = dicom_image)
     print(dicom_rtst.keys())
 
 .. testoutput:: python
@@ -71,7 +71,7 @@ Regular expressions are supported too.
 
 .. testcode:: python
 
-    dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, structure_names = r"GTV-\d+", regex = True, reference_image = dicom_image)
+    dicom_rtst = RTStructureSet.read(dicom_rtst_path, structure_names = r"GTV-\d+", regex = True, reference_image = dicom_image)
     print(dicom_rtst.keys())
 
 .. testoutput:: python
@@ -112,7 +112,7 @@ First of all, a reference dicom image is required. When dealing with nifti image
 
 
     dicom_image = Image.read(dicom_ct_directory)
-    dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, reference_image = dicom_image)
+    dicom_rtst = RTStructureSet.read(dicom_rtst_path, reference_image = dicom_image)
 
     # Save image to dicom
     dicom_image.write_image(dicom_ct_destination_directory)

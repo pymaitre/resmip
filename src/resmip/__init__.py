@@ -51,5 +51,5 @@ def read_structure(*args, **kwargs) -> RTStructure:
 
 
 def read_structure_set(*args, **kwargs) -> RTStructureSet:
-    """Call ``RTStructureSet.read_image`` directly from a function."""
-    return RTStructureSet().read_image(*args, **kwargs)
+    """Call ``RTStructureSet.read`` directly from a function."""
+    return RTStructureSet.read(*args, **kwargs)

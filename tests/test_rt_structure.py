@@ -257,7 +257,7 @@ def test_write_dicom_structure_set(
 def test_read_dicom_structure_set(mock_dicom_image: resmip.Image):
     """Read a dicom rtst file."""
     structure_name = "GTV-1"
-    rtst = RTStructureSet().read_image(
+    rtst = RTStructureSet().read(
         dicom_rtst_path(), structure_names=[structure_name], reference_image=mock_dicom_image
     )
     assert len(rtst) == 1
@@ -270,7 +270,7 @@ def test_read_dicom_structure_set_function(mock_dicom_image: resmip.Image):
     rtst = resmip.read_structure_set(
         dicom_rtst_path(), structure_names=[structure_name], reference_image=mock_dicom_image
     )
-    reference_rtst = RTStructureSet().read_image(
+    reference_rtst = RTStructureSet.read(
         dicom_rtst_path(), structure_names=[structure_name], reference_image=mock_dicom_image
     )
     assert len(rtst) == len(reference_rtst)
@@ -288,7 +288,7 @@ def test_read_dicom_structure_set_function(mock_dicom_image: resmip.Image):
 def test_read_dicom_structure_set_regex(regex, mock_dicom_image: resmip.Image):
     """Read a dicom rtst file with a regular expression match."""
     structure_name = r"[A-Z]TV-\d+"
-    rtst = RTStructureSet().read_image(
+    rtst = RTStructureSet.read(
         dicom_rtst_path(),
         structure_names=[structure_name],
         reference_image=mock_dicom_image,
@@ -306,28 +306,28 @@ def test_read_dicom_structure_set_regex(regex, mock_dicom_image: resmip.Image):
 def test_read_nifti_structure_set(extension, mock_dicom_image: resmip.Image, tmp_path):
     """Read multiple nifti rtst files."""
     structure_name = "GTV-1"
-    rtst = RTStructureSet().read_image(
+    rtst = RTStructureSet.read(
         dicom_rtst_path(), structure_names=[structure_name], reference_image=mock_dicom_image
     )
 
     rtst_path = tmp_path / f"{structure_name}.{extension}"
     rtst.write_image([rtst_path])
 
-    saved_rtst = RTStructureSet().read_image([rtst_path])
+    saved_rtst = RTStructureSet.read([rtst_path])
     assert saved_rtst == rtst
 
 
 def test_read_nifti_structure_set_all_structures(mock_dicom_image: resmip.Image):
     """Read all structures from DICOM rtst file."""
     structure_name = "GTV-1"
-    rtst = RTStructureSet().read_image(dicom_rtst_path(), reference_image=mock_dicom_image)
+    rtst = RTStructureSet.read(dicom_rtst_path(), reference_image=mock_dicom_image)
     assert tuple(rtst.keys()) == (structure_name,)
 
 
 def test_dicom_nifti_ibsi_conversion(mock_dicom_image: resmip.Image):
     """Test if the DICOM->nifti conversion is IBSI compliant."""
     structure_name = "GTV-1"
-    rtst = RTStructureSet().read_image(
+    rtst = RTStructureSet.read(
         dicom_rtst_path(), structure_names=[structure_name], reference_image=mock_dicom_image
     )[structure_name]
     reference_rtst = RTStructure.read(ibsi_rtst_path())
@@ -420,7 +420,7 @@ def test_crop_structure(mock_dicom_structure: resmip.RTStructure):
 def test_write_structure_set_to_nifti(extension, mock_dicom_image: resmip.Image, tmp_path):
     """Create a nifti RT Structure Set."""
     structure_names = ["GTV-1", "GTV-2"]
-    rtst = RTStructureSet.read_image(
+    rtst = RTStructureSet.read(
         dicom_rtst_path_with_hole(),
         structure_names=structure_names,
         reference_image=mock_dicom_image,
@@ -470,7 +470,7 @@ def test_write_structure_set_to_nifti_wrong_number(
 ):
     """Create a nifti RT Structure Set providing a wrong number of filenames."""
     structure_names = ["GTV-1"]
-    rtst = RTStructureSet.read_image(
+    rtst = RTStructureSet.read(
         dicom_rtst_path_with_hole(),
         structure_names=structure_names,
         reference_image=mock_dicom_image,

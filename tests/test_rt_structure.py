@@ -134,7 +134,7 @@ def test_write_single_nifti_structure(
 ):
     """Create a RT Structure Set from a single RT Structure."""
     rtst_path = tmp_path / f"{mock_dicom_structure.name}.{extension}"
-    mock_dicom_structure.write_image(rtst_path)
+    mock_dicom_structure.write(rtst_path)
 
     saved_structure = sitk.ReadImage(rtst_path)
     np.testing.assert_array_equal(
@@ -216,7 +216,7 @@ def test_write_dicom_structure_with_hole(
 ):
     """Write a structure with a hole inside."""
     rtst_path = tmp_path / "rtst.dcm"
-    mock_dicom_structure.write_image(rtst_path, reference_image_path=dicom_ct_path())
+    mock_dicom_structure.write(rtst_path, reference_image_path=dicom_ct_path())
     structure = RTStructure.read(
         rtst_path, structure_name=mock_dicom_structure.name, reference_image=mock_dicom_image
     )
@@ -239,7 +239,7 @@ def test_write_dicom_structure_set(
 ):
     """Create a dicom RT Structure Set from a single structure."""
     rtst_path = tmp_path / "rtst.dcm"
-    mock_dicom_structure.write_image(rtst_path, reference_image_path=dicom_ct_path())
+    mock_dicom_structure.write(rtst_path, reference_image_path=dicom_ct_path())
 
     rtst_set_path = tmp_path / "rtst_set.dcm"
     rtst = RTStructureSet([mock_dicom_structure])
@@ -386,14 +386,14 @@ def test_write_dicom_structure_set_description(
     rtst_path = tmp_path / "rtst.dcm"
     if set_description:
         reference_description = "Structure_Description"
-        mock_dicom_structure.write_image(
+        mock_dicom_structure.write(
             rtst_path,
             reference_image_path=dicom_ct_path(),
             series_description=reference_description,
         )
     else:
         reference_description = ""
-        mock_dicom_structure.write_image(rtst_path, reference_image_path=dicom_ct_path())
+        mock_dicom_structure.write(rtst_path, reference_image_path=dicom_ct_path())
     series_description = pydicom.dcmread(rtst_path)["SeriesDescription"].value
     assert series_description == reference_description
 

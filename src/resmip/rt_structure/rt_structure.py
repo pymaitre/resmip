@@ -211,7 +211,7 @@ class RTStructure(Image):
             name=name,
         )
 
-    def write_image(
+    def write(
         self,
         filename: PathLike,
         *,
@@ -243,6 +243,48 @@ class RTStructure(Image):
             return self._write_nondicom(filename, file_format=file_format)
         return RTStructureSet([self]).write_image(
             filename,
+            file_format=file_format,
+            reference_image_path=reference_image_path,
+            series_description=series_description,
+        )
+
+    def write_image(
+        self,
+        filename: PathLike,
+        *,
+        write_metadata: bool = False,
+        file_format: str | None = None,
+        reference_image_path: PathLike | None = None,
+        series_description: str = "",
+    ) -> None:  # pragma: no cover
+        """Save RT Structure file.
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+
+        .. warning::
+            ``RTStructure.write_image`` is deprecated and will be removed in a future release.
+            Use ``RTStructure.write`` instead.
+
+        Args:
+            filename (PathLike): Name of the file. If filename is a directory,
+                use a the structure's name. For dicom files use the UID.
+            write_metadata (bool): If true, write the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            file_format (str | None): Format of the rt structure saved. If None,
+                infer it from filename.
+            reference_image_path (PathLike | None): Path of the reference dicom image.
+                Ignored when saving in formats other than dicom.
+            series_description (str): Series Description for the saved DICOM
+                RT Structure Set. Non used for other formats.
+        """
+        warnings.warn(
+            "'RTStructure.write_image' is deprecated and will be removed in a future release. "
+            "Use 'RTStructure.write' instead."
+        )
+        return self.write(
+            filename=filename,
+            write_metadata=write_metadata,
             file_format=file_format,
             reference_image_path=reference_image_path,
             series_description=series_description,
@@ -505,4 +547,4 @@ class RTStructureSet(dict[str, RTStructure]):
                 "The number of filenames provided is different than the number of structures."
             )
         for structure_filename, structure in zip(filename, self.values()):
-            structure.write_image(structure_filename, file_format=file_format)
+            structure.write(structure_filename, file_format=file_format)

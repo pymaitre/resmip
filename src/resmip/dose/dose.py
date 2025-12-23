@@ -134,7 +134,7 @@ class Dose(Image):
         https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e
 
         .. warning::
-            ``Image.read_image`` is deprecated and will be removed in a future release.
+            ``Dose.read_image`` is deprecated and will be removed in a future release.
             Use ``Dose.read`` instead.
 
         Args:
@@ -151,14 +151,14 @@ class Dose(Image):
             Dose: RT Dose.
         """
         warnings.warn(
-            "'Image.read_image' is deprecated and will be removed in a future release. "
+            "'Dose.read_image' is deprecated and will be removed in a future release. "
             "Use 'Dose.read' instead."
         )
         return cls.read(
             filename=filename, read_metadata=read_metadata, reference_image=reference_image
         )
 
-    def write_image(
+    def write(
         self,
         filename: PathLike,
         *,
@@ -171,7 +171,7 @@ class Dose(Image):
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.
 
-        Currently only non-DICOM file formats are supported
+        Currently only non-DICOM file formats are supported.
 
         Args:
             filename (PathLike): Name of the file to be saved.
@@ -189,6 +189,40 @@ class Dose(Image):
         if file_format != ".dcm":
             return self._write_nondicom(filename)
         raise NotImplementedError("Saving to DICOM RT Dose is currently not supported.")
+
+    def write_image(
+        self,
+        filename: PathLike,
+        *,
+        write_metadata: bool = False,
+        file_format: str | None = None,
+        # reference_image_path: Optional[PathLike] = None,
+    ) -> None:  # pragma: no cover
+        """Save RT Dose file.
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+
+        Currently only non-DICOM file formats are supported.
+
+        .. warning::
+            ``Dose.write_image`` is deprecated and will be removed in a future release.
+            Use ``Dose.write`` instead.
+
+        Args:
+            filename (PathLike): Name of the file to be saved.
+            write_metadata (bool): If true, write the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            file_format (str | None): Format of the rt dose saved. If None,
+                infer it from filename.
+            reference_image_path (PathLike | None): Path of the reference dicom image.
+                Ignored when saving in formats other than dicom.
+        """
+        warnings.warn(
+            "'Dose.write_image' is deprecated and will be removed in a future release. "
+            "Use 'Dose.write' instead."
+        )
+        return self.write(filename=filename, write_metadata=write_metadata, file_format=file_format)
 
     def resample(
         self,

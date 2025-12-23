@@ -62,7 +62,7 @@ def test_write_dose_nifti(tmp_path):
     image = Image.read(REFERENCE_DICOM_IMAGE_PATH)
     dose = Dose.read(REFERENCE_DICOM_DOSE_PATH, reference_image=image)
     nifti_dose_path = tmp_path / "dose.nii.gz"
-    dose.write_image(nifti_dose_path)
+    dose.write(nifti_dose_path)
 
     nifti_dose = Dose.read(nifti_dose_path)
     assert np.all(nifti_dose.numpy() == dose.numpy())

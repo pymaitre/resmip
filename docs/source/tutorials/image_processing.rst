@@ -17,7 +17,7 @@ Image processing
 
 
     dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "IBSI1_CT_phantom" / "CT_00000"
-    image = Image.read_image(dicom_ct_directory)
+    image = Image.read(dicom_ct_directory)
 
 Voxel spacing
 -------------
@@ -48,8 +48,8 @@ As a consequence, the size of the image changes accordingly:
 
 .. testcode:: python
 
-    print(f"Original image size: {image.GetSize()}")
-    print(f"Resampled image size: {resampled_image.GetSize()}")
+    print(f"Original image size: {image.size}")
+    print(f"Resampled image size: {resampled_image.size}")
 
 .. testoutput:: python
 

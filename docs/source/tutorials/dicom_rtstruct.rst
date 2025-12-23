@@ -39,8 +39,8 @@ First of all, we define the path of the ditectory containing the Dicom CT and RT
     from resmip.rt_structure import RTStructureSet
 
 
-    dicom_image = Image().read_image(dicom_ct_directory)
-    dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, reference_image = dicom_image)
+    dicom_image = Image.read(dicom_ct_directory)
+    dicom_rtst = RTStructureSet.read(dicom_rtst_path, reference_image = dicom_image)
 
 The resulting object is a dictionary containing all RT Structures found, indexed by their name.
 
@@ -56,11 +56,11 @@ Read only desired Structures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order to speed-up the conversion of dicom RT Structures to nifti, a structure name (or list of structure names)
-can be passed to ``read_image()``. The conversion is single-threaded by default, but it can be done in parallel.
+can be passed to ``read()``. The conversion is single-threaded by default, but it can be done in parallel.
 
 .. testcode:: python
 
-    dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, structure_names = "GTV-1", reference_image = dicom_image)
+    dicom_rtst = RTStructureSet.read(dicom_rtst_path, structure_names = "GTV-1", reference_image = dicom_image)
     print(dicom_rtst.keys())
 
 .. testoutput:: python
@@ -71,7 +71,7 @@ Regular expressions are supported too.
 
 .. testcode:: python
 
-    dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, structure_names = "GTV-\d+", regex = True, reference_image = dicom_image)
+    dicom_rtst = RTStructureSet.read(dicom_rtst_path, structure_names = r"GTV-\d+", regex = True, reference_image = dicom_image)
     print(dicom_rtst.keys())
 
 .. testoutput:: python
@@ -81,7 +81,7 @@ Regular expressions are supported too.
 Save a Dicom RT Structure Set
 -----------------------------
 
-RT Structure Sets can be saved to Dicom using the ``write_image`` method of ``RTStructureSet``.
+RT Structure Sets can be saved to Dicom using the ``write`` method of ``RTStructureSet``.
 First of all, a reference dicom image is required. When dealing with nifti images, the image needs to be converted to dicom first.
 
 .. testcode:: python
@@ -111,13 +111,13 @@ First of all, a reference dicom image is required. When dealing with nifti image
     from resmip.rt_structure import RTStructureSet
 
 
-    dicom_image = Image().read_image(dicom_ct_directory)
-    dicom_rtst = RTStructureSet().read_image(dicom_rtst_path, reference_image = dicom_image)
+    dicom_image = Image.read(dicom_ct_directory)
+    dicom_rtst = RTStructureSet.read(dicom_rtst_path, reference_image = dicom_image)
 
     # Save image to dicom
-    dicom_image.write_image(dicom_ct_destination_directory)
+    dicom_image.write(dicom_ct_destination_directory)
     # Save RT Structure Set
-    dicom_rtst.write_image(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory)
+    dicom_rtst.write(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory)
 
 Customize DICOM output
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -131,7 +131,7 @@ the ``series_description`` keyword:
 .. testcode:: python
 
     # Save RT Structure Set with SeriesDescription
-    dicom_rtst.write_image(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory, series_description = "CustomSeriesDescription")
+    dicom_rtst.write(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory, series_description = "CustomSeriesDescription")
 
 ..
     Cleanup block below

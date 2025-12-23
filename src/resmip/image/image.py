@@ -287,7 +287,7 @@ class Image(sitk.Image):
         return Image(sitk.Cast(self, sitk_image_dtype(dtype)), metadata=self.metadata)
 
     @classmethod
-    def read_image(cls, filename: PathLike, read_metadata: bool = True) -> Image:
+    def read(cls, filename: PathLike, read_metadata: bool = True) -> Image:
         """Load image file (and metadata).
 
         The image format is automatically determined from filename's suffix.
@@ -318,7 +318,35 @@ class Image(sitk.Image):
                 series_metadata[key] = value
         return cls(sitk_image, metadata=series_metadata)
 
-    def write_image(self, filename: PathLike, *, write_metadata: bool = True) -> None:
+    @classmethod
+    def read_image(
+        cls, filename: PathLike, read_metadata: bool = True
+    ) -> Image:  # pragma: no cover
+        """Load image file (and metadata).
+
+        The image format is automatically determined from filename's suffix.
+
+        .. warning::
+            ``Image.read_image`` is deprecated and will be removed in a future release.
+            Use ``Image.read`` instead.
+
+        Args:
+            filename (PathLike): Name of the file. If filename is a directory,
+                the reader assumes to read a Dicom series. Otherwise, it assumes a metatadata
+                file with the following format exists: f".{filename.stem}.json".
+            read_metadata (bool): If true, read the json file with metadata
+                (not applicable for dicom files).
+
+        Returns:
+            Image: Image and metadata.
+        """
+        warnings.warn(
+            "'Image.read_image' is deprecated and will be removed in a future release. "
+            "Use 'Image.read' instead."
+        )
+        return cls.read(filename=filename, read_metadata=read_metadata)
+
+    def write(self, filename: PathLike, *, write_metadata: bool = True) -> None:
         """Save image file (and metadata).
 
         The image format is automatically determined from filename's suffix.
@@ -338,6 +366,30 @@ class Image(sitk.Image):
             return
         filename.parent.mkdir(parents=True, exist_ok=True)
         self._write_nondicom(filename=filename, write_metadata=write_metadata)
+
+    def write_image(
+        self, filename: PathLike, *, write_metadata: bool = True
+    ) -> None:  # pragma: no cover
+        """Save image file (and metadata).
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+
+        .. warning::
+            ``Image.write_image`` is deprecated and will be removed in a future release.
+            Use ``Image.write`` instead.
+
+        Args:
+            filename (PathLike): Name of the file. If filename is a directory,
+                the writer assumes to write a Dicom series.
+            write_metadata (bool): If true, save the json file with metadata
+                (not applicable for dicom files).
+        """
+        warnings.warn(
+            "'Image.write_image' is deprecated and will be removed in a future release. "
+            "Use 'Image.write' instead."
+        )
+        return self.write(filename=filename, write_metadata=write_metadata)
 
     def _write_nondicom(self, filename: PathLike, write_metadata: bool = True) -> None:
         """Save image file (and metadata) to non-DICOM formats using ITK.

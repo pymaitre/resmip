@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -92,7 +93,7 @@ class RTStructure(Image):
         return RTStructure(super().astype(dtype=dtype), name=self.name)
 
     @classmethod
-    def read_image(
+    def read(
         cls,
         filename: PathLike,
         read_metadata: bool = True,
@@ -128,8 +129,49 @@ class RTStructure(Image):
             return new_rt_structure
         if structure_name is None:
             structure_name = get_structure_name_from_filename(filename)
-        new_rt_structure = cls(Image().read_image(filename), name=structure_name)
+        new_rt_structure = cls(Image.read(filename), name=structure_name)
         return new_rt_structure
+
+    @classmethod
+    def read_image(
+        cls,
+        filename: PathLike,
+        read_metadata: bool = True,
+        structure_name: str | None = None,
+        reference_image: Image | None = None,
+    ) -> RTStructure:  # pragma: no cover
+        """Read RT Structure from file.
+
+        The image format is automatically determined from filename's suffix.
+
+        .. warning::
+            ``RTStructure.read_image`` is deprecated and will be removed in a future release.
+            Use ``RTStructure.read`` instead.
+
+        Args:
+            filename (PathLike): Name of the file. If filename ends with ".dcm",
+                the reader assumes to read a Dicom rtstruct. Otherwise, it assumes a metatadata
+                file with the following format exists: f".{filename.stem}.json".
+            read_metadata (bool): If true, read the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            structure_name (str | None): Name of the RT Structure (case-sensitive).
+                Required for dicom files. Optional for other files (if set to None, use filename).
+            reference_image (Image | None): 3D image used as reference for dicom Structures
+                (not used for other formats).
+
+        Returns:
+            RTStructure: RT Structure.
+        """
+        warnings.warn(
+            "'RTStructure.read_image' is deprecated and will be removed in a future release. "
+            "Use 'RTStructure.read' instead."
+        )
+        return cls.read(
+            filename=filename,
+            read_metadata=read_metadata,
+            structure_name=structure_name,
+            reference_image=reference_image,
+        )
 
     @classmethod
     def from_array(
@@ -169,7 +211,7 @@ class RTStructure(Image):
             name=name,
         )
 
-    def write_image(
+    def write(
         self,
         filename: PathLike,
         *,
@@ -199,8 +241,50 @@ class RTStructure(Image):
             file_format = Path(filename).suffix
         if file_format != ".dcm":
             return self._write_nondicom(filename, file_format=file_format)
-        return RTStructureSet([self]).write_image(
+        return RTStructureSet([self]).write(
             filename,
+            file_format=file_format,
+            reference_image_path=reference_image_path,
+            series_description=series_description,
+        )
+
+    def write_image(
+        self,
+        filename: PathLike,
+        *,
+        write_metadata: bool = False,
+        file_format: str | None = None,
+        reference_image_path: PathLike | None = None,
+        series_description: str = "",
+    ) -> None:  # pragma: no cover
+        """Save RT Structure file.
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+
+        .. warning::
+            ``RTStructure.write_image`` is deprecated and will be removed in a future release.
+            Use ``RTStructure.write`` instead.
+
+        Args:
+            filename (PathLike): Name of the file. If filename is a directory,
+                use a the structure's name. For dicom files use the UID.
+            write_metadata (bool): If true, write the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            file_format (str | None): Format of the rt structure saved. If None,
+                infer it from filename.
+            reference_image_path (PathLike | None): Path of the reference dicom image.
+                Ignored when saving in formats other than dicom.
+            series_description (str): Series Description for the saved DICOM
+                RT Structure Set. Non used for other formats.
+        """
+        warnings.warn(
+            "'RTStructure.write_image' is deprecated and will be removed in a future release. "
+            "Use 'RTStructure.write' instead."
+        )
+        return self.write(
+            filename=filename,
+            write_metadata=write_metadata,
             file_format=file_format,
             reference_image_path=reference_image_path,
             series_description=series_description,
@@ -337,7 +421,7 @@ class RTStructureSet(dict[str, RTStructure]):
         self.update({structure.name: structure for structure in structures})
 
     @classmethod
-    def read_image(
+    def read(
         cls,
         filename: PathLike | list[PathLike],
         *,
@@ -376,10 +460,52 @@ class RTStructureSet(dict[str, RTStructure]):
             )
         structures = []
         for f in filename:
-            structures.append(RTStructure().read_image(f))
+            structures.append(RTStructure.read(f))
         return cls(structures)
 
-    def write_image(
+    @classmethod
+    def read_image(
+        cls,
+        filename: PathLike | list[PathLike],
+        *,
+        structure_names: list[str] | None = None,
+        regex: bool = False,
+        reference_image: Image | None = None,
+        parallel: bool = True,
+    ) -> RTStructureSet:  # pragma: no cover
+        """Read RT Structure Set file(s).
+
+        .. warning::
+            ``RTStructureSet.read_image`` is deprecated and will be removed in a future release.
+            Use ``RTStructureSet.read`` instead.
+
+        Args:
+            filename (PathLike | list[PathLike]): Name of the DICOM RT structure set.
+                If reading from NIfTI, use a list of paths to the structures,
+            structure_names (list[str] | None): Names of the structures to be read.
+                Used for reading only specific structures in a dicom files,
+                can also be a regular expression.
+            regex (bool): Whether to consider ``structure_names`` as a regular expression or not.
+            parallel (bool): Whether to read structures in parallel or not.
+            reference_image (Image | None): 3D image used as reference for dicom Structures
+                (not used for other formats).
+
+        Returns:
+            RTStructureSet: RT Structure Set.
+        """
+        warnings.warn(
+            "'RTStructureSet.read_image' is deprecated and will be removed in a future release. "
+            "Use 'RTStructureSet.read' instead."
+        )
+        return cls.read(
+            filename=filename,
+            structure_names=structure_names,
+            regex=regex,
+            reference_image=reference_image,
+            parallel=parallel,
+        )
+
+    def write(
         self,
         filename: PathLike | list[PathLike],
         *,
@@ -421,4 +547,42 @@ class RTStructureSet(dict[str, RTStructure]):
                 "The number of filenames provided is different than the number of structures."
             )
         for structure_filename, structure in zip(filename, self.values()):
-            structure.write_image(structure_filename, file_format=file_format)
+            structure.write(structure_filename, file_format=file_format)
+
+    def write_image(
+        self,
+        filename: PathLike | list[PathLike],
+        *,
+        file_format: str | None = None,
+        reference_image_path: PathLike | None = None,
+        series_description: str = "",
+    ) -> None:  # pragma: no cover
+        """Save RT Structure Set file(s).
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+
+        .. warning::
+            ``RTStructureSet.write_image`` is deprecated and will be removed in a future release.
+            Use ``RTStructureSet.write`` instead.
+
+        Args:
+            filename (PathLike | list[PathLike]): Name of the dicom file.
+                For other formats, it is a list of file names with same length of self.
+            file_format (str | None): Format of the rt structure saved. If None,
+                infer it from filename.
+            reference_image_path (PathLike | None): Path of the reference dicom image.
+                Ignored when saving in formats other than dicom.
+            series_description (str): Series Description for the saved DICOM
+                RT Structure Set. Non used for other formats.
+        """
+        warnings.warn(
+            "'RTStructureSet.write_image' is deprecated and will be removed in a future release. "
+            "Use 'RTStructureSet.write' instead."
+        )
+        return self.write(
+            filename=filename,
+            file_format=file_format,
+            reference_image_path=reference_image_path,
+            series_description=series_description,
+        )

@@ -11,7 +11,7 @@ Import a Dicom series
 
     The DICOM images used in this tutorial can be found in ``tests/Dicom/siemens_mprage_0_dcm``.
 
-Any Dicom series (e.g.: CT) can be imported with resmip using the ``read_image`` method from the ``Image`` class.
+Any Dicom series (e.g.: CT) can be imported with resmip using the ``read`` method from the ``Image`` class.
 
 .. testcode:: python
     :hide:
@@ -34,7 +34,7 @@ First of all, we define the path of the ditectory containing the Dicom CT:
     from resmip.image import Image
 
 
-    dicom_image = Image().read_image(dicom_ct_directory)
+    dicom_image = Image.read(dicom_ct_directory)
 
 Alternatively, images can be imported with the ``read_image`` method:
 
@@ -48,7 +48,7 @@ Alternatively, images can be imported with the ``read_image`` method:
 Save a Dicom series
 -------------------
 
-Images can be saved to Dicom using the ``write_image`` method of ``Image``, as long as the destination path is a directory:
+Images can be saved to Dicom using the ``write`` method of ``Image``, as long as the destination path is a directory:
 
 .. testcode:: python
     :hide:
@@ -74,8 +74,8 @@ First of all, we define the path of the ditectory containing the Dicom CT and th
     from resmip.image import Image
 
 
-    dicom_image = Image().read_image(dicom_ct_directory)
-    dicom_image.write_image(dicom_ct_destination_directory)
+    dicom_image = Image.read(dicom_ct_directory)
+    dicom_image.write(dicom_ct_destination_directory)
 
 
 Alternatively, images can be saved to dicom with the ``write_image`` method:

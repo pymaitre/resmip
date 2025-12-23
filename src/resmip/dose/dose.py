@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from pathlib import Path
 from typing import Iterable
 
@@ -65,7 +66,7 @@ class Dose(Image):
         return Dose(super().astype(dtype=dtype))
 
     @classmethod
-    def read_image(
+    def read(
         cls,
         filename: PathLike,
         read_metadata: bool = True,
@@ -92,7 +93,7 @@ class Dose(Image):
         Returns:
             Dose: RT Dose.
         """
-        image = super().read_image(filename=filename, read_metadata=read_metadata)
+        image = super().read(filename=filename, read_metadata=read_metadata)
         new_dose = cls(image)
         try:
             dicom_header = pydicom.dcmread(filename)
@@ -117,7 +118,47 @@ class Dose(Image):
         new_dose = new_dose.pad(reference_image=reference_image)
         return cls(new_dose) * scaling
 
-    def write_image(
+    @classmethod
+    def read_image(
+        cls,
+        filename: PathLike,
+        read_metadata: bool = True,
+        reference_image: Image | None = None,
+    ) -> Dose:  # pragma: no cover
+        """Read rt dose from file.
+
+        Doses could have different origin and/or
+        spacing compared to the referenced series.
+        This function, shifts the dose accordingly.
+        Dose values are scaled by "DoseGridScaling", if present.
+        https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e
+
+        .. warning::
+            ``Dose.read_image`` is deprecated and will be removed in a future release.
+            Use ``Dose.read`` instead.
+
+        Args:
+            filename (PathLike): Name of the file. If filename ends with ".dcm",
+                the reader assumes to read a Dicom rtdose. Otherwise, it assumes a metatadata
+                file with the following format exists: f".{filename.stem}.json".
+            read_metadata (bool): If true, read the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            reference_image (Image | None): 3D image used as reference for dicom Doses, in case
+                origin and/or spacing differ. When set to None, a warning is raised and no
+                shift / resampling is applied.
+
+        Returns:
+            Dose: RT Dose.
+        """
+        warnings.warn(
+            "'Dose.read_image' is deprecated and will be removed in a future release. "
+            "Use 'Dose.read' instead."
+        )
+        return cls.read(
+            filename=filename, read_metadata=read_metadata, reference_image=reference_image
+        )
+
+    def write(
         self,
         filename: PathLike,
         *,
@@ -130,7 +171,7 @@ class Dose(Image):
         The image format is automatically determined from filename's suffix.
         If parent directories of filename do not exist, they are created.
 
-        Currently only non-DICOM file formats are supported
+        Currently only non-DICOM file formats are supported.
 
         Args:
             filename (PathLike): Name of the file to be saved.
@@ -148,6 +189,40 @@ class Dose(Image):
         if file_format != ".dcm":
             return self._write_nondicom(filename)
         raise NotImplementedError("Saving to DICOM RT Dose is currently not supported.")
+
+    def write_image(
+        self,
+        filename: PathLike,
+        *,
+        write_metadata: bool = False,
+        file_format: str | None = None,
+        # reference_image_path: Optional[PathLike] = None,
+    ) -> None:  # pragma: no cover
+        """Save RT Dose file.
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+
+        Currently only non-DICOM file formats are supported.
+
+        .. warning::
+            ``Dose.write_image`` is deprecated and will be removed in a future release.
+            Use ``Dose.write`` instead.
+
+        Args:
+            filename (PathLike): Name of the file to be saved.
+            write_metadata (bool): If true, write the json file with metadata
+                (not applicable for dicom files). Currently not used.
+            file_format (str | None): Format of the rt dose saved. If None,
+                infer it from filename.
+            reference_image_path (PathLike | None): Path of the reference dicom image.
+                Ignored when saving in formats other than dicom.
+        """
+        warnings.warn(
+            "'Dose.write_image' is deprecated and will be removed in a future release. "
+            "Use 'Dose.write' instead."
+        )
+        return self.write(filename=filename, write_metadata=write_metadata, file_format=file_format)
 
     def resample(
         self,

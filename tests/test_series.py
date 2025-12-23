@@ -11,7 +11,11 @@ import SimpleITK as sitk
 
 import resmip.dicom_utils.series as dicom_series
 from resmip import read_image, write_image
-from resmip.dicom_utils.constants import DICOM_FIELDS, SERIES_DEPENDENT_FIELDS
+from resmip.dicom_utils.constants import (
+    DICOM_FIELDS,
+    SERIES_DEPENDENT_FIELDS,
+    string_tag_for_keyword,
+)
 from resmip.image.image import Image
 
 from .utils import dicom_ct_path
@@ -86,7 +90,8 @@ def test_saved_dicom_series_patient_data(mock_dicom_image: Image, tmp_path):
 
     for dicom_file in tmp_path.glob("*.dcm"):
         dataset = pydicom.dcmread(dicom_file)
-        for name, tag in DICOM_FIELDS.items():
+        for name in DICOM_FIELDS:
+            tag = string_tag_for_keyword(name)
             if name in SERIES_DEPENDENT_FIELDS:
                 continue
             if tag in mock_dicom_image.metadata:
@@ -140,7 +145,7 @@ def test_spacing_single_slice_series(caplog):
     image_path = Path(__file__).parent / "Dicom" / "dicompyler_img"
     image = Image.read(image_path)
     sitk_image = sitk.ReadImage(str(image_path / "ct.0.dcm"))
-    assert image.metadata[DICOM_FIELDS["Modality"]] == "CT"
+    assert image.metadata[string_tag_for_keyword("Modality")] == "CT"
     assert sitk_image.GetSpacing() == image.spacing
     for record in caplog.records:
         assert record.levelname == "WARNING"

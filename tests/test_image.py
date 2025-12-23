@@ -7,7 +7,7 @@ import pytest
 import SimpleITK as sitk
 
 import resmip.dicom_utils.series as dicom_series
-from resmip import DICOM_FIELDS
+from resmip.dicom_utils.constants import string_tag_for_keyword
 from resmip.image import CoregistrationMetric, Image
 from resmip.image.data_types import sitk_image_dtype
 from resmip.image.image import _metadata_file_name
@@ -71,8 +71,8 @@ def test_image_spacing_setter(mock_dicom_image: Image):
     mock_dicom_image.spacing = new_spacing
     assert mock_dicom_image.GetSpacing() == new_spacing
     assert mock_dicom_image.spacing == mock_dicom_image.GetSpacing()
-    assert mock_dicom_image.metadata[DICOM_FIELDS["PixelSpacing"]] == xy_spacing
-    assert mock_dicom_image.metadata[DICOM_FIELDS["SliceThickness"]] == str(z_spacing)
+    assert mock_dicom_image.metadata[string_tag_for_keyword("PixelSpacing")] == xy_spacing
+    assert mock_dicom_image.metadata[string_tag_for_keyword("SliceThickness")] == str(z_spacing)
 
 
 def test_image_origin_getter(mock_dicom_image: Image):
@@ -103,7 +103,10 @@ def test_image_direction_setter(mock_dicom_image: Image):
     mock_dicom_image.direction = new_direction
     assert mock_dicom_image.GetDirection() == new_direction
     assert mock_dicom_image.direction == mock_dicom_image.GetDirection()
-    assert mock_dicom_image.metadata[DICOM_FIELDS["ImageOrientationPatient"]] == dicom_direction
+    assert (
+        mock_dicom_image.metadata[string_tag_for_keyword("ImageOrientationPatient")]
+        == dicom_direction
+    )
 
 
 def test_image_size_getter(mock_dicom_image: Image):

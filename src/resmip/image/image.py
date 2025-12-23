@@ -13,7 +13,7 @@ import numpy.typing as npt
 import SimpleITK as sitk
 
 import resmip.dicom_utils.series as dicom_series
-from resmip import DICOM_FIELDS
+from resmip.dicom_utils.constants import string_tag_for_keyword
 from resmip.image.coregistration import CoregistrationMetric
 from resmip.image.data_types import (
     ImageDTypeLike,
@@ -107,8 +107,10 @@ class Image(sitk.Image):
     def spacing(self, value: tuple[float, float, float]):
         self.SetSpacing(value)
         # add the spacing to metadata too
-        self.metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join([str(x) for x in value[:2]])
-        self.metadata[DICOM_FIELDS["SliceThickness"]] = str(value[2])
+        self.metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
+            [str(x) for x in value[:2]]
+        )
+        self.metadata[string_tag_for_keyword("SliceThickness")] = str(value[2])
 
     @property
     def origin(self) -> tuple[float, float, float]:
@@ -133,7 +135,7 @@ class Image(sitk.Image):
     def direction(self, value: tuple[float]):
         self.SetDirection(value)
         # add the spacing to metadata too (only xy direction)
-        self.metadata[DICOM_FIELDS["ImageOrientationPatient"]] = "\\".join(
+        self.metadata[string_tag_for_keyword("ImageOrientationPatient")] = "\\".join(
             [str(x) for x in value[:-3]]
         )
 
@@ -439,10 +441,10 @@ class Image(sitk.Image):
 
         new_img = Image(resampler.Execute(self))
         new_img.metadata = self.metadata
-        new_img.metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join(
+        new_img.metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
             [str(x) for x in new_img.spacing[:2]]
         )
-        new_img.metadata[DICOM_FIELDS["SliceThickness"]] = str(new_img.spacing[2])
+        new_img.metadata[string_tag_for_keyword("SliceThickness")] = str(new_img.spacing[2])
         return new_img
 
     def pad(self, reference_image: Image, **kwargs) -> Image:

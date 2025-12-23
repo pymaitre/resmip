@@ -3,7 +3,6 @@
 import importlib.metadata as im
 
 from .dicom_utils import (  # noqa: F401
-    DICOM_FIELDS,
     get_contour_from_slice_mask,
     get_polygon_contours_from_slice_mask,
 )

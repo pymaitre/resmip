@@ -147,7 +147,7 @@ def test_write_nifti_structure_set(extension, mock_dicom_structure: resmip.RTStr
     """Create a RT Structure Set from a single RT Structure."""
     rtst_path = tmp_path / f"{mock_dicom_structure.name}.{extension}"
     rtst = RTStructureSet([mock_dicom_structure])
-    rtst.write_image([rtst_path])
+    rtst.write([rtst_path])
 
     saved_structure = sitk.ReadImage(rtst_path)
     np.testing.assert_array_equal(
@@ -161,7 +161,7 @@ def test_write_dicom_structure(
     """Create a RT Structure Set from a single RT Structure."""
     rtst_path = tmp_path / "rtst.dcm"
     rtst = RTStructureSet([mock_dicom_structure])
-    rtst.write_image(rtst_path, reference_image_path=dicom_ct_path())
+    rtst.write(rtst_path, reference_image_path=dicom_ct_path())
 
     original_structure = pydicom.dcmread(dicom_rtst_path())
     saved_structure = pydicom.dcmread(rtst_path)
@@ -231,7 +231,7 @@ def test_write_dicom_structure_set_without_reference(
     rtst_path = tmp_path / "rtst.dcm"
     rtst = RTStructureSet([mock_dicom_structure])
     with pytest.raises(ValueError):
-        rtst.write_image(rtst_path)
+        rtst.write(rtst_path)
 
 
 def test_write_dicom_structure_set(
@@ -243,7 +243,7 @@ def test_write_dicom_structure_set(
 
     rtst_set_path = tmp_path / "rtst_set.dcm"
     rtst = RTStructureSet([mock_dicom_structure])
-    rtst.write_image(rtst_set_path, reference_image_path=dicom_ct_path())
+    rtst.write(rtst_set_path, reference_image_path=dicom_ct_path())
 
     rtst_mask = RTStructure.read(
         rtst_path, structure_name=mock_dicom_structure.name, reference_image=mock_dicom_image
@@ -311,7 +311,7 @@ def test_read_nifti_structure_set(extension, mock_dicom_image: resmip.Image, tmp
     )
 
     rtst_path = tmp_path / f"{structure_name}.{extension}"
-    rtst.write_image([rtst_path])
+    rtst.write([rtst_path])
 
     saved_rtst = RTStructureSet.read([rtst_path])
     assert saved_rtst == rtst
@@ -430,7 +430,7 @@ def test_write_structure_set_to_nifti(extension, mock_dicom_image: resmip.Image,
     save_paths = []
     for structure in structure_names:
         save_paths.append(tmp_path / f"{structure}.{extension}")
-    rtst.write_image(save_paths, file_format=None)
+    rtst.write(save_paths, file_format=None)
 
     for structure in structure_names:
         saved_structure = sitk.ReadImage(tmp_path / f"{structure}.{extension}")
@@ -442,7 +442,7 @@ def test_write_structure_set_to_nifti(extension, mock_dicom_image: resmip.Image,
     save_paths = []
     for structure in structure_names:
         save_paths.append(tmp_path / f"{structure}.{extension}")
-    rtst.write_image(save_paths, file_format=f".{extension}")
+    rtst.write(save_paths, file_format=f".{extension}")
 
     for structure in structure_names:
         saved_structure = sitk.ReadImage(tmp_path / f"{structure}.{extension}")
@@ -452,10 +452,10 @@ def test_write_structure_set_to_nifti(extension, mock_dicom_image: resmip.Image,
 
     # save all structures in directory (not supported)
     with pytest.raises(ValueError):
-        rtst.write_image(tmp_path, file_format=None)
+        rtst.write(tmp_path, file_format=None)
 
     # save all structures in directory specifying file format
-    rtst.write_image(tmp_path, file_format=f".{extension}")
+    rtst.write(tmp_path, file_format=f".{extension}")
 
     for structure in structure_names:
         saved_structure = sitk.ReadImage(tmp_path / f"{structure}.{extension}")
@@ -482,4 +482,4 @@ def test_write_structure_set_to_nifti_wrong_number(
     for structure in structure_names:
         save_paths.append(tmp_path / f"{structure}.{extension}")
     with pytest.raises(ValueError):
-        rtst.write_image(save_paths, file_format=f".{extension}")
+        rtst.write(save_paths, file_format=f".{extension}")

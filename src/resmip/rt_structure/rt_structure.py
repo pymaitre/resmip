@@ -241,7 +241,7 @@ class RTStructure(Image):
             file_format = Path(filename).suffix
         if file_format != ".dcm":
             return self._write_nondicom(filename, file_format=file_format)
-        return RTStructureSet([self]).write_image(
+        return RTStructureSet([self]).write(
             filename,
             file_format=file_format,
             reference_image_path=reference_image_path,
@@ -505,7 +505,7 @@ class RTStructureSet(dict[str, RTStructure]):
             parallel=parallel,
         )
 
-    def write_image(
+    def write(
         self,
         filename: PathLike | list[PathLike],
         *,
@@ -548,3 +548,41 @@ class RTStructureSet(dict[str, RTStructure]):
             )
         for structure_filename, structure in zip(filename, self.values()):
             structure.write(structure_filename, file_format=file_format)
+
+    def write_image(
+        self,
+        filename: PathLike | list[PathLike],
+        *,
+        file_format: str | None = None,
+        reference_image_path: PathLike | None = None,
+        series_description: str = "",
+    ) -> None:  # pragma: no cover
+        """Save RT Structure Set file(s).
+
+        The image format is automatically determined from filename's suffix.
+        If parent directories of filename do not exist, they are created.
+
+        .. warning::
+            ``RTStructureSet.write_image`` is deprecated and will be removed in a future release.
+            Use ``RTStructureSet.write`` instead.
+
+        Args:
+            filename (PathLike | list[PathLike]): Name of the dicom file.
+                For other formats, it is a list of file names with same length of self.
+            file_format (str | None): Format of the rt structure saved. If None,
+                infer it from filename.
+            reference_image_path (PathLike | None): Path of the reference dicom image.
+                Ignored when saving in formats other than dicom.
+            series_description (str): Series Description for the saved DICOM
+                RT Structure Set. Non used for other formats.
+        """
+        warnings.warn(
+            "'RTStructureSet.write_image' is deprecated and will be removed in a future release. "
+            "Use 'RTStructureSet.write' instead."
+        )
+        return self.write(
+            filename=filename,
+            file_format=file_format,
+            reference_image_path=reference_image_path,
+            series_description=series_description,
+        )

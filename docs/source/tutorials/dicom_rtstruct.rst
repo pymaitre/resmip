@@ -81,7 +81,7 @@ Regular expressions are supported too.
 Save a Dicom RT Structure Set
 -----------------------------
 
-RT Structure Sets can be saved to Dicom using the ``write_image`` method of ``RTStructureSet``.
+RT Structure Sets can be saved to Dicom using the ``write`` method of ``RTStructureSet``.
 First of all, a reference dicom image is required. When dealing with nifti images, the image needs to be converted to dicom first.
 
 .. testcode:: python
@@ -117,7 +117,7 @@ First of all, a reference dicom image is required. When dealing with nifti image
     # Save image to dicom
     dicom_image.write(dicom_ct_destination_directory)
     # Save RT Structure Set
-    dicom_rtst.write_image(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory)
+    dicom_rtst.write(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory)
 
 Customize DICOM output
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -131,7 +131,7 @@ the ``series_description`` keyword:
 .. testcode:: python
 
     # Save RT Structure Set with SeriesDescription
-    dicom_rtst.write_image(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory, series_description = "CustomSeriesDescription")
+    dicom_rtst.write(dicom_rtst_destination_file, reference_image_path = dicom_ct_destination_directory, series_description = "CustomSeriesDescription")
 
 ..
     Cleanup block below

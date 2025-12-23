@@ -40,6 +40,7 @@ def test_name_tag_correspond():
     ],
 )
 def test_dicom_tag_to_string(tag):
+    """Test conversion of DICOM tags into strings."""
     expected_tag = tag["str"]
     generated_tag = dicom_tag_to_string(tag["int"])
     assert generated_tag == expected_tag

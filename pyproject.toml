@@ -14,7 +14,6 @@ pydicom = "^3.0.1"
 simpleitk = "^2.4.1"
 scikit-image = "^0.24.0"
 matplotlib = "^3.10.7"
-bidict = "^0.23.1"
 
 [tool.poetry.group.docs]
 optional = true

@@ -14,6 +14,7 @@ from resmip.dicom_utils.constants import (
     SLICE_DEPENDENT_FIELDS,
     string_tag_for_keyword,
 )
+from resmip.image.metadata import SERIES_MODALITIES
 from resmip.utils import PathLike, format_digit_string
 
 logger = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> tuple[Path,
     """Get the list of dicom files of the series to be read.
 
     Read series ids first and then read the modalities. This is done in order to exclude
-    RT Dose files.
+    RT Dose files and similar. Only ``SERIES_MODALITIES`` are supported.
 
     Args:
         dicom_series_directory_path (PathLike): Path of the directory containing the Dicom Series.
@@ -39,7 +40,7 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> tuple[Path,
             str(dicom_series_directory_path), series_id
         )
         ds = pydicom.dcmread(dicom_series_files[0])
-        if ds["Modality"].value != "RTDOSE":
+        if ds["Modality"].value in (modality.value for modality in SERIES_MODALITIES):
             return tuple(Path(file_path) for file_path in dicom_series_files)
     logger.warning("No Series can be found, make sure your restrictions are not too strong")
     return tuple()
@@ -178,6 +179,8 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
     for series_dependent_field in SERIES_DEPENDENT_FIELDS:
         image_metadata[string_tag_for_keyword(series_dependent_field)] = pydicom.uid.generate_uid()
 
+    if hasattr(image, "modality"):
+        image_metadata[string_tag_for_keyword("Modality")] = image.modality
     # Do we want to round it back to the value of the Dicom or do we want
     # to keep the value computed by SimpleITK? The pixel grid on the Dicom file
     # is identical to the generated one.

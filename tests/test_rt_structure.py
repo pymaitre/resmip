@@ -483,3 +483,20 @@ def test_write_structure_set_to_nifti_wrong_number(
         save_paths.append(tmp_path / f"{structure}.{extension}")
     with pytest.raises(ValueError):
         rtst.write(save_paths, file_format=f".{extension}")
+
+
+@pytest.mark.parametrize("structure_path", [dicom_rtst_path, ibsi_rtst_path])
+@pytest.mark.parametrize("read_metadata", [True, False])
+def test_structure_modality(structure_path, read_metadata):
+    """Test if RT structure modality is displayed correctly."""
+    structure_path = structure_path()
+    structure_name = "GTV-1"
+    if structure_path.suffix == ".dcm":
+        image = resmip.Image.read(dicom_ct_path())
+        structure = RTStructure.read(
+            structure_path, structure_name=structure_name, reference_image=image
+        )
+    else:
+        structure = RTStructure.read(structure_path, read_metadata=read_metadata)
+    assert structure.name == structure_name
+    assert structure.modality == "RTSTRUCT"

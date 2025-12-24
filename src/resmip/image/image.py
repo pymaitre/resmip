@@ -21,6 +21,7 @@ from resmip.image.data_types import (
     is_unsigned,
     sitk_image_dtype,
 )
+from resmip.image.metadata import SERIES_MODALITIES, DicomModality
 from resmip.utils import PathLike, format_digit_string
 
 __all__ = ["Image"]
@@ -44,13 +45,34 @@ def _metadata_file_name(filename: PathLike) -> Path:
     return filename.parent / f".{filename.stem}.json"
 
 
+def _validate_modality(image_modality: str | DicomModality) -> DicomModality:
+    """Check if the image modality saved in metadata is valid."""
+    if image_modality == "":
+        logger.warning("Image modality must be defined.")
+        return DicomModality.ct
+
+    if isinstance(image_modality, str):
+        image_modality = getattr(DicomModality, image_modality.lower())
+
+    if image_modality not in SERIES_MODALITIES:
+        raise ValueError(
+            f"The provided modality ({image_modality}) is " "not a valid DICOM series modality."
+        )
+    return image_modality
+
+
 class Image(sitk.Image):
     """Wrapper class of SimpleITK.Image with support to headers."""
 
-    def __init__(self, *args, metadata: dict[str, str] | None = None):
+    def __init__(
+        self,
+        *args,
+        metadata: dict[str, str] | None = None,
+        modality: DicomModality | str | None = None,
+    ):
         """Call sitk.Image constructor and create an empty dictionary for the header."""
         super().__init__(*args)
-        self._metadata = {}
+        self._metadata = {string_tag_for_keyword("Modality"): ""}
         """Dictionary containing metadata."""
         # Copy metadata when creating an image from an existing one
         if len(args) > 0:
@@ -58,6 +80,10 @@ class Image(sitk.Image):
                 self._metadata = args[0].metadata
         if metadata:
             self._metadata.update(metadata)
+        if modality:
+            if isinstance(modality, DicomModality):
+                modality = modality.value
+            self._metadata[string_tag_for_keyword("Modality")] = modality
 
     def __getitem__(self, key) -> Image:
         """Get a pixel value, a sliced image, or a metadata item.
@@ -143,6 +169,16 @@ class Image(sitk.Image):
     def size(self) -> tuple[int, int, int]:
         """Image size in pixels."""
         return self.GetSize()
+
+    def _get_modality(self) -> str:
+        """Obtain DICOM modality from image metadata."""
+        return self._metadata[(string_tag_for_keyword("Modality"))]
+
+    @property
+    def modality(self) -> str:
+        """Image modality."""
+        image_modality = self._get_modality()
+        return _validate_modality(image_modality).value
 
     @classmethod
     def from_array(
@@ -318,6 +354,8 @@ class Image(sitk.Image):
                 value = sitk_image.GetMetaData(key)
                 value = format_digit_string(value)
                 series_metadata[key] = value
+            if string_tag_for_keyword("Modality") not in series_metadata:
+                series_metadata[string_tag_for_keyword("Modality")] = ""
         return cls(sitk_image, metadata=series_metadata)
 
     @classmethod

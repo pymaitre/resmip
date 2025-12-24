@@ -12,6 +12,7 @@ import pydicom.errors
 import SimpleITK as sitk
 
 from resmip.image import Image, ImageDTypeLike
+from resmip.image.metadata import DicomModality
 from resmip.utils import PathLike
 
 __all__ = ["Dose"]
@@ -21,6 +22,10 @@ logger = logging.getLogger(__name__)
 
 class Dose(Image):
     """RT Dose (wrapper of resmip.Image)."""
+
+    def __init__(self, *args, **kwargs):
+        """Create new ``Dose`` object."""
+        super().__init__(*args, modality=DicomModality.rtdose, **kwargs)
 
     def __getitem__(self, key) -> Dose:
         """Get a pixel value, a sliced image, or a metadata item.
@@ -51,6 +56,17 @@ class Dose(Image):
         does not contain the key, a KeyError will occour.
         """
         return Dose(super().__getitem__(key))
+
+    @property
+    def modality(self):
+        """DICOM modality of the Dose.
+
+        Only "RTDOSE" is supported.
+        """
+        image_modality = self._get_modality()
+        if image_modality != DicomModality.rtdose.value:
+            raise ValueError(f"{image_modality} is not a valid modality value for doses.")
+        return image_modality
 
     def astype(self, dtype: ImageDTypeLike) -> Dose:
         """Convert pixel array type to the specified value, by casting a new dose.

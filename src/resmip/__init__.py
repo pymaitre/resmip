@@ -7,13 +7,14 @@ from .dicom_utils import (  # noqa: F401
     get_polygon_contours_from_slice_mask,
 )
 from .dose import Dose
-from .image import CoregistrationMetric, Image, ImageDTypeLike
+from .image import CoregistrationMetric, DicomModality, Image, ImageDTypeLike
 from .rt_structure import RTStructure, RTStructureSet
 
 __version__ = im.version(__package__)
 
 __all__ = [
     "CoregistrationMetric",
+    "DicomModality",
     "Dose",
     "get_contour_from_slice_mask",
     "get_polygon_contours_from_slice_mask",

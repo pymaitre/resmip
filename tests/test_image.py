@@ -2,6 +2,9 @@
 
 # pylint: disable=W0621
 
+import logging
+from pathlib import Path
+
 import numpy as np
 import pytest
 import SimpleITK as sitk
@@ -11,6 +14,7 @@ from resmip.dicom_utils.constants import string_tag_for_keyword
 from resmip.image import CoregistrationMetric, Image
 from resmip.image.data_types import sitk_image_dtype
 from resmip.image.image import _metadata_file_name
+from resmip.image.metadata import SERIES_MODALITIES, DicomModality
 from resmip.utils import format_digit_string
 
 from .utils import coregistered_image_path, dicom_ct_path
@@ -18,16 +22,17 @@ from .utils import coregistered_image_path, dicom_ct_path
 
 def test_metadata_is_unique():
     """Test if setting one Image's metadata does not touch another series."""
-    new_image1 = Image()
-    new_image2 = Image()
+    image_modality = "CT"
+    new_image1 = Image(modality=image_modality)
+    new_image2 = Image(modality=image_modality)
 
-    assert new_image1.metadata == {}
-    assert new_image2.metadata == {}
+    assert new_image1.metadata == {string_tag_for_keyword("Modality"): image_modality}
+    assert new_image2.metadata == {string_tag_for_keyword("Modality"): image_modality}
 
     new_image1.metadata["a"] = 0
 
-    assert new_image1.metadata == {"a": 0}
-    assert new_image2.metadata == {}
+    assert new_image1.metadata == {string_tag_for_keyword("Modality"): image_modality, "a": 0}
+    assert new_image2.metadata == {string_tag_for_keyword("Modality"): image_modality}
 
 
 @pytest.mark.parametrize("file_format", ["dicom", "nifti"])
@@ -229,7 +234,7 @@ def test_read_image_without_metadata(mock_dicom_image: Image, tmp_path):
     mock_dicom_image.write(output_file_name)
     reference_image = sitk.ReadImage(output_file_name)
     new_image = Image.read(output_file_name, read_metadata=False)
-    new_image_metadata = {}
+    new_image_metadata = {string_tag_for_keyword("Modality"): ""}
     for key in reference_image.GetMetaDataKeys():
         value = reference_image.GetMetaData(key)
         value = format_digit_string(value)
@@ -652,3 +657,29 @@ def test_image_itruediv_types(value_type, mock_ct: Image):
         assert mock_ct.dtype == np.float64
     else:
         assert new_arr.dtype == mock_ct.dtype
+
+
+@pytest.mark.parametrize(
+    "image_path",
+    [
+        Path("IBSI1_CT_phantom") / "CT_00000",
+        Path("siemens_mprage_0_dcm"),
+    ],
+)
+def test_image_modalities(image_path, caplog, tmp_path):
+    """Test image modality when reading files."""
+    image_dir = Path(__file__).parent / "Dicom" / image_path
+    image = Image.read(image_dir)
+    assert getattr(DicomModality, image.modality.lower()) in SERIES_MODALITIES
+
+    nifti_path = tmp_path / "image.nii.gz"
+    image.write(nifti_path, write_metadata=True)
+    nifti_image = Image.read(nifti_path)
+    assert nifti_image.modality == image.modality
+
+    with caplog.at_level(logging.WARNING):
+        nifti_image = Image.read(nifti_path, read_metadata=False)
+        assert nifti_image.modality == "CT"
+    for record in caplog.records:
+        assert record.levelname == "WARNING"
+        assert record.message == "Image modality must be defined."

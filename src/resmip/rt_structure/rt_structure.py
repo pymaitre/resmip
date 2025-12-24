@@ -13,6 +13,7 @@ import SimpleITK as sitk
 import resmip.dicom_utils.rtst as dicom_rtst
 from resmip import Image
 from resmip.image.data_types import ImageDTypeLike
+from resmip.image.metadata import DicomModality
 from resmip.utils import PathLike
 
 from .utils import get_structure_name_from_filename
@@ -37,7 +38,7 @@ class RTStructure(Image):
             raise ValueError(
                 f"type({name}) ({type(name)}) is not a valid type for name. Supported type(s): str."
             )
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, modality=DicomModality.rtstruct, **kwargs)
         self._name = name
 
     def __getitem__(self, key) -> RTStructure:
@@ -78,6 +79,17 @@ class RTStructure(Image):
     @name.setter
     def name(self, value):
         self._name = value
+
+    @property
+    def modality(self):
+        """DICOM modality of the RT Structure.
+
+        Only "RTSTRUCT" is supported.
+        """
+        image_modality = self._get_modality()
+        if image_modality != DicomModality.rtstruct.value:
+            raise ValueError(f"{image_modality} is not a valid modality value for RT structures.")
+        return image_modality
 
     def astype(self, dtype: ImageDTypeLike) -> RTStructure:
         """Convert pixel array type to the specified value, by casting a new structure.

@@ -179,13 +179,9 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
     for series_dependent_field in SERIES_DEPENDENT_FIELDS:
         image_metadata[string_tag_for_keyword(series_dependent_field)] = pydicom.uid.generate_uid()
 
+    # override metadata getting information directly from the image
     if hasattr(image, "modality"):
         image_metadata[string_tag_for_keyword("Modality")] = image.modality
-    # Do we want to round it back to the value of the Dicom or do we want
-    # to keep the value computed by SimpleITK? The pixel grid on the Dicom file
-    # is identical to the generated one.
-    # Maybe it's safer to round it.
-    # image_metadata["0018|0050"] = str(image.GetSpacing()[2])
     rounded_z_spacing = float(f"{image.GetSpacing()[2]:.3e}")
     image_metadata[string_tag_for_keyword("SliceThickness")] = str(rounded_z_spacing)
     image_metadata[string_tag_for_keyword("SpacingBetweenSlices")] = str(rounded_z_spacing)

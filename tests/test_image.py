@@ -71,13 +71,10 @@ def test_image_spacing_setter(mock_dicom_image: Image):
     x_spacing = 0.5
     y_spacing = 1
     z_spacing = 5.2
-    xy_spacing = f"{x_spacing}\\{y_spacing}"
     new_spacing = (x_spacing, y_spacing, z_spacing)
     mock_dicom_image.spacing = new_spacing
     assert mock_dicom_image.GetSpacing() == new_spacing
     assert mock_dicom_image.spacing == mock_dicom_image.GetSpacing()
-    assert mock_dicom_image.metadata[string_tag_for_keyword("PixelSpacing")] == xy_spacing
-    assert mock_dicom_image.metadata[string_tag_for_keyword("SliceThickness")] == str(z_spacing)
 
 
 def test_image_origin_getter(mock_dicom_image: Image):

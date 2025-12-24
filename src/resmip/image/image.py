@@ -132,11 +132,6 @@ class Image(sitk.Image):
     @spacing.setter
     def spacing(self, value: tuple[float, float, float]):
         self.SetSpacing(value)
-        # add the spacing to metadata too
-        self.metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
-            [str(x) for x in value[:2]]
-        )
-        self.metadata[string_tag_for_keyword("SliceThickness")] = str(value[2])
 
     @property
     def origin(self) -> tuple[float, float, float]:

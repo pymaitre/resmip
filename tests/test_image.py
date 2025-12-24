@@ -108,10 +108,6 @@ def test_image_direction_setter(mock_dicom_image: Image):
     mock_dicom_image.direction = new_direction
     assert mock_dicom_image.GetDirection() == new_direction
     assert mock_dicom_image.direction == mock_dicom_image.GetDirection()
-    assert (
-        mock_dicom_image.metadata[string_tag_for_keyword("ImageOrientationPatient")]
-        == dicom_direction
-    )
 
 
 def test_image_size_getter(mock_dicom_image: Image):

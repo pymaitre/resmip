@@ -160,10 +160,6 @@ class Image(sitk.Image):
     @direction.setter
     def direction(self, value: tuple[float]):
         self.SetDirection(value)
-        # add the spacing to metadata too (only xy direction)
-        self.metadata[string_tag_for_keyword("ImageOrientationPatient")] = "\\".join(
-            [str(x) for x in value[:-3]]
-        )
 
     @property
     def size(self) -> tuple[int, int, int]:

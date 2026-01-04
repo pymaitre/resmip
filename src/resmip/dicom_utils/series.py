@@ -182,6 +182,8 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
     # override metadata getting information directly from the image
     if hasattr(image, "modality"):
         image_metadata[string_tag_for_keyword("Modality")] = image.modality
+    if hasattr(image, "patient_id"):
+        image_metadata[string_tag_for_keyword("PatientID")] = image.patient_id
     rounded_z_spacing = float(f"{image.GetSpacing()[2]:.3e}")
     image_metadata[string_tag_for_keyword("SliceThickness")] = str(rounded_z_spacing)
     image_metadata[string_tag_for_keyword("SpacingBetweenSlices")] = str(rounded_z_spacing)

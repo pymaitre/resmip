@@ -701,3 +701,8 @@ def test_empty_image_required_metadata_fields():
     assert len(image.metadata) == len(REQUIRED_IMAGE_FIELDS)
     for key in image.metadata:
         assert key in REQUIRED_IMAGE_FIELDS
+
+
+def test_image_patient_id(mock_ct: Image):
+    """Test if the PatientID has the correct type."""
+    assert isinstance(mock_ct.patient_id, str)

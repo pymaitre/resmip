@@ -85,7 +85,7 @@ class Image(sitk.Image):
                 modality = modality.value
             self._metadata[string_tag_for_keyword("Modality")] = modality
 
-    def _generate_minimal_empty_metadata(self):
+    def _generate_minimal_empty_metadata(self) -> dict[str, str]:
         """Initialize metadata with required fields."""
         return {
             string_tag_for_keyword("Modality"): "",
@@ -177,6 +177,11 @@ class Image(sitk.Image):
         """Image modality."""
         image_modality = self._get_modality()
         return _validate_modality(image_modality).value
+
+    @property
+    def patient_id(self) -> str:
+        """Patient ID."""
+        return self._metadata[(string_tag_for_keyword("PatientID"))]
 
     @classmethod
     def from_array(

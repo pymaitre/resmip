@@ -72,7 +72,7 @@ class Image(sitk.Image):
     ):
         """Call sitk.Image constructor and create an empty dictionary for the header."""
         super().__init__(*args)
-        self._metadata = {string_tag_for_keyword("Modality"): ""}
+        self._metadata = self._generate_minimal_empty_metadata()
         """Dictionary containing metadata."""
         # Copy metadata when creating an image from an existing one
         if len(args) > 0:
@@ -84,6 +84,13 @@ class Image(sitk.Image):
             if isinstance(modality, DicomModality):
                 modality = modality.value
             self._metadata[string_tag_for_keyword("Modality")] = modality
+
+    def _generate_minimal_empty_metadata(self):
+        """Initialize metadata with required fields."""
+        return {
+            string_tag_for_keyword("Modality"): "",
+            string_tag_for_keyword("PatientID"): "",
+        }
 
     def __getitem__(self, key) -> Image:
         """Get a pixel value, a sliced image, or a metadata item.

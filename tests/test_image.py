@@ -19,6 +19,15 @@ from resmip.utils import format_digit_string
 
 from .utils import coregistered_image_path, dicom_ct_path
 
+REQUIRED_IMAGE_FIELDS = [
+    string_tag_for_keyword(x)
+    for x in [
+        "Modality",
+        "PatientID",
+    ]
+]
+"""DICOM fields that must be present in image metadata."""
+
 
 def test_metadata_is_unique():
     """Test if setting one Image's metadata does not touch another series."""
@@ -26,13 +35,21 @@ def test_metadata_is_unique():
     new_image1 = Image(modality=image_modality)
     new_image2 = Image(modality=image_modality)
 
-    assert new_image1.metadata == {string_tag_for_keyword("Modality"): image_modality}
-    assert new_image2.metadata == {string_tag_for_keyword("Modality"): image_modality}
+    metadata_1 = {elem: "" for elem in REQUIRED_IMAGE_FIELDS}
+    metadata_2 = {elem: "" for elem in REQUIRED_IMAGE_FIELDS}
+    metadata_1[string_tag_for_keyword("Modality")] = image_modality
+    metadata_2[string_tag_for_keyword("Modality")] = image_modality
+    for field in ["PatientID"]:
+        metadata_1[string_tag_for_keyword(field)] = ""
+        metadata_2[string_tag_for_keyword(field)] = ""
+    assert new_image1.metadata == metadata_1
+    assert new_image2.metadata == metadata_2
 
     new_image1.metadata["a"] = 0
+    metadata_1["a"] = 0
 
-    assert new_image1.metadata == {string_tag_for_keyword("Modality"): image_modality, "a": 0}
-    assert new_image2.metadata == {string_tag_for_keyword("Modality"): image_modality}
+    assert new_image1.metadata == metadata_1
+    assert new_image2.metadata == metadata_2
 
 
 @pytest.mark.parametrize("file_format", ["dicom", "nifti"])
@@ -227,7 +244,7 @@ def test_read_image_without_metadata(mock_dicom_image: Image, tmp_path):
     mock_dicom_image.write(output_file_name)
     reference_image = sitk.ReadImage(output_file_name)
     new_image = Image.read(output_file_name, read_metadata=False)
-    new_image_metadata = {string_tag_for_keyword("Modality"): ""}
+    new_image_metadata = {elem: "" for elem in REQUIRED_IMAGE_FIELDS}
     for key in reference_image.GetMetaDataKeys():
         value = reference_image.GetMetaData(key)
         value = format_digit_string(value)
@@ -676,3 +693,11 @@ def test_image_modalities(image_path, caplog, tmp_path):
     for record in caplog.records:
         assert record.levelname == "WARNING"
         assert record.message == "Image modality must be defined."
+
+
+def test_empty_image_required_metadata_fields():
+    """Test if an empty image has all required metadata."""
+    image = Image()
+    assert len(image.metadata) == len(REQUIRED_IMAGE_FIELDS)
+    for key in image.metadata:
+        assert key in REQUIRED_IMAGE_FIELDS

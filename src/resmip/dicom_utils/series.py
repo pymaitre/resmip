@@ -189,6 +189,11 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
         if study_instance_uid == "":
             study_instance_uid = pydicom.uid.generate_uid()
         image_metadata[string_tag_for_keyword("StudyInstanceUID")] = study_instance_uid
+    if hasattr(image, "series_instance_uid"):
+        series_instance_uid = image.series_instance_uid
+        if series_instance_uid == "":
+            series_instance_uid = pydicom.uid.generate_uid()
+        image_metadata[string_tag_for_keyword("SeriesInstanceUID")] = series_instance_uid
     rounded_z_spacing = float(f"{image.GetSpacing()[2]:.3e}")
     image_metadata[string_tag_for_keyword("SliceThickness")] = str(rounded_z_spacing)
     image_metadata[string_tag_for_keyword("SpacingBetweenSlices")] = str(rounded_z_spacing)

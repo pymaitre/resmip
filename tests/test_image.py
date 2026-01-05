@@ -26,6 +26,7 @@ REQUIRED_IMAGE_FIELDS = [
         "Modality",
         "PatientID",
         "StudyInstanceUID",
+        "SeriesInstanceUID",
     ]
 ]
 """DICOM fields that must be present in image metadata."""
@@ -705,15 +706,19 @@ def test_empty_image_required_metadata_fields():
         assert key in REQUIRED_IMAGE_FIELDS
 
 
-def test_image_patient_id(mock_ct: Image):
-    """Test if the PatientID has the correct type."""
+def test_new_image_ids(mock_ct: Image):
+    """Test if the ids have the correct type."""
     assert isinstance(mock_ct.patient_id, str)
+    assert isinstance(mock_ct.study_instance_uid, str)
+    assert isinstance(mock_ct.series_instance_uid, str)
 
 
-def test_image_ids(mock_dicom_image: Image):
+def test_dicom_image_ids(mock_dicom_image: Image):
     """Test if ids are stored correctly."""
     ds = dcmread(list(dicom_ct_path().glob("*.dcm"))[0])
     assert ds.PatientID == mock_dicom_image.patient_id
     assert isinstance(mock_dicom_image.patient_id, str)
     assert ds["StudyInstanceUID"].value == mock_dicom_image.study_instance_uid
     assert isinstance(mock_dicom_image.study_instance_uid, str)
+    assert ds["SeriesInstanceUID"].value == mock_dicom_image.series_instance_uid
+    assert isinstance(mock_dicom_image.series_instance_uid, str)

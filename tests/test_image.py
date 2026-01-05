@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 import SimpleITK as sitk
+from pydicom import dcmread
 
 import resmip.dicom_utils.series as dicom_series
 from resmip.dicom_utils.constants import string_tag_for_keyword
@@ -24,6 +25,7 @@ REQUIRED_IMAGE_FIELDS = [
     for x in [
         "Modality",
         "PatientID",
+        "StudyInstanceUID",
     ]
 ]
 """DICOM fields that must be present in image metadata."""
@@ -706,3 +708,12 @@ def test_empty_image_required_metadata_fields():
 def test_image_patient_id(mock_ct: Image):
     """Test if the PatientID has the correct type."""
     assert isinstance(mock_ct.patient_id, str)
+
+
+def test_image_ids(mock_dicom_image: Image):
+    """Test if ids are stored correctly."""
+    ds = dcmread(list(dicom_ct_path().glob("*.dcm"))[0])
+    assert ds.PatientID == mock_dicom_image.patient_id
+    assert isinstance(mock_dicom_image.patient_id, str)
+    assert ds["StudyInstanceUID"].value == mock_dicom_image.study_instance_uid
+    assert isinstance(mock_dicom_image.study_instance_uid, str)

@@ -90,6 +90,7 @@ class Image(sitk.Image):
         return {
             string_tag_for_keyword("Modality"): "",
             string_tag_for_keyword("PatientID"): "",
+            string_tag_for_keyword("StudyInstanceUID"): "",
         }
 
     def __getitem__(self, key) -> Image:
@@ -180,8 +181,19 @@ class Image(sitk.Image):
 
     @property
     def patient_id(self) -> str:
-        """Patient ID."""
+        """Patient ID.
+
+        Defaults to an empty string if not set.
+        """
         return self._metadata[(string_tag_for_keyword("PatientID"))]
+
+    @property
+    def study_instance_uid(self) -> str:
+        """Study Instance UID.
+
+        Defaults to an empty string if not set.
+        """
+        return self._metadata[(string_tag_for_keyword("StudyInstanceUID"))]
 
     @classmethod
     def from_array(

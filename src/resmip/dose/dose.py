@@ -179,6 +179,7 @@ class Dose(Image):
         filename: PathLike,
         *,
         write_metadata: bool = False,
+        use_existing_ids: bool = False,
         file_format: str | None = None,
         # reference_image_path: Optional[PathLike] = None,
     ) -> None:
@@ -193,6 +194,7 @@ class Dose(Image):
             filename (PathLike): Name of the file to be saved.
             write_metadata (bool): If true, write the json file with metadata
                 (not applicable for dicom files). Currently not used.
+            use_existing_ids (bool): If true, generate unique uids. Currently not used.
             file_format (str | None): Format of the rt dose saved. If None,
                 infer it from filename.
             reference_image_path (PathLike | None): Path of the reference dicom image.

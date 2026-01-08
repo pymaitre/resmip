@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pydicom
+import pytest
 import SimpleITK as sitk
 
 import resmip.dicom_utils.series as dicom_series
@@ -150,3 +151,50 @@ def test_spacing_single_slice_series(caplog):
     for record in caplog.records:
         assert record.levelname == "WARNING"
     assert "Only 1 slice detected. Setting z voxel spacing to 1 mm." in caplog.text
+
+
+@pytest.mark.parametrize("existing_ids", [True, False])
+def test_series_ids(existing_ids, mock_dicom_image: Image, tmp_path: Path):
+    """Test if saved DICOM series have correct series/study ids."""
+    patient_id = mock_dicom_image.patient_id
+    assert patient_id != ""
+    study_instance_uid = mock_dicom_image.study_instance_uid
+    assert study_instance_uid != ""
+    series_instance_uid = mock_dicom_image.series_instance_uid
+    assert series_instance_uid != ""
+    mock_dicom_image.write(filename=tmp_path, use_existing_ids=existing_ids)
+    dicom_files = list(tmp_path.glob("*.dcm"))
+    assert len(dicom_files) == mock_dicom_image.size[2]
+    for dicom_slice in dicom_files:
+        ds = pydicom.dcmread(dicom_slice)
+        assert ds["PatientID"].value == patient_id
+        assert ds["StudyInstanceUID"].value == study_instance_uid
+        if existing_ids:
+            assert ds["SeriesInstanceUID"].value == series_instance_uid
+        else:
+            assert ds["SeriesInstanceUID"].value != series_instance_uid
+
+
+@pytest.mark.parametrize("existing_ids", [True, False])
+def test_series_ids_empty_image(existing_ids, mock_dicom_image: Image, tmp_path: Path):
+    """Test if saved DICOM series have correct series/study ids."""
+    empty_image = Image.from_array(
+        mock_dicom_image.numpy(),
+        spacing=mock_dicom_image.spacing,
+        origin=mock_dicom_image.origin,
+        direction=mock_dicom_image.direction,
+    )
+    patient_id = empty_image.patient_id
+    assert patient_id == ""
+    study_instance_uid = empty_image.study_instance_uid
+    assert study_instance_uid == ""
+    series_instance_uid = empty_image.series_instance_uid
+    assert series_instance_uid == ""
+    empty_image.write(filename=tmp_path, use_existing_ids=existing_ids)
+    dicom_files = list(tmp_path.glob("*.dcm"))
+    assert len(dicom_files) == empty_image.size[2]
+    for dicom_slice in dicom_files:
+        ds = pydicom.dcmread(dicom_slice)
+        assert ds["PatientID"].value == patient_id
+        assert ds["StudyInstanceUID"].value != study_instance_uid
+        assert ds["SeriesInstanceUID"].value != series_instance_uid

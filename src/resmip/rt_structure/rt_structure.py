@@ -228,6 +228,7 @@ class RTStructure(Image):
         filename: PathLike,
         *,
         write_metadata: bool = False,
+        use_existing_ids: bool = False,
         file_format: str | None = None,
         reference_image_path: PathLike | None = None,
         series_description: str = "",
@@ -242,6 +243,7 @@ class RTStructure(Image):
                 use a the structure's name. For dicom files use the UID.
             write_metadata (bool): If true, write the json file with metadata
                 (not applicable for dicom files). Currently not used.
+            use_existing_ids (bool): If true, generate unique uids. Currently not used.
             file_format (str | None): Format of the rt structure saved. If None,
                 infer it from filename.
             reference_image_path (PathLike | None): Path of the reference dicom image.

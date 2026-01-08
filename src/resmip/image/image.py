@@ -11,6 +11,7 @@ from pathlib import Path
 import numpy as np
 import numpy.typing as npt
 import SimpleITK as sitk
+from pydicom.uid import generate_uid
 
 import resmip.dicom_utils.series as dicom_series
 from resmip.dicom_utils.constants import string_tag_for_keyword
@@ -93,6 +94,20 @@ class Image(sitk.Image):
             string_tag_for_keyword("StudyInstanceUID"): "",
             string_tag_for_keyword("SeriesInstanceUID"): "",
         }
+
+    def generate_ids(self, force: bool = False):
+        """Generate study/series ids.
+
+        Args:
+            force (bool): If true, generate missing values and
+                force-generate a new SeriesInstanceUID.
+                If false, re-use current identifiers if set,
+                otherwise generate new values.
+        """
+        if self.study_instance_uid == "":
+            self._metadata[string_tag_for_keyword("StudyInstanceUID")] = generate_uid()
+        if self.series_instance_uid == "" or force:
+            self._metadata[string_tag_for_keyword("SeriesInstanceUID")] = generate_uid()
 
     def __getitem__(self, key) -> Image:
         """Get a pixel value, a sliced image, or a metadata item.
@@ -410,7 +425,9 @@ class Image(sitk.Image):
         )
         return cls.read(filename=filename, read_metadata=read_metadata)
 
-    def write(self, filename: PathLike, *, write_metadata: bool = True) -> None:
+    def write(
+        self, filename: PathLike, *, write_metadata: bool = True, use_existing_ids: bool = False
+    ) -> None:
         """Save image file (and metadata).
 
         The image format is automatically determined from filename's suffix.
@@ -421,11 +438,16 @@ class Image(sitk.Image):
                 the writer assumes to write a Dicom series.
             write_metadata (bool): If true, save the json file with metadata
                 (not applicable for dicom files).
+            use_existing_ids (bool): If true, re-use current identifiers if set,
+                otherwise generate new values.
+                If false, generate missing values and force-generate a new
+                SeriesInstanceUID.
         """
         filename = Path(filename)
         if not filename.exists() and filename.suffix == "":
             filename.mkdir(parents=True, exist_ok=True)
         if filename.is_dir():
+            self.generate_ids(force=not use_existing_ids)
             dicom_series.write(self, self.metadata, filename)
             return
         filename.parent.mkdir(parents=True, exist_ok=True)

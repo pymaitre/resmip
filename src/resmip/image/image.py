@@ -343,6 +343,16 @@ class Image(sitk.Image):
         Returns:
             np.ndarray: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         """
+        if view is not None:
+            if view is True:
+                warning_message = "Use 'copy=False' instead."
+            else:
+                warning_message = "Use 'copy=True' instead."
+            warnings.warn(
+                "'view' is deprecated and will be removed in a future release. " + warning_message
+            )
+            copy = not view
+            view = None
         return self.__array__(dtype=dtype, copy=copy, view=view)
 
     @property

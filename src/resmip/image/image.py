@@ -22,7 +22,12 @@ from resmip.image.data_types import (
     is_unsigned,
     sitk_image_dtype,
 )
-from resmip.image.metadata import SERIES_MODALITIES, DicomModality
+from resmip.image.metadata import (
+    PATIENT_RELATED_FIELDS,
+    SERIES_MODALITIES,
+    STUDY_RELATED_FIELDS,
+    DicomModality,
+)
 from resmip.utils import PathLike, format_digit_string
 
 __all__ = ["Image"]
@@ -108,6 +113,38 @@ class Image(sitk.Image):
             self._metadata[string_tag_for_keyword("StudyInstanceUID")] = generate_uid()
         if self.series_instance_uid == "" or force:
             self._metadata[string_tag_for_keyword("SeriesInstanceUID")] = generate_uid()
+
+    def _optionally_transfer_information(self, other: Image, fields_to_copy: list[str]):
+        """Copy information from the other image.
+
+        Only fields that are present in the other image are copied.
+        Args:
+            other (Image): Other image for association.
+            fields (list[str]): List of DICOM fields to optionally copy.
+        """
+        for dicom_field in fields_to_copy:
+            field_tag = string_tag_for_keyword(dicom_field)
+            if field_tag in other.metadata:
+                self._metadata[field_tag] = other.metadata[field_tag]
+
+    def associate_to(self, other: Image, *, level: str = "study"):
+        """Associate the current image to another image.
+
+        Copy identifiers.
+
+        Args:
+            other (Image): The other image from which
+                to copy information.
+            level (str): One of the following:
+                - "patient": copy only patient-related information
+                - "study": copy patient- and study-related information
+        """
+        # force-copy patient id as it is strictly required
+        self._metadata[string_tag_for_keyword("PatientID")] = other.patient_id
+        self._optionally_transfer_information(other, fields_to_copy=PATIENT_RELATED_FIELDS)
+        if level == "study":
+            self._metadata[string_tag_for_keyword("StudyInstanceUID")] = other.study_instance_uid
+            self._optionally_transfer_information(other, fields_to_copy=STUDY_RELATED_FIELDS)
 
     def __getitem__(self, key) -> Image:
         """Get a pixel value, a sliced image, or a metadata item.

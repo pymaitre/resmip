@@ -14,7 +14,7 @@ import SimpleITK as sitk
 from pydicom.uid import generate_uid
 
 import resmip.dicom_utils.series as dicom_series
-from resmip.dicom_utils.constants import string_tag_for_keyword
+from resmip.dicom_utils import string_tag_for_keyword
 from resmip.image.coregistration import CoregistrationMetric
 from resmip.image.data_types import (
     ImageDTypeLike,
@@ -22,10 +22,9 @@ from resmip.image.data_types import (
     is_unsigned,
     sitk_image_dtype,
 )
+from resmip.image.dicom_fields import PATIENT_RELATED_FIELDS, STUDY_RELATED_FIELDS
 from resmip.image.metadata import (
-    PATIENT_RELATED_FIELDS,
     SERIES_MODALITIES,
-    STUDY_RELATED_FIELDS,
     DicomModality,
 )
 from resmip.utils import PathLike, format_digit_string

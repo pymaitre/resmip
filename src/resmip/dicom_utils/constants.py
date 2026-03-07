@@ -2,6 +2,8 @@
 
 from pydicom.tag import BaseTag, Tag
 
+__all__ = ["string_tag_for_keyword"]
+
 SLICE_DEPENDENT_FIELDS = [
     "SOPInstanceUID",
     "InstanceNumber",

@@ -7,9 +7,9 @@ import numpy as np
 import pytest
 
 from resmip import Dose, Image, RTStructure
-from resmip.dicom_utils.constants import string_tag_for_keyword
+from resmip.dicom_utils import string_tag_for_keyword
 from resmip.image import CoregistrationMetric
-from resmip.image.metadata import PATIENT_RELATED_FIELDS, STUDY_RELATED_FIELDS
+from resmip.image.dicom_fields import PATIENT_RELATED_FIELDS, STUDY_RELATED_FIELDS
 
 from .utils import dicom_ct_path, ibsi_rtst_path
 

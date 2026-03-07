@@ -4,6 +4,8 @@ import os
 import re
 from typing import Union
 
+__all__ = ["format_dicom_code_string", "format_digit_string", "PathLike"]
+
 PathLike = Union[str, os.PathLike]
 """Types used in classes and functions for file names."""
 
@@ -25,3 +27,12 @@ def format_digit_string(digit_string: str) -> str:
     if re.sub(r"\.", "", captured_string).isdigit():
         digit_string = re.sub(" *$", "", digit_string)
     return digit_string
+
+
+def format_dicom_code_string(code_string: str) -> str:
+    """Strip the string of unnecessary characters.
+
+    More information here:
+    https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
+    """
+    return code_string.strip()

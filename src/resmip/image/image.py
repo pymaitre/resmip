@@ -118,9 +118,10 @@ class Image(sitk.Image):
         """Copy information from the other image.
 
         Only fields that are present in the other image are copied.
+
         Args:
             other (Image): Other image for association.
-            fields (list[str]): List of DICOM fields to optionally copy.
+            fields_to_copy (list[str]): List of DICOM fields to optionally copy.
         """
         for dicom_field in fields_to_copy:
             field_tag = string_tag_for_keyword(dicom_field)

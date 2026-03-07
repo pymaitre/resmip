@@ -7,7 +7,9 @@ import numpy as np
 import pytest
 
 from resmip import Dose, Image, RTStructure
+from resmip.dicom_utils import string_tag_for_keyword
 from resmip.image import CoregistrationMetric
+from resmip.image.dicom_fields import PATIENT_RELATED_FIELDS, STUDY_RELATED_FIELDS
 
 from .utils import dicom_ct_path, ibsi_rtst_path
 
@@ -31,14 +33,15 @@ def mock_dose():
     return Dose.read(reference_dicom_dose_path, reference_image=image)
 
 
-def assert_object_compatible(obj1, obj2, obj_type=None):
+def assert_object_compatible(obj1, obj2, obj_type=None, check_metadata=True):
     """Check if two objects have the same type and same properties."""
     assert isinstance(obj1, type(obj2))
     assert isinstance(obj2, type(obj1))
     if obj_type:
         assert isinstance(obj1, obj_type)
         assert isinstance(obj2, obj_type)
-    assert len(obj1.metadata) == len(obj2.metadata)
+    if check_metadata:
+        assert len(obj1.metadata) == len(obj2.metadata)
     if isinstance(obj1, RTStructure):
         assert obj1.name == obj2.name
 
@@ -230,3 +233,39 @@ def test_image_coregistration(image):
         **coregistration_args,
     )
     assert_object_compatible(coregistered_image, input_image, image_type)
+
+
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("level", ["patient", "study", "series"])
+def test_image_from_array_metadata(image, level):
+    """Test image getitem (for slicing/cropping)."""
+    input_image: Image = image()
+    image_type = type(input_image)
+    extra_args = {}
+    if isinstance(input_image, RTStructure):
+        extra_args["name"] = input_image.name
+    new_image = image_type.from_array(
+        input_image.numpy(),
+        spacing=input_image.spacing,
+        origin=input_image.origin,
+        direction=input_image.direction,
+        **extra_args,
+    )
+    if level == "series":
+        with pytest.raises(ValueError):
+            new_image.associate_to(other=input_image, level=level)
+        return
+    new_image.associate_to(other=input_image, level=level)
+    if level in ["patient", "study"]:
+        assert new_image.patient_id == input_image.patient_id
+        for dicom_field in PATIENT_RELATED_FIELDS:
+            dicom_tag = string_tag_for_keyword(dicom_field)
+            if dicom_tag in input_image.metadata:
+                assert new_image.metadata[dicom_tag] == input_image.metadata[dicom_tag]
+    if level in ["study"]:
+        assert new_image.study_instance_uid == input_image.study_instance_uid
+        for dicom_field in STUDY_RELATED_FIELDS:
+            dicom_tag = string_tag_for_keyword(dicom_field)
+            if dicom_tag in input_image.metadata:
+                assert new_image.metadata[dicom_tag] == input_image.metadata[dicom_tag]
+    assert_object_compatible(new_image, input_image, image_type, check_metadata=False)

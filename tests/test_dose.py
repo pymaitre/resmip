@@ -66,3 +66,15 @@ def test_write_dose_nifti(tmp_path):
 
     nifti_dose = Dose.read(nifti_dose_path)
     assert np.all(nifti_dose.numpy() == dose.numpy())
+
+
+@pytest.mark.parametrize("read_existing_dose", [True, False])
+def test_dose_modality(read_existing_dose):
+    """Check DICOM modality of ``Dose``."""
+    if read_existing_dose:
+        image = Image.read(REFERENCE_DICOM_IMAGE_PATH)
+        dose = Dose.read(REFERENCE_DICOM_DOSE_PATH, reference_image=image)
+    else:
+        dose = Dose()
+    assert isinstance(dose, Dose)
+    assert dose.modality == "RTDOSE"

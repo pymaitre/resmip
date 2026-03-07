@@ -1,6 +1,8 @@
 """Constant values present in Dicom headers."""
 
-from bidict import bidict
+from pydicom.tag import BaseTag, Tag
+
+__all__ = ["string_tag_for_keyword"]
 
 SLICE_DEPENDENT_FIELDS = [
     "SOPInstanceUID",
@@ -25,37 +27,50 @@ Dicom tags that are unique to each Dicom series.
 They must be generated every time a Dicom series is saved.
 """
 
-# TODO: Add relevant tags (e.g.: clinician name)
-DICOM_FIELDS = bidict(
-    {
-        # "SOPClassUID": "0008|0016",
-        "SOPInstanceUID": "0008|0018",
-        "StudyDate": "0008|0020",
-        "SeriesDate": "0008|0021",
-        "StudyTime": "0008|0030",
-        "Modality": "0008|0060",
-        "ReferringPhysicianName": "0008|0090",
-        "OperatorsName": "0008|1070",
-        "PatientName": "0010|0010",
-        "PatientID": "0010|0020",
-        "PatientBirthDate": "0010|0030",
-        "PatientSex": "0010|0040",
-        "PatientAge": "0010|1010",
-        "PatientWeight": "0010|1030",
-        "SliceThickness": "0018|0050",
-        "SpacingBetweenSlices": "0018|0088",
-        "StudyInstanceUID": "0020|000D",
-        "SeriesInstanceUID": "0020|000E",
-        "StudyID": "0020|0010",
-        "InstanceNumber": "0020|0013",
-        "ImagePositionPatient": "0020|0032",
-        "ImageOrientationPatient": "0020|0037",
-        "FrameOfReferenceUID": "0020|0052",
-        "SliceLocation": "0020|1041",
-        "PixelSpacing": "0028|0030",
-        # "RescaleIntercept": "0028|1052",
-        # "RescaleSlope": "0028|1053",
-        # "RescaleType": "0028|1054",
-    }
-)
-"""Dicom name-tag pairs."""
+DICOM_FIELDS = [
+    # "SOPClassUID",
+    "SOPInstanceUID",
+    "StudyDate",
+    "SeriesDate",
+    "StudyTime",
+    "Modality",
+    "ReferringPhysicianName",
+    "OperatorsName",
+    "PatientName",
+    "PatientID",
+    "PatientBirthDate",
+    "PatientSex",
+    "PatientAge",
+    "PatientWeight",
+    "SliceThickness",
+    "SpacingBetweenSlices",
+    "StudyInstanceUID",
+    "SeriesInstanceUID",
+    "StudyID",
+    "InstanceNumber",
+    "ImagePositionPatient",
+    "ImageOrientationPatient",
+    "FrameOfReferenceUID",
+    "SliceLocation",
+    "PixelSpacing",
+    # "RescaleIntercept",
+    # "RescaleSlope",
+    # "RescaleType",
+]
+"""DICOM fields saved in image metadata."""
+
+
+def dicom_tag_to_string(tag: BaseTag) -> str:
+    """Convert a DICOM tag to string.
+
+    DICOM tags are hexadecimal integers.
+    This function converts them to valid strings.
+    As an example, ``Tag(0x12345678)`` becomes ``"1234|5678"``,
+    ``Tag(0x120034)`` becomes ``"0012|0034"``.
+    """
+    return f"{tag.group:04x}|{tag.elem:04x}"
+
+
+def string_tag_for_keyword(keyword: str) -> str | None:
+    """Convert a keyword to a DICOM tag as string."""
+    return dicom_tag_to_string(Tag(keyword))

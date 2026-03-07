@@ -11,15 +11,21 @@ from pathlib import Path
 import numpy as np
 import numpy.typing as npt
 import SimpleITK as sitk
+from pydicom.uid import generate_uid
 
 import resmip.dicom_utils.series as dicom_series
-from resmip import DICOM_FIELDS
+from resmip.dicom_utils import string_tag_for_keyword
 from resmip.image.coregistration import CoregistrationMetric
 from resmip.image.data_types import (
     ImageDTypeLike,
     datatype_from_id,
     is_unsigned,
     sitk_image_dtype,
+)
+from resmip.image.dicom_fields import PATIENT_RELATED_FIELDS, STUDY_RELATED_FIELDS
+from resmip.image.metadata import (
+    SERIES_MODALITIES,
+    DicomModality,
 )
 from resmip.utils import PathLike, format_digit_string
 
@@ -44,13 +50,34 @@ def _metadata_file_name(filename: PathLike) -> Path:
     return filename.parent / f".{filename.stem}.json"
 
 
+def _validate_modality(image_modality: str | DicomModality) -> DicomModality:
+    """Check if the image modality saved in metadata is valid."""
+    if image_modality == "":
+        logger.warning("Image modality must be defined.")
+        return DicomModality.ct
+
+    if isinstance(image_modality, str):
+        image_modality = getattr(DicomModality, image_modality.lower())
+
+    if image_modality not in SERIES_MODALITIES:
+        raise ValueError(
+            f"The provided modality ({image_modality}) is " "not a valid DICOM series modality."
+        )
+    return image_modality
+
+
 class Image(sitk.Image):
     """Wrapper class of SimpleITK.Image with support to headers."""
 
-    def __init__(self, *args, metadata: dict[str, str] | None = None):
+    def __init__(
+        self,
+        *args,
+        metadata: dict[str, str] | None = None,
+        modality: DicomModality | str | None = None,
+    ):
         """Call sitk.Image constructor and create an empty dictionary for the header."""
         super().__init__(*args)
-        self._metadata = {}
+        self._metadata = self._generate_minimal_empty_metadata()
         """Dictionary containing metadata."""
         # Copy metadata when creating an image from an existing one
         if len(args) > 0:
@@ -58,6 +85,70 @@ class Image(sitk.Image):
                 self._metadata = args[0].metadata
         if metadata:
             self._metadata.update(metadata)
+        if modality:
+            if isinstance(modality, DicomModality):
+                modality = modality.value
+            self._metadata[string_tag_for_keyword("Modality")] = modality
+
+    def _generate_minimal_empty_metadata(self) -> dict[str, str]:
+        """Initialize metadata with required fields."""
+        return {
+            string_tag_for_keyword("Modality"): "",
+            string_tag_for_keyword("PatientID"): "",
+            string_tag_for_keyword("StudyInstanceUID"): "",
+            string_tag_for_keyword("SeriesInstanceUID"): "",
+        }
+
+    def generate_ids(self, force: bool = False):
+        """Generate study/series ids.
+
+        Args:
+            force (bool): If true, generate missing values and
+                force-generate a new SeriesInstanceUID.
+                If false, re-use current identifiers if set,
+                otherwise generate new values.
+        """
+        if self.study_instance_uid == "":
+            self._metadata[string_tag_for_keyword("StudyInstanceUID")] = generate_uid()
+        if self.series_instance_uid == "" or force:
+            self._metadata[string_tag_for_keyword("SeriesInstanceUID")] = generate_uid()
+
+    def _optionally_transfer_information(self, other: Image, fields_to_copy: list[str]):
+        """Copy information from the other image.
+
+        Only fields that are present in the other image are copied.
+
+        Args:
+            other (Image): Other image for association.
+            fields_to_copy (list[str]): List of DICOM fields to optionally copy.
+        """
+        for dicom_field in fields_to_copy:
+            field_tag = string_tag_for_keyword(dicom_field)
+            if field_tag in other.metadata:
+                self._metadata[field_tag] = other.metadata[field_tag]
+
+    def associate_to(self, other: Image, *, level: str = "study"):
+        """Associate the current image to another image.
+
+        Copy identifiers.
+
+        Args:
+            other (Image): The other image from which
+                to copy information.
+            level (str): One of the following:
+                - "patient": copy only patient-related information
+                - "study": copy patient- and study-related information
+        """
+        if level not in ["patient", "study"]:
+            raise ValueError(
+                f"{level} is not a supported level. Supported values are 'patient', 'study'."
+            )
+        # force-copy patient id as it is strictly required
+        self._metadata[string_tag_for_keyword("PatientID")] = other.patient_id
+        self._optionally_transfer_information(other, fields_to_copy=PATIENT_RELATED_FIELDS)
+        if level == "study":
+            self._metadata[string_tag_for_keyword("StudyInstanceUID")] = other.study_instance_uid
+            self._optionally_transfer_information(other, fields_to_copy=STUDY_RELATED_FIELDS)
 
     def __getitem__(self, key) -> Image:
         """Get a pixel value, a sliced image, or a metadata item.
@@ -106,9 +197,6 @@ class Image(sitk.Image):
     @spacing.setter
     def spacing(self, value: tuple[float, float, float]):
         self.SetSpacing(value)
-        # add the spacing to metadata too
-        self.metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join([str(x) for x in value[:2]])
-        self.metadata[DICOM_FIELDS["SliceThickness"]] = str(value[2])
 
     @property
     def origin(self) -> tuple[float, float, float]:
@@ -132,15 +220,45 @@ class Image(sitk.Image):
     @direction.setter
     def direction(self, value: tuple[float]):
         self.SetDirection(value)
-        # add the spacing to metadata too (only xy direction)
-        self.metadata[DICOM_FIELDS["ImageOrientationPatient"]] = "\\".join(
-            [str(x) for x in value[:-3]]
-        )
 
     @property
     def size(self) -> tuple[int, int, int]:
         """Image size in pixels."""
         return self.GetSize()
+
+    def _get_modality(self) -> str:
+        """Obtain DICOM modality from image metadata."""
+        return self._metadata[(string_tag_for_keyword("Modality"))]
+
+    @property
+    def modality(self) -> str:
+        """Image modality."""
+        image_modality = self._get_modality()
+        return _validate_modality(image_modality).value
+
+    @property
+    def patient_id(self) -> str:
+        """Patient ID.
+
+        Defaults to an empty string if not set.
+        """
+        return self._metadata[(string_tag_for_keyword("PatientID"))]
+
+    @property
+    def study_instance_uid(self) -> str:
+        """Study Instance UID.
+
+        Defaults to an empty string if not set.
+        """
+        return self._metadata[(string_tag_for_keyword("StudyInstanceUID"))]
+
+    @property
+    def series_instance_uid(self) -> str:
+        """Series Instance UID.
+
+        Defaults to an empty string if not set.
+        """
+        return self._metadata[(string_tag_for_keyword("SeriesInstanceUID"))]
 
     @classmethod
     def from_array(
@@ -266,6 +384,16 @@ class Image(sitk.Image):
         Returns:
             np.ndarray: Image array as numpy array of shape (z_dim, y_dim, x_dim).
         """
+        if view is not None:
+            if view is True:
+                warning_message = "Use 'copy=False' instead."
+            else:
+                warning_message = "Use 'copy=True' instead."
+            warnings.warn(
+                "'view' is deprecated and will be removed in a future release. " + warning_message
+            )
+            copy = not view
+            view = None
         return self.__array__(dtype=dtype, copy=copy, view=view)
 
     @property
@@ -316,6 +444,8 @@ class Image(sitk.Image):
                 value = sitk_image.GetMetaData(key)
                 value = format_digit_string(value)
                 series_metadata[key] = value
+            if string_tag_for_keyword("Modality") not in series_metadata:
+                series_metadata[string_tag_for_keyword("Modality")] = ""
         return cls(sitk_image, metadata=series_metadata)
 
     @classmethod
@@ -346,7 +476,9 @@ class Image(sitk.Image):
         )
         return cls.read(filename=filename, read_metadata=read_metadata)
 
-    def write(self, filename: PathLike, *, write_metadata: bool = True) -> None:
+    def write(
+        self, filename: PathLike, *, write_metadata: bool = True, use_existing_ids: bool = False
+    ) -> None:
         """Save image file (and metadata).
 
         The image format is automatically determined from filename's suffix.
@@ -357,11 +489,16 @@ class Image(sitk.Image):
                 the writer assumes to write a Dicom series.
             write_metadata (bool): If true, save the json file with metadata
                 (not applicable for dicom files).
+            use_existing_ids (bool): If true, re-use current identifiers if set,
+                otherwise generate new values.
+                If false, generate missing values and force-generate a new
+                SeriesInstanceUID.
         """
         filename = Path(filename)
         if not filename.exists() and filename.suffix == "":
             filename.mkdir(parents=True, exist_ok=True)
         if filename.is_dir():
+            self.generate_ids(force=not use_existing_ids)
             dicom_series.write(self, self.metadata, filename)
             return
         filename.parent.mkdir(parents=True, exist_ok=True)
@@ -439,10 +576,10 @@ class Image(sitk.Image):
 
         new_img = Image(resampler.Execute(self))
         new_img.metadata = self.metadata
-        new_img.metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join(
+        new_img.metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
             [str(x) for x in new_img.spacing[:2]]
         )
-        new_img.metadata[DICOM_FIELDS["SliceThickness"]] = str(new_img.spacing[2])
+        new_img.metadata[string_tag_for_keyword("SliceThickness")] = str(new_img.spacing[2])
         return new_img
 
     def pad(self, reference_image: Image, **kwargs) -> Image:

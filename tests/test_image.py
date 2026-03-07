@@ -2,32 +2,57 @@
 
 # pylint: disable=W0621
 
+import logging
+from pathlib import Path
+
 import numpy as np
 import pytest
 import SimpleITK as sitk
+from pydicom import dcmread
 
 import resmip.dicom_utils.series as dicom_series
-from resmip import DICOM_FIELDS
+from resmip.dicom_utils.constants import string_tag_for_keyword
 from resmip.image import CoregistrationMetric, Image
 from resmip.image.data_types import sitk_image_dtype
 from resmip.image.image import _metadata_file_name
+from resmip.image.metadata import SERIES_MODALITIES, DicomModality
 from resmip.utils import format_digit_string
 
 from .utils import coregistered_image_path, dicom_ct_path
 
+REQUIRED_IMAGE_FIELDS = [
+    string_tag_for_keyword(x)
+    for x in [
+        "Modality",
+        "PatientID",
+        "StudyInstanceUID",
+        "SeriesInstanceUID",
+    ]
+]
+"""DICOM fields that must be present in image metadata."""
+
 
 def test_metadata_is_unique():
     """Test if setting one Image's metadata does not touch another series."""
-    new_image1 = Image()
-    new_image2 = Image()
+    image_modality = "CT"
+    new_image1 = Image(modality=image_modality)
+    new_image2 = Image(modality=image_modality)
 
-    assert new_image1.metadata == {}
-    assert new_image2.metadata == {}
+    metadata_1 = {elem: "" for elem in REQUIRED_IMAGE_FIELDS}
+    metadata_2 = {elem: "" for elem in REQUIRED_IMAGE_FIELDS}
+    metadata_1[string_tag_for_keyword("Modality")] = image_modality
+    metadata_2[string_tag_for_keyword("Modality")] = image_modality
+    for field in ["PatientID"]:
+        metadata_1[string_tag_for_keyword(field)] = ""
+        metadata_2[string_tag_for_keyword(field)] = ""
+    assert new_image1.metadata == metadata_1
+    assert new_image2.metadata == metadata_2
 
     new_image1.metadata["a"] = 0
+    metadata_1["a"] = 0
 
-    assert new_image1.metadata == {"a": 0}
-    assert new_image2.metadata == {}
+    assert new_image1.metadata == metadata_1
+    assert new_image2.metadata == metadata_2
 
 
 @pytest.mark.parametrize("file_format", ["dicom", "nifti"])
@@ -66,13 +91,10 @@ def test_image_spacing_setter(mock_dicom_image: Image):
     x_spacing = 0.5
     y_spacing = 1
     z_spacing = 5.2
-    xy_spacing = f"{x_spacing}\\{y_spacing}"
     new_spacing = (x_spacing, y_spacing, z_spacing)
     mock_dicom_image.spacing = new_spacing
     assert mock_dicom_image.GetSpacing() == new_spacing
     assert mock_dicom_image.spacing == mock_dicom_image.GetSpacing()
-    assert mock_dicom_image.metadata[DICOM_FIELDS["PixelSpacing"]] == xy_spacing
-    assert mock_dicom_image.metadata[DICOM_FIELDS["SliceThickness"]] == str(z_spacing)
 
 
 def test_image_origin_getter(mock_dicom_image: Image):
@@ -103,7 +125,6 @@ def test_image_direction_setter(mock_dicom_image: Image):
     mock_dicom_image.direction = new_direction
     assert mock_dicom_image.GetDirection() == new_direction
     assert mock_dicom_image.direction == mock_dicom_image.GetDirection()
-    assert mock_dicom_image.metadata[DICOM_FIELDS["ImageOrientationPatient"]] == dicom_direction
 
 
 def test_image_size_getter(mock_dicom_image: Image):
@@ -226,7 +247,7 @@ def test_read_image_without_metadata(mock_dicom_image: Image, tmp_path):
     mock_dicom_image.write(output_file_name)
     reference_image = sitk.ReadImage(output_file_name)
     new_image = Image.read(output_file_name, read_metadata=False)
-    new_image_metadata = {}
+    new_image_metadata = {elem: "" for elem in REQUIRED_IMAGE_FIELDS}
     for key in reference_image.GetMetaDataKeys():
         value = reference_image.GetMetaData(key)
         value = format_digit_string(value)
@@ -649,3 +670,55 @@ def test_image_itruediv_types(value_type, mock_ct: Image):
         assert mock_ct.dtype == np.float64
     else:
         assert new_arr.dtype == mock_ct.dtype
+
+
+@pytest.mark.parametrize(
+    "image_path",
+    [
+        Path("IBSI1_CT_phantom") / "CT_00000",
+        Path("siemens_mprage_0_dcm"),
+    ],
+)
+def test_image_modalities(image_path, caplog, tmp_path):
+    """Test image modality when reading files."""
+    image_dir = Path(__file__).parent / "Dicom" / image_path
+    image = Image.read(image_dir)
+    assert getattr(DicomModality, image.modality.lower()) in SERIES_MODALITIES
+
+    nifti_path = tmp_path / "image.nii.gz"
+    image.write(nifti_path, write_metadata=True)
+    nifti_image = Image.read(nifti_path)
+    assert nifti_image.modality == image.modality
+
+    with caplog.at_level(logging.WARNING):
+        nifti_image = Image.read(nifti_path, read_metadata=False)
+        assert nifti_image.modality == "CT"
+    for record in caplog.records:
+        assert record.levelname == "WARNING"
+        assert record.message == "Image modality must be defined."
+
+
+def test_empty_image_required_metadata_fields():
+    """Test if an empty image has all required metadata."""
+    image = Image()
+    assert len(image.metadata) == len(REQUIRED_IMAGE_FIELDS)
+    for key in image.metadata:
+        assert key in REQUIRED_IMAGE_FIELDS
+
+
+def test_new_image_ids(mock_ct: Image):
+    """Test if the ids have the correct type."""
+    assert isinstance(mock_ct.patient_id, str)
+    assert isinstance(mock_ct.study_instance_uid, str)
+    assert isinstance(mock_ct.series_instance_uid, str)
+
+
+def test_dicom_image_ids(mock_dicom_image: Image):
+    """Test if ids are stored correctly."""
+    ds = dcmread(list(dicom_ct_path().glob("*.dcm"))[0])
+    assert ds.PatientID == mock_dicom_image.patient_id
+    assert isinstance(mock_dicom_image.patient_id, str)
+    assert ds["StudyInstanceUID"].value == mock_dicom_image.study_instance_uid
+    assert isinstance(mock_dicom_image.study_instance_uid, str)
+    assert ds["SeriesInstanceUID"].value == mock_dicom_image.series_instance_uid
+    assert isinstance(mock_dicom_image.series_instance_uid, str)

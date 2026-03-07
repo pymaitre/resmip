@@ -126,3 +126,27 @@ def test_add_leading_zero_to_header_value(spacing_value_1, spacing_value_2):
     old_spacing_f = f"[{float(spacing_value_1)}, {float(spacing_value_2)}]"
     new_spacing = add_leading_zero_to_header_value(old_spacing)
     assert str([float(value) for value in json.loads(new_spacing)]) == old_spacing_f
+
+
+@pytest.mark.parametrize(
+    "roi_generation_algorithm", ["", " ", "AUTOMATIC", " AUTOMATIC", " AUTOMATIC ", "WRONG VALUE"]
+)
+def test_roidata_generation(roi_generation_algorithm, mock_dicom_structure: resmip.RTStructure):
+    """Generate roi data for RT Structure Sets."""
+    if roi_generation_algorithm == "WRONG VALUE":
+        with pytest.raises(ValueError):
+            ROIData(
+                mask=mock_dicom_structure,
+                number=1,
+                name=mock_dicom_structure.name,
+                frame_of_reference_uid="",
+                roi_generation_algorithm=roi_generation_algorithm,
+            )
+        return
+    ROIData(
+        mask=mock_dicom_structure,
+        number=1,
+        name=mock_dicom_structure.name,
+        frame_of_reference_uid="",
+        roi_generation_algorithm=roi_generation_algorithm,
+    )

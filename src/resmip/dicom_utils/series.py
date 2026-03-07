@@ -12,7 +12,9 @@ from resmip.dicom_utils.constants import (
     DICOM_FIELDS,
     SERIES_DEPENDENT_FIELDS,
     SLICE_DEPENDENT_FIELDS,
+    string_tag_for_keyword,
 )
+from resmip.image.metadata import SERIES_MODALITIES
 from resmip.utils import PathLike, format_digit_string
 
 logger = logging.getLogger(__name__)
@@ -22,7 +24,7 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> tuple[Path,
     """Get the list of dicom files of the series to be read.
 
     Read series ids first and then read the modalities. This is done in order to exclude
-    RT Dose files.
+    RT Dose files and similar. Only ``SERIES_MODALITIES`` are supported.
 
     Args:
         dicom_series_directory_path (PathLike): Path of the directory containing the Dicom Series.
@@ -38,7 +40,7 @@ def get_series_dicom_files(dicom_series_directory_path: PathLike) -> tuple[Path,
             str(dicom_series_directory_path), series_id
         )
         ds = pydicom.dcmread(dicom_series_files[0])
-        if ds["Modality"].value != "RTDOSE":
+        if ds["Modality"].value in (modality.value for modality in SERIES_MODALITIES):
             return tuple(Path(file_path) for file_path in dicom_series_files)
     logger.warning("No Series can be found, make sure your restrictions are not too strong")
     return tuple()
@@ -63,16 +65,16 @@ def get_spacing_from_dicom_header(
     for i in range(slices_number):
         slice_xy_spacing = [
             float(spacing)
-            for spacing in dicom_series_reader.GetMetaData(i, DICOM_FIELDS["PixelSpacing"]).split(
-                "\\"
-            )
+            for spacing in dicom_series_reader.GetMetaData(
+                i, string_tag_for_keyword("PixelSpacing")
+            ).split("\\")
         ]
 
         slice_z = [
             float(z)
-            for z in dicom_series_reader.GetMetaData(i, DICOM_FIELDS["ImagePositionPatient"]).split(
-                "\\"
-            )
+            for z in dicom_series_reader.GetMetaData(
+                i, string_tag_for_keyword("ImagePositionPatient")
+            ).split("\\")
         ][2]
         z_values.append(float(slice_z))
         if xy_spacing is None:
@@ -112,7 +114,7 @@ def read(dicom_series_directory_path: PathLike) -> tuple[sitk.Image, dict[str, s
         series_metadata[key] = value
     for slice_dependent_field in SLICE_DEPENDENT_FIELDS:
         try:
-            series_metadata.pop(DICOM_FIELDS[slice_dependent_field])
+            series_metadata.pop(string_tag_for_keyword(slice_dependent_field))
         except KeyError:
             # if the key is not present in the image, we must find a way
             # to keep track of this information
@@ -121,9 +123,11 @@ def read(dicom_series_directory_path: PathLike) -> tuple[sitk.Image, dict[str, s
     instance_numbers = np.zeros(slices_number, dtype=int)
     image_position_patients = np.zeros((slices_number, 3), dtype=float)
     for i in range(slices_number):
-        instance_number = dicom_series_reader.GetMetaData(i, DICOM_FIELDS["InstanceNumber"])
+        instance_number = dicom_series_reader.GetMetaData(
+            i, string_tag_for_keyword("InstanceNumber")
+        )
         image_position_patient = dicom_series_reader.GetMetaData(
-            i, DICOM_FIELDS["ImagePositionPatient"]
+            i, string_tag_for_keyword("ImagePositionPatient")
         )
         instance_numbers[i] = instance_number
         image_position_patients[i] = image_position_patient.split("\\")
@@ -167,24 +171,31 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
     series_writer.KeepOriginalImageUIDOn()
 
     image_metadata = {}
-    for dicom_tag in DICOM_FIELDS.values():
+    for dicom_keyword in DICOM_FIELDS:
+        dicom_tag = string_tag_for_keyword(dicom_keyword)
         if dicom_tag in input_metadata:
             image_metadata[dicom_tag] = input_metadata[dicom_tag]
 
     for series_dependent_field in SERIES_DEPENDENT_FIELDS:
-        image_metadata[DICOM_FIELDS[series_dependent_field]] = pydicom.uid.generate_uid()
+        image_metadata[string_tag_for_keyword(series_dependent_field)] = pydicom.uid.generate_uid()
 
-    # Do we want to round it back to the value of the Dicom or do we want
-    # to keep the value computed by SimpleITK? The pixel grid on the Dicom file
-    # is identical to the generated one.
-    # Maybe it's safer to round it.
-    # image_metadata["0018|0050"] = str(image.GetSpacing()[2])
+    # override metadata getting information directly from the image
+    if hasattr(image, "modality"):
+        image_metadata[string_tag_for_keyword("Modality")] = image.modality
+    if hasattr(image, "patient_id"):
+        image_metadata[string_tag_for_keyword("PatientID")] = image.patient_id
+    if hasattr(image, "study_instance_uid"):
+        study_instance_uid = image.study_instance_uid
+        image_metadata[string_tag_for_keyword("StudyInstanceUID")] = study_instance_uid
+    if hasattr(image, "series_instance_uid"):
+        series_instance_uid = image.series_instance_uid
+        image_metadata[string_tag_for_keyword("SeriesInstanceUID")] = series_instance_uid
     rounded_z_spacing = float(f"{image.GetSpacing()[2]:.3e}")
-    image_metadata[DICOM_FIELDS["SliceThickness"]] = str(rounded_z_spacing)
-    image_metadata[DICOM_FIELDS["SpacingBetweenSlices"]] = str(rounded_z_spacing)
+    image_metadata[string_tag_for_keyword("SliceThickness")] = str(rounded_z_spacing)
+    image_metadata[string_tag_for_keyword("SpacingBetweenSlices")] = str(rounded_z_spacing)
 
     direction = image.GetDirection()
-    image_metadata[DICOM_FIELDS["ImageOrientationPatient"]] = "\\".join(
+    image_metadata[string_tag_for_keyword("ImageOrientationPatient")] = "\\".join(
         map(
             str,
             (
@@ -193,13 +204,15 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
             ),
         )
     )
-    image_metadata[DICOM_FIELDS["PixelSpacing"]] = "\\".join(map(str, image.GetSpacing()[:2]))
+    image_metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
+        map(str, image.GetSpacing()[:2])
+    )
 
     for i in range(image.GetDepth()):
         image_slice = image[:, :, i]
 
         slice_metadata = image_metadata.copy()
-        slice_metadata[DICOM_FIELDS["InstanceNumber"]] = i
+        slice_metadata[string_tag_for_keyword("InstanceNumber")] = i
 
         for key, value in slice_metadata.items():
             image_slice.SetMetaData(key, str(value))
@@ -209,7 +222,7 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
         # image_slice.SetMetaData("0008|0013", time.strftime("%H%M%S"))  # Instance Creation Time
 
         image_slice.SetMetaData(
-            DICOM_FIELDS["ImagePositionPatient"],
+            string_tag_for_keyword("ImagePositionPatient"),
             "\\".join(map(str, image.TransformIndexToPhysicalPoint((0, 0, i)))),
         )  # Image Position (Patient)
         # these are set using the dicom header, but maybe we need them

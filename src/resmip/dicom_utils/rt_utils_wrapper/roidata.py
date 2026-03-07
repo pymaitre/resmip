@@ -8,13 +8,13 @@ import pydicom
 import SimpleITK as sitk
 
 from resmip.dicom_utils.rt_utils_wrapper.constants import (
-    ROI_GENERATION_ALGORITHM,
     ROIGenerationAlgorithm,
 )
 from resmip.dicom_utils.rt_utils_wrapper.contours import (
     create_contour,
     get_contour_from_slice_mask,
 )
+from resmip.utils import format_dicom_code_string
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +46,10 @@ class ROIData:
 
     def __post_init__(self):
         """Cast ROI Generation Algorithm as string."""
-        if isinstance(self.roi_generation_algorithm, ROIGenerationAlgorithm):
-            self.roi_generation_algorithm = ROI_GENERATION_ALGORITHM[self.roi_generation_algorithm]
+        if isinstance(self.roi_generation_algorithm, str):
+            self.roi_generation_algorithm = ROIGenerationAlgorithm(
+                format_dicom_code_string(self.roi_generation_algorithm)
+            )
 
     def structure_set_roi(self) -> pydicom.Dataset:
         """Create the Structure Set ROI for the structure."""
@@ -56,7 +58,7 @@ class ROIData:
         structure_set_roi.ReferencedFrameOfReferenceUID = self.frame_of_reference_uid
         structure_set_roi.ROIName = self.name
         structure_set_roi.ROIDescription = self.description
-        structure_set_roi.ROIGenerationAlgorithm = self.roi_generation_algorithm
+        structure_set_roi.ROIGenerationAlgorithm = self.roi_generation_algorithm.value
         return structure_set_roi
 
     def rt_roi_observation(self) -> pydicom.Dataset:

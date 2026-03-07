@@ -140,6 +140,10 @@ class Image(sitk.Image):
                 - "patient": copy only patient-related information
                 - "study": copy patient- and study-related information
         """
+        if level not in ["patient", "study"]:
+            raise ValueError(
+                f"{level} is not a supported level. Supported values are 'patient', 'study'."
+            )
         # force-copy patient id as it is strictly required
         self._metadata[string_tag_for_keyword("PatientID")] = other.patient_id
         self._optionally_transfer_information(other, fields_to_copy=PATIENT_RELATED_FIELDS)

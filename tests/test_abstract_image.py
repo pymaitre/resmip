@@ -236,7 +236,7 @@ def test_image_coregistration(image):
 
 
 @pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
-@pytest.mark.parametrize("level", ["patient", "study"])
+@pytest.mark.parametrize("level", ["patient", "study", "series"])
 def test_image_from_array_metadata(image, level):
     """Test image getitem (for slicing/cropping)."""
     input_image: Image = image()
@@ -251,6 +251,10 @@ def test_image_from_array_metadata(image, level):
         direction=input_image.direction,
         **extra_args,
     )
+    if level == "series":
+        with pytest.raises(ValueError):
+            new_image.associate_to(other=input_image, level=level)
+        return
     new_image.associate_to(other=input_image, level=level)
     if level in ["patient", "study"]:
         assert new_image.patient_id == input_image.patient_id

@@ -22,9 +22,11 @@ class DicomModality(Enum):
     """Segmentation."""
 
 
-SERIES_MODALITIES = [
-    DicomModality.ct,
-    DicomModality.mr,
-    DicomModality.pt,
-]
+SERIES_MODALITIES = frozenset(
+    [
+        DicomModality.ct,
+        DicomModality.mr,
+        DicomModality.pt,
+    ]
+)
 """Modalities used in series images."""

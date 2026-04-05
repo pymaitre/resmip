@@ -18,6 +18,8 @@ class DicomModality(Enum):
     """Radiotherapy Dose."""
     rtstruct = "RTSTRUCT"
     """Radiotherapy Structure Set."""
+    seg = "SEG"
+    """Segmentation."""
 
 
 SERIES_MODALITIES = [

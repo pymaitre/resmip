@@ -61,7 +61,7 @@ def _validate_modality(image_modality: str | DicomModality) -> DicomModality:
 
     if image_modality not in SERIES_MODALITIES:
         raise ValueError(
-            f"The provided modality ({image_modality}) is " "not a valid DICOM series modality."
+            f"The provided modality ({image_modality}) is not a valid DICOM series modality."
         )
     return image_modality
 
@@ -242,7 +242,7 @@ class Image(sitk.Image):
 
         Defaults to an empty string if not set.
         """
-        return self._metadata[(string_tag_for_keyword("PatientID"))]
+        return self._metadata[(string_tag_for_keyword("PatientID"))].strip(" ")
 
     @property
     def study_instance_uid(self) -> str:

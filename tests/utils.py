@@ -28,3 +28,28 @@ def ibsi_rtst_path() -> Path:
 def coregistered_image_path(coregistration_metric) -> Path:
     """Path of the coregistered CT image used for testing."""
     return Path(__file__).parent / "Nifti" / "coregistered" / f"{coregistration_metric}.nii.gz"
+
+
+def liver_dicom_seg() -> Path:
+    """Path of a binary segmentation saved as DICOM SEG."""
+    return Path(__file__).parent / "Dicom" / "liver" / "liver.dcm"
+
+
+def fractional_liver_dicom_seg() -> Path:
+    """Path of a fractional segmentation saved as DICOM SEG."""
+    return Path(__file__).parent / "Dicom" / "liver" / "fractional_liver.dcm"
+
+
+def fractional_highdicom_dicom_seg() -> Path:
+    """Path of a fractional segmentation saved as DICOM SEG."""
+    return Path(__file__).parent / "Dicom" / "liver" / "seg_image_ct_binary_fractional.dcm"
+
+
+def overlap_highdicom_dicom_seg() -> Path:
+    """Path of a fractional segmentation with two segments saved as DICOM SEG."""
+    return Path(__file__).parent / "Dicom" / "liver" / "seg_image_ct_binary_overlap_correct.dcm"
+
+
+def singleframe_highdicom_dicom_seg() -> Path:
+    """Path of a binary single-frame segmentation saved as DICOM SEG."""
+    return Path(__file__).parent / "Dicom" / "liver" / "seg_image_ct_binary_single_frame.dcm"

@@ -11,6 +11,7 @@ Subpackages
    resmip.dose
    resmip.image
    resmip.rt_structure
+   resmip.segmentation
 
 Submodules
 ----------

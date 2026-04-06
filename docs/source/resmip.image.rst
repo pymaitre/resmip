@@ -20,10 +20,26 @@ resmip.image.data\_types module
    :undoc-members:
    :show-inheritance:
 
+resmip.image.dicom\_fields module
+---------------------------------
+
+.. automodule:: resmip.image.dicom_fields
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 resmip.image.image module
 -------------------------
 
 .. automodule:: resmip.image.image
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+resmip.image.metadata module
+----------------------------
+
+.. automodule:: resmip.image.metadata
    :members:
    :undoc-members:
    :show-inheritance:

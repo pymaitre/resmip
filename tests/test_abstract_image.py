@@ -6,11 +6,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from resmip import Dose, Image, RTStructure
+from resmip import Dose, Image, RTStructure, Segmentation
 from resmip.dicom_utils import string_tag_for_keyword
 from resmip.image import CoregistrationMetric, DicomModality
 from resmip.image.dicom_fields import PATIENT_RELATED_FIELDS, STUDY_RELATED_FIELDS
-from resmip.segmentation import Segmentation
 
 from .utils import dicom_ct_path, ibsi_rtst_path
 

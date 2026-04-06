@@ -1,5 +1,5 @@
 """Module for processing RTStructure and RTStructureSet objects."""
 
-from .rt_structure import RTStructure, RTStructureSet
+from .rt_structure import RTStructure
 
-__all__ = ["RTStructure", "RTStructureSet"]
+__all__ = ["RTStructure"]

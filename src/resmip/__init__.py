@@ -8,7 +8,13 @@ from .dicom_utils import (
 )
 from .dose import Dose
 from .image import CoregistrationMetric, DicomModality, Image, ImageDTypeLike
-from .rt_structure import RTStructure, RTStructureSet
+from .rt_structure import RTStructure
+from .segmentation import (
+    RTStructureSet,
+    Segmentation,
+    SegmentationCollection,
+    SegmentationType,
+)
 
 __version__ = im.version(__package__)
 
@@ -25,6 +31,9 @@ __all__ = [
     "read_structure_set",
     "RTStructure",
     "RTStructureSet",
+    "Segmentation",
+    "SegmentationCollection",
+    "SegmentationType",
     "write_image",
 ]
 

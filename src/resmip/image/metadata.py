@@ -18,11 +18,15 @@ class DicomModality(Enum):
     """Radiotherapy Dose."""
     rtstruct = "RTSTRUCT"
     """Radiotherapy Structure Set."""
+    seg = "SEG"
+    """Segmentation."""
 
 
-SERIES_MODALITIES = [
-    DicomModality.ct,
-    DicomModality.mr,
-    DicomModality.pt,
-]
+SERIES_MODALITIES = frozenset(
+    [
+        DicomModality.ct,
+        DicomModality.mr,
+        DicomModality.pt,
+    ]
+)
 """Modalities used in series images."""

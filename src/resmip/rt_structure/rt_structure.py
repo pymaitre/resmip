@@ -18,7 +18,7 @@ from resmip.utils import PathLike
 
 from .utils import get_structure_name_from_filename
 
-__all__ = ["RTStructure", "RTStructureSet"]
+__all__ = ["RTStructure"]
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,11 @@ class RTStructure(Image):
             name (str): name of the RT Structure. Defaults to an empty string.
             **kwargs: extra arguments used in ``resmip.Image.__init__``.
         """
+        warnings.warn(
+            "'RTStructure' is deprecated and will be removed in a future release. "
+            "Use 'resmip.Segmentation' instead.",
+            FutureWarning,
+        )
         if not isinstance(name, str):
             raise ValueError(
                 f"type({name}) ({type(name)}) is not a valid type for name. Supported type(s): str."
@@ -176,7 +181,8 @@ class RTStructure(Image):
         """
         warnings.warn(
             "'RTStructure.read_image' is deprecated and will be removed in a future release. "
-            "Use 'RTStructure.read' instead."
+            "Use 'RTStructure.read' instead.",
+            FutureWarning,
         )
         return cls.read(
             filename=filename,
@@ -209,7 +215,7 @@ class RTStructure(Image):
             **kwargs: extra arguments used in ``resmip.Image.__init__``.
 
         Returns:
-            RTStructure: New structure
+            RTStructure: New structure.
         """
         return RTStructure(
             super().from_array(
@@ -255,12 +261,14 @@ class RTStructure(Image):
             file_format = Path(filename).suffix
         if file_format != ".dcm":
             return self._write_nondicom(filename, file_format=file_format)
-        return RTStructureSet([self]).write(
-            filename,
-            file_format=file_format,
-            reference_image_path=reference_image_path,
-            series_description=series_description,
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", FutureWarning)
+            return RTStructureSet([self]).write(
+                filename,
+                file_format=file_format,
+                reference_image_path=reference_image_path,
+                series_description=series_description,
+            )
 
     def write_image(
         self,
@@ -294,7 +302,8 @@ class RTStructure(Image):
         """
         warnings.warn(
             "'RTStructure.write_image' is deprecated and will be removed in a future release. "
-            "Use 'RTStructure.write' instead."
+            "Use 'RTStructure.write' instead.",
+            FutureWarning,
         )
         return self.write(
             filename=filename,
@@ -430,6 +439,11 @@ class RTStructureSet(dict[str, RTStructure]):
 
     def __init__(self, structures: list[RTStructure] | None = None):
         """Create a dictionary with the given RT Structures."""
+        warnings.warn(
+            "'RTStructureSet' is deprecated and will be removed in a future release. "
+            "Use 'resmip.RTStructureSet' from 'resmip.segmentation' instead.",
+            FutureWarning,
+        )
         if structures is None:
             structures = []
         self.update({structure.name: structure for structure in structures})
@@ -509,7 +523,8 @@ class RTStructureSet(dict[str, RTStructure]):
         """
         warnings.warn(
             "'RTStructureSet.read_image' is deprecated and will be removed in a future release. "
-            "Use 'RTStructureSet.read' instead."
+            "Use 'RTStructureSet.read' instead.",
+            FutureWarning,
         )
         return cls.read(
             filename=filename,
@@ -592,7 +607,8 @@ class RTStructureSet(dict[str, RTStructure]):
         """
         warnings.warn(
             "'RTStructureSet.write_image' is deprecated and will be removed in a future release. "
-            "Use 'RTStructureSet.write' instead."
+            "Use 'RTStructureSet.write' instead.",
+            FutureWarning,
         )
         return self.write(
             filename=filename,

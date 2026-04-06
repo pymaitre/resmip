@@ -19,8 +19,7 @@ Dicom RT Structure Sets can be imported with `resmip` after having imported the 
 
     from pathlib import Path
 
-    from resmip.image import Image
-    from resmip.rt_structure import RTStructureSet
+    from resmip import Image, RTStructureSet
 
 
     dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "IBSI1_CT_phantom" / "CT_00000"
@@ -35,8 +34,7 @@ First of all, we define the path of the ditectory containing the Dicom CT and RT
 
 .. testcode:: python
 
-    from resmip.image import Image
-    from resmip.rt_structure import RTStructureSet
+    from resmip import Image, RTStructureSet
 
 
     dicom_image = Image.read(dicom_ct_directory)
@@ -90,7 +88,7 @@ First of all, a reference dicom image is required. When dealing with nifti image
     from pathlib import Path
     import tempfile
 
-    from resmip.image import Image
+    from resmip import Image
 
 
     dicom_ct_directory = Path.cwd().parent / "tests" / "Dicom" / "IBSI1_CT_phantom" / "CT_00000"
@@ -107,8 +105,7 @@ First of all, a reference dicom image is required. When dealing with nifti image
 
 .. testcode:: python
 
-    from resmip.image import Image
-    from resmip.rt_structure import RTStructureSet
+    from resmip import Image, RTStructureSet
 
 
     dicom_image = Image.read(dicom_ct_directory)

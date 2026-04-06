@@ -22,3 +22,12 @@ def mock_dicom_structure(mock_dicom_image: resmip.Image):
     return resmip.RTStructure.read(
         dicom_rtst_path(), structure_name=structure_name, reference_image=mock_dicom_image
     )
+
+
+@pytest.fixture
+def mock_dicom_segmentation(mock_dicom_image: resmip.Image):
+    """Mock DICOM segmentation (GTV-1) used in test modules."""
+    structure_name = "GTV-1"
+    return resmip.Segmentation.read(
+        dicom_rtst_path(), structure_name=structure_name, reference_image=mock_dicom_image
+    )

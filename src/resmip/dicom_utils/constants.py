@@ -1,6 +1,9 @@
 """Constant values present in Dicom headers."""
 
+import hashlib
+
 from pydicom.tag import BaseTag, Tag
+from pydicom.uid import UID
 
 __all__ = ["string_tag_for_keyword"]
 
@@ -58,6 +61,17 @@ DICOM_FIELDS = [
     # "RescaleType",
 ]
 """DICOM fields saved in image metadata."""
+
+_RESMIP_IMPLEMENTATION_CLASS_UID = UID(
+    "2.25." + str(int(hashlib.md5(b"resmip").hexdigest(), 16))[:39]
+)
+"""Stable DICOM Implementation Class UID for resmip.
+
+Derived deterministically from the package name using the 2.25 UUID-based
+UID root, which is reserved for this purpose in the DICOM standard and does
+not require registration. Used in File Meta Information datasets to identify
+resmip as the creating implementation.
+"""
 
 
 def dicom_tag_to_string(tag: BaseTag) -> str:

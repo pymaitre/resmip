@@ -61,7 +61,7 @@ def _validate_modality(image_modality: str | DicomModality) -> DicomModality:
 
     if image_modality not in SERIES_MODALITIES:
         raise ValueError(
-            f"The provided modality ({image_modality}) is " "not a valid DICOM series modality."
+            f"The provided modality ({image_modality}) is not a valid DICOM series modality."
         )
     return image_modality
 
@@ -242,7 +242,7 @@ class Image(sitk.Image):
 
         Defaults to an empty string if not set.
         """
-        return self._metadata[(string_tag_for_keyword("PatientID"))]
+        return self._metadata[(string_tag_for_keyword("PatientID"))].strip(" ")
 
     @property
     def study_instance_uid(self) -> str:
@@ -416,36 +416,67 @@ class Image(sitk.Image):
 
     @classmethod
     def read(cls, filename: PathLike, read_metadata: bool = True) -> Image:
-        """Load image file (and metadata).
+        """Read an image from a file or directory.
 
-        The image format is automatically determined from filename's suffix.
+        The image format is automatically determined from the type of path
+        provided. DICOM series are read from directories; all other formats
+        are read from single files.
 
         Args:
-            filename (PathLike): Name of the file. If filename is a directory,
-                the reader assumes to read a Dicom series. Otherwise, it assumes a metatadata
-                file with the following format exists: f".{filename.stem}.json".
-            read_metadata (bool): If true, read the json file with metadata
-                (not applicable for dicom files).
+            filename (PathLike): Path to the image file or directory.
+                If a directory is provided, it is read as a DICOM series
+                and metadata is extracted from the DICOM headers.
+                Otherwise, the format is inferred from the file suffix
+                (e.g. ``.nii.gz``, ``.mha``) and metadata is read from
+                a sidecar JSON file named ``.{stem}.json`` if present.
+            read_metadata (bool): If ``True``, read metadata from the
+                sidecar JSON file. Has no effect for DICOM series, where
+                metadata is always read from the DICOM headers.
 
         Returns:
-            Image: Image and metadata.
+            Image: Image with metadata populated from the DICOM headers
+                or sidecar JSON file.
         """
         filename = Path(filename)
         if filename.is_dir():
             sitk_image, series_metadata = dicom_series.read(filename)
+            return cls(sitk_image, metadata=series_metadata)
+        return Image._read_nondicom(filename=filename, read_metadata=read_metadata)
+
+    @classmethod
+    def _read_nondicom(cls, filename: PathLike, read_metadata: bool = True) -> Image:
+        """Read an image from a non-DICOM file.
+
+        Reads the image using SimpleITK, inferring the format from the
+        file suffix. If a sidecar JSON metadata file named ``.{stem}.json``
+        exists alongside the image file and ``read_metadata`` is ``True``,
+        its contents are merged into the metadata dictionary. Tags already
+        present in the SimpleITK image header are always included and will
+        override sidecar values for duplicate keys. If no ``Modality`` tag
+        is found, it is set to an empty string.
+
+        Args:
+            filename (PathLike): Path to the image file. The format is
+                inferred from the file suffix (e.g. ``.nii.gz``, ``.mha``).
+            read_metadata (bool): If ``True``, read metadata from the
+                sidecar JSON file named ``.{stem}.json`` if it exists.
+
+        Returns:
+            Image: Image with metadata populated from the image header
+                and sidecar JSON file.
+        """
+        sitk_image = sitk.ReadImage(filename)
+        if read_metadata and _metadata_file_name(filename).exists():
+            serialized_metadata = _metadata_file_name(filename).read_text()
+            series_metadata = json.loads(serialized_metadata)
         else:
-            sitk_image = sitk.ReadImage(filename)
-            if read_metadata and _metadata_file_name(filename).exists():
-                serialized_metadata = _metadata_file_name(filename).read_text()
-                series_metadata = json.loads(serialized_metadata)
-            else:
-                series_metadata = {}
-            for key in sitk_image.GetMetaDataKeys():
-                value = sitk_image.GetMetaData(key)
-                value = format_digit_string(value)
-                series_metadata[key] = value
-            if string_tag_for_keyword("Modality") not in series_metadata:
-                series_metadata[string_tag_for_keyword("Modality")] = ""
+            series_metadata = {}
+        for key in sitk_image.GetMetaDataKeys():
+            value = sitk_image.GetMetaData(key)
+            value = format_digit_string(value)
+            series_metadata[key] = value
+        if string_tag_for_keyword("Modality") not in series_metadata:
+            series_metadata[string_tag_for_keyword("Modality")] = ""
         return cls(sitk_image, metadata=series_metadata)
 
     @classmethod

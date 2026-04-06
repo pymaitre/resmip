@@ -722,3 +722,17 @@ def test_dicom_image_ids(mock_dicom_image: Image):
     assert isinstance(mock_dicom_image.study_instance_uid, str)
     assert ds["SeriesInstanceUID"].value == mock_dicom_image.series_instance_uid
     assert isinstance(mock_dicom_image.series_instance_uid, str)
+
+
+def test_dicom_image_ids_padding(mock_dicom_image: Image):
+    """Test if ids with whitespace paddings are stored correctly."""
+    ds = dcmread(list(dicom_ct_path().glob("*.dcm"))[0])
+    mock_dicom_image.metadata[(string_tag_for_keyword("PatientID"))] = (
+        mock_dicom_image.metadata[(string_tag_for_keyword("PatientID"))] + " "
+    )
+    assert ds.PatientID == mock_dicom_image.patient_id
+    assert isinstance(mock_dicom_image.patient_id, str)
+    assert ds["StudyInstanceUID"].value == mock_dicom_image.study_instance_uid
+    assert isinstance(mock_dicom_image.study_instance_uid, str)
+    assert ds["SeriesInstanceUID"].value == mock_dicom_image.series_instance_uid
+    assert isinstance(mock_dicom_image.series_instance_uid, str)

@@ -36,6 +36,14 @@ resmip.dicom\_utils.series module
    :undoc-members:
    :show-inheritance:
 
+resmip.dicom\_utils.utils module
+--------------------------------
+
+.. automodule:: resmip.dicom_utils.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

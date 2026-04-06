@@ -1,4 +1,4 @@
-"""Test module for Image class and it's children."""
+"""Test module for Image class and its children."""
 
 import logging
 from pathlib import Path
@@ -8,8 +8,9 @@ import pytest
 
 from resmip import Dose, Image, RTStructure
 from resmip.dicom_utils import string_tag_for_keyword
-from resmip.image import CoregistrationMetric
+from resmip.image import CoregistrationMetric, DicomModality
 from resmip.image.dicom_fields import PATIENT_RELATED_FIELDS, STUDY_RELATED_FIELDS
+from resmip.segmentation import Segmentation
 
 from .utils import dicom_ct_path, ibsi_rtst_path
 
@@ -33,7 +34,12 @@ def mock_dose():
     return Dose.read(reference_dicom_dose_path, reference_image=image)
 
 
-def assert_object_compatible(obj1, obj2, obj_type=None, check_metadata=True):
+def mock_segmentation():
+    """Mock segmentation used in this module."""
+    return Segmentation.read(ibsi_rtst_path())
+
+
+def assert_object_compatible(obj1: Image, obj2: Image, obj_type=None, check_metadata=True):
     """Check if two objects have the same type and same properties."""
     assert isinstance(obj1, type(obj2))
     assert isinstance(obj2, type(obj1))
@@ -42,11 +48,25 @@ def assert_object_compatible(obj1, obj2, obj_type=None, check_metadata=True):
         assert isinstance(obj2, obj_type)
     if check_metadata:
         assert len(obj1.metadata) == len(obj2.metadata)
-    if isinstance(obj1, RTStructure):
+    if isinstance(obj1, (RTStructure, Segmentation)):
         assert obj1.name == obj2.name
 
+    # check modality
+    if isinstance(obj1, Dose):
+        assert obj1.modality == DicomModality.rtdose.value
+        assert obj2.modality == DicomModality.rtdose.value
+    elif isinstance(obj1, RTStructure):
+        assert obj1.modality == DicomModality.rtstruct.value
+        assert obj2.modality == DicomModality.rtstruct.value
+    elif isinstance(obj1, Segmentation):
+        assert obj1.modality == DicomModality.seg.value
+        assert obj2.modality == DicomModality.seg.value
+    else:
+        assert obj1.modality == DicomModality.ct.value
+        assert obj2.modality == DicomModality.ct.value
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 @pytest.mark.parametrize("factor", [-1, 0.2, 5])
 def test_image_sum(image, factor, caplog):
     """Add constant factor to image pixels."""
@@ -70,7 +90,7 @@ def test_image_sum(image, factor, caplog):
     assert np.all(summed_image.numpy() == input_image.numpy() + factor)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 @pytest.mark.parametrize("factor", [-1, 0.2, 5])
 def test_image_subtract(image, factor, caplog):
     """Remove constant factor to dose pixels."""
@@ -91,7 +111,7 @@ def test_image_subtract(image, factor, caplog):
     assert np.all(subtracted_image.numpy() == input_image.numpy() - factor)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 @pytest.mark.parametrize("factor", [-1, 0.2, 5])
 def test_image_multiply(image, factor, caplog):
     """Multiply constant factor to image pixels."""
@@ -113,7 +133,7 @@ def test_image_multiply(image, factor, caplog):
     assert np.all(multiplied_image.numpy() == input_image.numpy() * factor)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 @pytest.mark.parametrize("factor", [-1, 0.2, 5])
 def test_image_divide(image, factor):
     """Divide constant factor to image pixels."""
@@ -128,7 +148,7 @@ def test_image_divide(image, factor):
     assert np.all(divided_image.numpy() == input_image.numpy() / factor)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 @pytest.mark.parametrize("dtype", [int, np.float32, np.uint32])
 def test_image_astype(image, dtype):
     """Test image type casting."""
@@ -138,7 +158,7 @@ def test_image_astype(image, dtype):
     assert_object_compatible(cast_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 def test_image_getitem(image):
     """Test image getitem (for slicing/cropping)."""
     input_image: Image = image()
@@ -147,13 +167,13 @@ def test_image_getitem(image):
     assert_object_compatible(cast_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 def test_image_from_array(image):
     """Test image getitem (for slicing/cropping)."""
     input_image: Image = image()
     image_type = type(input_image)
     extra_args = {}
-    if isinstance(input_image, RTStructure):
+    if isinstance(input_image, (RTStructure, Segmentation)):
         extra_args["name"] = input_image.name
     new_image = image_type.from_array(
         input_image.numpy(),
@@ -166,7 +186,7 @@ def test_image_from_array(image):
     assert_object_compatible(new_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 def test_image_resample(image):
     """Test image resampling."""
     input_image: Image = image()
@@ -177,7 +197,7 @@ def test_image_resample(image):
     assert_object_compatible(resampled_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 def test_image_pad(image):
     """Test image padding."""
     input_image: Image = image()
@@ -187,7 +207,7 @@ def test_image_pad(image):
     image_spacing = (1, 1, 1)
     image_direction = (1, 0, 0, 0, 1, 0, 0, 0, 1)
     extra_args = {}
-    if isinstance(input_image, RTStructure):
+    if isinstance(input_image, (RTStructure, Segmentation)):
         extra_args["name"] = input_image.name
     larger_image = image_type.from_array(
         np.ones(larger_shape), spacing=image_spacing, origin=(0, 0, 0), direction=image_direction
@@ -204,7 +224,7 @@ def test_image_pad(image):
     assert_object_compatible(padded_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 def test_image_coregistration(image):
     """Coregister images."""
     input_image: Image = image()
@@ -223,7 +243,7 @@ def test_image_coregistration(image):
         "seed": 1,
         "num_threads": 1,
     }
-    if isinstance(input_image, (RTStructure, Dose)):
+    if isinstance(input_image, (RTStructure, Dose, Segmentation)):
         with pytest.raises(NotImplementedError):
             _ = input_image.coregister(
                 **coregistration_args,
@@ -235,14 +255,14 @@ def test_image_coregistration(image):
     assert_object_compatible(coregistered_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose])
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
 @pytest.mark.parametrize("level", ["patient", "study", "series"])
 def test_image_from_array_metadata(image, level):
     """Test image getitem (for slicing/cropping)."""
     input_image: Image = image()
     image_type = type(input_image)
     extra_args = {}
-    if isinstance(input_image, RTStructure):
+    if isinstance(input_image, (RTStructure, Segmentation)):
         extra_args["name"] = input_image.name
     new_image = image_type.from_array(
         input_image.numpy(),

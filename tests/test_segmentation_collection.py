@@ -303,7 +303,7 @@ def test_read_liver_dicom_segmentation():
     assert seg.name == "Liver"
     assert seg.segmentation_type == SegmentationType.binary
     assert seg.numpy().sum() == 107098
-    reference = Segmentation.read(liver_dicom_seg().parent / "Liver.nii.gz")
+    reference = Segmentation.read(liver_dicom_seg().parent / "liver.nii.gz")
     assert np.all(seg.numpy(copy=False) == reference.numpy(copy=False))
 
 

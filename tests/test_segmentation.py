@@ -9,7 +9,7 @@ import SimpleITK as sitk
 from resmip.image import DicomModality, Image
 from resmip.segmentation import Segmentation, SegmentationType
 
-from .utils import dicom_rtst_path, ibsi_rtst_path
+from .utils import dicom_rtst_path, generate_dummy_segmentation, ibsi_rtst_path
 
 TEST_SEG_SIZE = (204, 201, 60)
 """Size of the test Segmentation."""
@@ -19,15 +19,9 @@ TEST_SEG_SPACING = (0.97699999809265, 0.97699999809265, 2.9999999999998486)
 
 @pytest.mark.parametrize("threshold", [None, -1, 0, 0.5, 1, 5, 10, 11])
 def test_generate_binary_segmentation(threshold):
+    """Generate binary segmentation with various thresholds."""
     mask = np.linspace(0, 10, 300).reshape((3, 10, 10))
-    dummy_segmentation = Segmentation.from_array(
-        mask,
-        spacing=(1, 1, 1),
-        origin=(0, 0, 0),
-        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
-        name="dummy",
-        segmentation_type=SegmentationType.fractional,
-    )
+    dummy_segmentation = generate_dummy_segmentation(mask)
     assert dummy_segmentation.name == "dummy"
     np.testing.assert_allclose(dummy_segmentation.numpy(copy=False), mask)
     assert dummy_segmentation.segmentation_type == SegmentationType.fractional
@@ -54,6 +48,7 @@ def test_generate_binary_segmentation(threshold):
 
 @pytest.mark.parametrize("attr", ["origin", "spacing", "direction", "size"])
 def test_segmentations_incompatible(attr):
+    """Check segmentation compatibility."""
     mask = np.linspace(0, 10, 300).reshape((3, 10, 10))
     if attr in ["origin", "spacing"]:
         different_value = (1, 2, 1)
@@ -63,29 +58,17 @@ def test_segmentations_incompatible(attr):
         pass
     else:
         raise NotImplementedError
-    dummy_segmentation = Segmentation.from_array(
-        mask,
-        spacing=(1, 1, 1),
-        origin=(0, 0, 0),
-        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
-        name="dummy",
-        segmentation_type=SegmentationType.fractional,
-    )
-    other_segmentation = Segmentation.from_array(
-        mask,
-        spacing=(1, 1, 1),
-        origin=(0, 0, 0),
-        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
-        name="dummy",
-        segmentation_type=SegmentationType.fractional,
-    )
+    dummy_segmentation = generate_dummy_segmentation(mask)
+    other_segmentation = generate_dummy_segmentation(mask)
     if attr != "size":
-        setattr(other_segmentation, attr, different_value)
+        setattr(
+            other_segmentation, attr, different_value
+        )  # pylint: disable=possibly-used-before-assignment
     else:
         other_segmentation = other_segmentation[10:, 5:]
     assert getattr(dummy_segmentation, attr) != getattr(other_segmentation, attr)
-    assert dummy_segmentation._is_compatible(other_segmentation) is False
-    assert other_segmentation._is_compatible(dummy_segmentation) is False
+    assert dummy_segmentation.is_compatible(other_segmentation) is False
+    assert other_segmentation.is_compatible(dummy_segmentation) is False
 
 
 @pytest.mark.parametrize("use_structure_name", [True, False])
@@ -98,7 +81,7 @@ def test_read_single_nifti_segmentation(use_structure_name):
         seg = Segmentation.read(segmentation_path, structure_name=structure_name)
     else:
         seg = Segmentation.read(segmentation_path)
-    assert type(seg) == Segmentation
+    assert isinstance(seg, Segmentation)
     assert seg.name == structure_name
     # check size
     assert seg.size == TEST_SEG_SIZE
@@ -125,7 +108,7 @@ def test_read_single_fractional_nifti_segmentation(use_structure_name, tmp_path)
         seg = Segmentation.read(segmentation_path, structure_name=structure_name)
     else:
         seg = Segmentation.read(segmentation_path)
-    assert type(seg) == Segmentation
+    assert isinstance(seg, Segmentation)
     assert seg.name == structure_name
     # check size
     assert seg.size == TEST_SEG_SIZE
@@ -143,7 +126,7 @@ def test_read_single_dicom_structure_from_rtst(mock_dicom_image: Image):
     seg = Segmentation.read(
         dicom_rtst_path(), structure_name=structure_name, reference_image=mock_dicom_image
     )
-    assert type(seg) == Segmentation
+    assert isinstance(seg, Segmentation)
     assert seg.segmentation_type == SegmentationType.binary
     assert seg.name == structure_name
     # check size

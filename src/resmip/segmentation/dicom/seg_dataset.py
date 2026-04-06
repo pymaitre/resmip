@@ -55,7 +55,9 @@ def _copy_series_data_from_reference(ds: Dataset, reference_ds: Dataset):
         setattr(ds, keyword, getattr(reference_ds, keyword))
 
 
-def _copy_patient_data_from_series(ds: Dataset, dicom_series_path: Path, segments_number: int):
+def _copy_patient_data_from_series(
+    ds: Dataset, dicom_series_path: Path, segments_number: int
+):  # pylint: disable=too-many-locals
     series_data = load_sorted_image_series(dicom_series_path)
     series_ds = series_data[0]
 
@@ -121,12 +123,13 @@ def _copy_patient_data_from_series(ds: Dataset, dicom_series_path: Path, segment
 class SegDataset:
     """Abstraction of the ``pydicom.Dataset`` used for DICOM SEG."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-statements
         self,
         segmentations: SegmentationCollection,
         dicom_series_path: Path,
         series_description: str = "",
     ):
+        """Create dataset for DICOM SEG file."""
         image_size = segmentations.size
         image_spacing = segmentations.spacing
         image_direction = segmentations.direction
@@ -222,6 +225,7 @@ class SegDataset:
         self.dataset = ds
 
     def add_segment(self, name: str, number: int):
+        """Add one segmentation to the dataset."""
         seg_item = Dataset()
 
         prop_cat_item = _create_code_sequence_item("85756007", "SCT", "Tissue")
@@ -239,4 +243,5 @@ class SegDataset:
         self.dataset.SegmentSequence.append(seg_item)
 
     def save(self, file_path):
+        """Save the DICOM dataset to file."""
         dcmwrite(file_path, self.dataset, enforce_file_format=True)

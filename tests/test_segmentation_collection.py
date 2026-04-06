@@ -1,5 +1,7 @@
 """Test module for segmentation collection objects."""
 
+# pylint: disable=unidiomatic-typecheck
+
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -17,6 +19,7 @@ from resmip.segmentation import (
 from .utils import (
     fractional_highdicom_dicom_seg,
     fractional_liver_dicom_seg,
+    generate_dummy_segmentation,
     liver_dicom_seg,
     overlap_highdicom_dicom_seg,
     singleframe_highdicom_dicom_seg,
@@ -45,7 +48,7 @@ def assert_required_tags_in_dicom_seg(dataset: Dataset):
 def test_init_empty_collection(collection_type):
     """Generate empty ``SegmentationCollection`` or ``RTStructureSet``."""
     collection = collection_type()
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 0
 
 
@@ -57,7 +60,7 @@ def test_init_two_segmentations(collection_type):
     segm_b = MagicMock(name="segm_b")
     segm_b.name = "b"
     collection = collection_type([segm_a, segm_b])
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 2
     for key in collection:
         assert key in ["a", "b"]
@@ -87,10 +90,10 @@ def test_append_new_segmentation(collection_type):
     segm_b = MagicMock(name="segm_b")
     segm_b.name = "b"
     collection = collection_type([segm_a])
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 1
     collection.append(segm_b)
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 2
     for key in collection:
         assert key in ["a", "b"]
@@ -107,14 +110,14 @@ def test_append_new_segmentation_same_name(collection_type, ignore_errors):
     segm_b = MagicMock(name="segm_b")
     segm_b.name = "a"
     collection = collection_type([segm_a])
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 1
     if ignore_errors is False:
         with pytest.raises(KeyError):
             collection.append(segm_b, ignore_errors=ignore_errors)
         return
     collection.append(segm_b, ignore_errors=ignore_errors)
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 1
     for key in collection:
         assert key in ["a"]
@@ -122,16 +125,16 @@ def test_append_new_segmentation_same_name(collection_type, ignore_errors):
 
 
 @pytest.mark.parametrize("collection_type", [SegmentationCollection, RTStructureSet])
-def test_append_new_segmentation(collection_type):
+def test_extend_new_segmentation(collection_type):
     """Extend two segmentations to the collection."""
     segm_a = MagicMock(name="segm_a")
     segm_a.name = "a"
     segm_b = MagicMock(name="segm_b")
     segm_b.name = "b"
     collection = collection_type()
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     collection.extend([segm_a, segm_b])
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 2
     for key in collection:
         assert key in ["a", "b"]
@@ -148,14 +151,14 @@ def test_extend_new_segmentation_same_name(collection_type, ignore_errors):
     segm_b = MagicMock(name="segm_b")
     segm_b.name = "b"
     collection = collection_type([segm_a])
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 1
     if ignore_errors is False:
         with pytest.raises(KeyError):
             collection.extend([segm_a, segm_b], ignore_errors=ignore_errors)
         return
     collection.extend([segm_a, segm_b], ignore_errors=ignore_errors)
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 2
     for key in collection:
         assert key in ["a", "b"]
@@ -171,9 +174,9 @@ def test_rename_collection(collection_type):
     segm_b = MagicMock(name="segm_b")
     segm_b.name = "b"
     collection = collection_type([segm_a, segm_b])
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     collection.rename("a", "c")
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 2
     for key in collection:
         assert key in ["c", "b"]
@@ -212,9 +215,9 @@ def test_rename_collection_same_key(collection_type):
     segm_b = MagicMock(name="segm_b")
     segm_b.name = "b"
     collection = collection_type([segm_a, segm_b])
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     collection.rename("a", "a")
-    assert type(collection) == collection_type
+    assert type(collection) is collection_type
     assert len(collection) == 2
     for key in collection:
         assert key in ["a", "b"]
@@ -223,6 +226,7 @@ def test_rename_collection_same_key(collection_type):
 
 
 def test_create_rtst_from_segmentation_collection():
+    """Create RTStructureSet from SegmentationCollection."""
     segm_a = Segmentation(name="a", segmentation_type=SegmentationType.binary)
     segm_b = Segmentation(name="b", segmentation_type=SegmentationType.fractional)
     collection = SegmentationCollection([segm_a, segm_b])
@@ -235,6 +239,7 @@ def test_create_rtst_from_segmentation_collection():
 
 
 def test_create_segmentation_collection_rtst_from():
+    """Create SegmentationCollection from RTStructureSet."""
     segm_a = Segmentation(name="a", segmentation_type=SegmentationType.binary)
     segm_b = Segmentation(name="b", segmentation_type=SegmentationType.fractional)
     collection = SegmentationCollection([segm_a, segm_b])
@@ -252,15 +257,9 @@ def test_create_segmentation_collection_rtst_from():
 @pytest.mark.parametrize("collection_type", [SegmentationCollection, RTStructureSet])
 @pytest.mark.parametrize("segmentations_number", [0, 1, 2])
 def test_validate_valid_segmentation_collection(collection_type, segmentations_number):
+    """Validate a valid collection."""
     mask = np.linspace(0, 10, 300).reshape((3, 10, 10))
-    dummy_segmentation = Segmentation.from_array(
-        mask,
-        spacing=(1, 1, 1),
-        origin=(0, 0, 0),
-        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
-        name="dummy",
-        segmentation_type=SegmentationType.fractional,
-    )
+    dummy_segmentation = generate_dummy_segmentation(mask)
     other_segmentation = Segmentation.from_array(
         mask * 2,
         spacing=(1, 1, 1),
@@ -273,20 +272,14 @@ def test_validate_valid_segmentation_collection(collection_type, segmentations_n
     coll = collection_type(segs[:segmentations_number])
     assert len(coll) == segmentations_number
     coll.validate()
-    assert type(coll) == collection_type
+    assert type(coll) is collection_type
 
 
 @pytest.mark.parametrize("collection_type", [SegmentationCollection, RTStructureSet])
 def test_validate_invalid_segmentation_collection(collection_type):
+    """Validate an invalid collection."""
     mask = np.linspace(0, 10, 300).reshape((3, 10, 10))
-    dummy_segmentation = Segmentation.from_array(
-        mask,
-        spacing=(1, 1, 1),
-        origin=(0, 0, 0),
-        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
-        name="dummy",
-        segmentation_type=SegmentationType.fractional,
-    )
+    dummy_segmentation = generate_dummy_segmentation(mask)
     other_segmentation = Segmentation.from_array(
         mask,
         spacing=(1, 2, 1),
@@ -409,7 +402,7 @@ def test_write_liver_dicom_segmentation(
     )
 
     ds = dcmread(output_path)
-    ds.PatientID == seg.patient_id
+    assert ds.PatientID == seg.patient_id
     assert ds.PatientID == "99000"
     assert ds.Modality == DicomModality.seg.value
     assert seg.size == (512, 512, 3)
@@ -450,14 +443,14 @@ def test_write_liver_dicom_segmentation_set(
     coll.write(output_path, reference_image_path=dicom_path.parent / "liver_ct")
 
     ds = dcmread(output_path)
-    ds.PatientID == seg1.patient_id
+    assert ds.PatientID == seg1.patient_id
     assert ds.PatientID == "99000"
     assert ds.Modality == DicomModality.seg.value
     assert seg1.size == (512, 512, 3)
     assert seg1.name == "Liver1"
     assert ds.SegmentationType == segmentation_type.value
     assert np.count_nonzero(seg1.numpy()) == 107098
-    assert sum([s.size[2] for s in coll.values()]) == ds.NumberOfFrames
+    assert sum((s.size[2] for s in coll.values())) == ds.NumberOfFrames
     assert seg1.size[:2] == ds.pixel_array.shape[:0:-1]
     assert seg2.size[:2] == ds.pixel_array.shape[:0:-1]
     assert seg1.size[2] + seg2.size[2] == ds.pixel_array.shape[0]

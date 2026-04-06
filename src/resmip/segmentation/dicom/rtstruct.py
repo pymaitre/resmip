@@ -139,6 +139,7 @@ def _convert_single_structure(
 def _read(  # pylint: disable=too-many-locals
     rtst_path: Path,
     reference_image: Image,
+    *,
     structure_names: str | list[str] | None = None,
     parallel: bool = False,
     regex: bool = False,
@@ -155,6 +156,8 @@ def _read(  # pylint: disable=too-many-locals
         parallel (bool): read RT Structures in parallel.
         regex (bool): if set to true, structure names are searched as regular expression pattern,
             otherwise only exact matches are returned.
+        case_sensitive (bool): If ``False``, perform case-insensitive name
+            matching. Defaults to ``True``.
 
     Returns:
         list[DicomAnnotation]: list of matching RTStructure (nifti) objects.

@@ -134,7 +134,7 @@ def _convert_single_segmentation(segment: pydicom.Dataset, dataset: pydicom.Data
         ):
             segment_frames.append(i)
     if len(segment_frames) == 0:
-        logger.error(f"No frames found for segmentation {segment.SegmentLabel}.")
+        logger.error("No frames found for segmentation %s.", segment.SegmentLabel)
         raise KeyError
 
     origin = (

@@ -152,7 +152,7 @@ class Segmentation(Image):
         mutates the segmentation in place.
         """
         if len(np.unique(self.numpy(copy=False))) > 2:
-            logger.info(f"Changing segmentation type of {self} to fractional")
+            logger.info("Changing segmentation type of %s to fractional", self)
             self.segmentation_type = SegmentationType.fractional
 
     @classmethod
@@ -285,7 +285,7 @@ class Segmentation(Image):
             try:
                 return next(iter(seg_coll.values()))
             except StopIteration:
-                raise KeyError(f"No matching structure found.")
+                raise KeyError("No matching structure found.")  # pylint: disable=raise-missing-from
         if dataset_modality == "RTSTRUCT":
             if reference_image is None:
                 raise ValueError("Must specify a reference image for dicom RT Structures.")
@@ -298,7 +298,7 @@ class Segmentation(Image):
             try:
                 return next(iter(rtst.values()))
             except StopIteration:
-                raise KeyError(f"No matching structure found.")
+                raise KeyError("No matching structure found.")  # pylint: disable=raise-missing-from
         raise NotImplementedError(
             f"{dataset_modality} is an unsupported modality for segmentations."
         )
@@ -386,7 +386,7 @@ class Segmentation(Image):
             raise ValueError(
                 f"Unsupported modality for segmentations: {modality}. Supported values are: {DicomModality.seg.value}, {DicomModality.rtstruct.value}"
             )
-        self._write_nondicom(filename=filename, write_metadata=write_metadata)
+        return self._write_nondicom(filename=filename, write_metadata=write_metadata)
 
     def resample(
         self,
@@ -486,7 +486,7 @@ class Segmentation(Image):
             segmentation_type=SegmentationType.binary,
         )
 
-    def _is_compatible(self, other: Segmentation) -> bool:
+    def is_compatible(self, other: Segmentation) -> bool:
         """Check whether this segmentation is spatially compatible with another.
 
         Two segmentations are compatible if they share the same size,
@@ -503,7 +503,10 @@ class Segmentation(Image):
         for attribute in checks:
             if getattr(self, attribute) != getattr(other, attribute):
                 logger.warning(
-                    f"The two segmentations have different {attribute}: {getattr(self, attribute)}, {getattr(other, attribute)}."
+                    "The two segmentations have different %s: %s, %s.",
+                    attribute,
+                    getattr(self, attribute),
+                    getattr(other, attribute),
                 )
                 return False
         return True
@@ -622,8 +625,9 @@ class SegmentationCollection(dict[str, Segmentation]):
                     "present in the collection."
                 )
             logger.warning(
-                f"Segmentation with name {segmentation.name} already "
-                "present in the collection. Not adding the segmentation."
+                "Segmentation with name %s already "
+                "present in the collection. Not adding the segmentation.",
+                segmentation.name,
             )
             return
         self.update({segmentation.name: segmentation})
@@ -662,7 +666,7 @@ class SegmentationCollection(dict[str, Segmentation]):
             )
         if new_name in self:
             if current_name == new_name:
-                logger.warning(f"Renaming the structure {current_name} " "with the same name.")
+                logger.warning("Renaming the structure %s with the same name.", current_name)
                 return
             raise KeyError(
                 f"New segmentation name '{new_name}' already exists "
@@ -779,10 +783,9 @@ class SegmentationCollection(dict[str, Segmentation]):
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
             if not filename.is_dir():
-                _dicom_seg_write(
+                return _dicom_seg_write(
                     self, filename, reference_image_path, series_description=series_description
                 )
-                return
             if file_format is None:
                 raise ValueError(
                     "File format must be specified when "
@@ -820,7 +823,7 @@ class SegmentationCollection(dict[str, Segmentation]):
         previous = None
         for seg in self.values():
             if previous is not None:
-                if not previous._is_compatible(seg):
+                if not previous.is_compatible(seg):
                     raise ValueError("Not all segmentations are compatible.")
             previous = seg
 
@@ -879,8 +882,7 @@ class SegmentationCollection(dict[str, Segmentation]):
         Returns ``SegmentationType.binary`` for empty collections.
         """
         for seg in self.values():
-            seg._infer_segmentation_type()
-        for seg in self.values():
+            seg._infer_segmentation_type()  # pylint: disable=protected-access
             if seg.segmentation_type == SegmentationType.fractional:
                 return SegmentationType.fractional
         return SegmentationType.binary
@@ -1008,10 +1010,9 @@ class RTStructureSet(SegmentationCollection):
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
             if not filename.is_dir():
-                _dicom_rtstruct_write(
+                return _dicom_rtstruct_write(
                     self, filename, reference_image_path, series_description=series_description
                 )
-                return
             if file_format is None:
                 raise ValueError(
                     "File format must be specified when "

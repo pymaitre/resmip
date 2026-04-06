@@ -1,6 +1,6 @@
 """Test module for rt_structure.py."""
 
-# pylint: disable=W0621
+# pylint: disable=W0621,R0801
 
 import numpy as np
 import pydicom

@@ -384,7 +384,8 @@ class Segmentation(Image):
                     series_description=series_description,
                 )
             raise ValueError(
-                f"Unsupported modality for segmentations: {modality}. Supported values are: {DicomModality.seg.value}, {DicomModality.rtstruct.value}"
+                f"Unsupported modality for segmentations: {modality}. Supported "
+                f"values are: {DicomModality.seg.value}, {DicomModality.rtstruct.value}"
             )
         return self._write_nondicom(filename=filename, write_metadata=write_metadata)
 

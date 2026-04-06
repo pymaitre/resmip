@@ -61,9 +61,7 @@ def test_segmentations_incompatible(attr):
     dummy_segmentation = generate_dummy_segmentation(mask)
     other_segmentation = generate_dummy_segmentation(mask)
     if attr != "size":
-        setattr(
-            other_segmentation, attr, different_value
-        )  # pylint: disable=possibly-used-before-assignment
+        setattr(other_segmentation, attr, different_value)  # pylint: disable=E0606
     else:
         other_segmentation = other_segmentation[10:, 5:]
     assert getattr(dummy_segmentation, attr) != getattr(other_segmentation, attr)

@@ -248,8 +248,9 @@ class Segmentation(Image):
             filename=filename, read_metadata=read_metadata, structure_name=structure_name
         )
 
+    @classmethod
     def _read_dicom(
-        filename: Path, structure_name: str | None = None, reference_image: Image | None = None
+        cls, filename: Path, structure_name: str | None = None, reference_image: Image | None = None
     ):
         """Read a single segmentation from a DICOM SEG or RTSTRUCT file.
 
@@ -785,7 +786,7 @@ class SegmentationCollection(dict[str, Segmentation]):
             if file_format is None:
                 raise ValueError(
                     "File format must be specified when "
-                    "saving a non-DICOM RT structure set to a directory."
+                    "saving a non-DICOM segmentation collection to a directory."
                 )
             filename = [filename / f"{struct_name}{file_format}" for struct_name in self]
         return self._write_nondicom(filename=filename)
@@ -824,6 +825,12 @@ class SegmentationCollection(dict[str, Segmentation]):
             previous = seg
 
     @property
+    def _first(self) -> Segmentation | None:
+        """Return first element of the collection to retrieve properties."""
+        self.validate()
+        return next(iter(self.values()), None)
+
+    @property
     def spacing(self) -> tuple[float, float, float] | None:
         """Voxel spacing shared by all segmentations in mm (x, y, z).
 
@@ -834,10 +841,7 @@ class SegmentationCollection(dict[str, Segmentation]):
             tuple[float, float, float] | None: Common voxel spacing, or
                 ``None`` if the collection is empty.
         """
-        self.validate()
-        if self:
-            return next(iter(self.values())).spacing
-        return None
+        return self._first.spacing if self._first else None
 
     @property
     def direction(self) -> tuple[float, ...] | None:
@@ -850,10 +854,7 @@ class SegmentationCollection(dict[str, Segmentation]):
             tuple[float, ...] | None: Flattened 9-element direction cosine
                 matrix, or ``None`` if the collection is empty.
         """
-        self.validate()
-        if self:
-            return next(iter(self.values())).direction
-        return None
+        return self._first.direction if self._first else None
 
     @property
     def size(self) -> tuple[int, int, int] | None:
@@ -866,10 +867,7 @@ class SegmentationCollection(dict[str, Segmentation]):
             tuple[int, int, int] | None: Common image dimensions, or
                 ``None`` if the collection is empty.
         """
-        self.validate()
-        if self:
-            return next(iter(self.values())).size
-        return None
+        return self._first.size if self._first else None
 
     @property
     def segmentation_type(self) -> SegmentationType:
@@ -896,7 +894,7 @@ class RTStructureSet(SegmentationCollection):
     supported by the RTSTRUCT format.
     """
 
-    def __init__(self, segmentations: Segmentation | None = None):
+    def __init__(self, segmentations: Iterable[Segmentation] | None = None):
         """Initialise the RT Structure Set.
 
         Args:

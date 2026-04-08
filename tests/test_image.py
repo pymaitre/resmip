@@ -1,6 +1,6 @@
 """Test module for image.py."""
 
-# pylint: disable=W0621
+# pylint: disable=W0621,W0212,C0302
 
 import logging
 from pathlib import Path
@@ -16,6 +16,7 @@ from resmip.image import CoregistrationMetric, Image
 from resmip.image.data_types import sitk_image_dtype
 from resmip.image.image import _metadata_file_name
 from resmip.image.metadata import SERIES_MODALITIES, DicomModality
+from resmip.image.transforms import _rx, _ry, _rz
 from resmip.utils import format_digit_string
 
 from .utils import coregistered_image_path, dicom_ct_path
@@ -30,6 +31,76 @@ REQUIRED_IMAGE_FIELDS = [
     ]
 ]
 """DICOM fields that must be present in image metadata."""
+
+
+@pytest.fixture
+def identity_image():
+    """Simple 10x10x10 image with identity direction."""
+    array = np.random.rand(10, 10, 10).astype(np.float32)
+    return Image.from_array(
+        array,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+
+
+@pytest.fixture
+def mock_rotation_image():
+    """Simple mock image for rotations."""
+    size = 9
+    z, y, x = np.ogrid[:size, :size, :size]
+    return Image.from_array(
+        10000 * z + 100 * y + x,
+        spacing=(1, 1, 1),
+        origin=(0, 0, 0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+
+
+@pytest.fixture
+def mock_rotation_image_size():
+    """Size of mock images for rotations."""
+    return 200
+
+
+@pytest.fixture
+def mock_rotation_z_image(mock_rotation_image_size):
+    """Image with segment on the y axis."""
+    mask = np.zeros(shape=[mock_rotation_image_size] * 3)
+    mask[mock_rotation_image_size // 2, 30:-30, mock_rotation_image_size // 2] = 1
+    return Image.from_array(
+        mask,
+        spacing=(1, 1, 1),
+        origin=(0, 0, 0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+
+
+@pytest.fixture
+def mock_rotation_y_image(mock_rotation_image_size):
+    """Image with segment on the x axis."""
+    mask = np.zeros(shape=[mock_rotation_image_size] * 3)
+    mask[mock_rotation_image_size // 2, mock_rotation_image_size // 2, 30:-30] = 1
+    return Image.from_array(
+        mask,
+        spacing=(1, 1, 1),
+        origin=(0, 0, 0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+
+
+@pytest.fixture
+def mock_rotation_x_image(mock_rotation_image_size):
+    """Image with segment on the z axis."""
+    mask = np.zeros(shape=[mock_rotation_image_size] * 3)
+    mask[30:-30, mock_rotation_image_size // 2, mock_rotation_image_size // 2] = 1
+    return Image.from_array(
+        mask,
+        spacing=(1, 1, 1),
+        origin=(0, 0, 0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
 
 
 def test_metadata_is_unique():
@@ -736,3 +807,351 @@ def test_dicom_image_ids_padding(mock_dicom_image: Image):
     assert isinstance(mock_dicom_image.study_instance_uid, str)
     assert ds["SeriesInstanceUID"].value == mock_dicom_image.series_instance_uid
     assert isinstance(mock_dicom_image.series_instance_uid, str)
+
+
+def test_cosine_matrix_from_cosine_matrix():
+    """Generating a cosine matrix from a 2D matrix raises an Exception."""
+    cosine_matrix = np.eye(3)
+    with pytest.raises(ValueError):
+        Image._cosine_matrix_from_direction(cosine_matrix)
+
+
+def test_cosine_matrix_from_2d_image():
+    """Generating a cosine matrix from a 2D image raises an Exception."""
+    cosine_matrix = (1, 0, 0, 1)
+    with pytest.raises(NotImplementedError):
+        Image._cosine_matrix_from_direction(cosine_matrix)
+
+
+def test_cosine_matrix_order():
+    """Generating a mock cosine matrix to check order."""
+    direction = (1, 2, 3, 4, 5, 6, 7, 8, 9)
+    cosine_matrix = np.array(((1, 2, 3), (4, 5, 6), (7, 8, 9)))
+    np.testing.assert_equal(Image._cosine_matrix_from_direction(direction), cosine_matrix)
+
+
+def _compute_angle(array):
+    """Get direction of the segment."""
+    y_ones, x_ones = np.where(array == 1)
+    y = y_ones.max() - y_ones.min()
+    x = x_ones.max() - x_ones.min()
+    if array[y_ones.min(), x_ones.min()] == 1:
+        x = -x
+    return np.arctan2(y, x)
+
+
+def _flat_direction(array):
+    """Get direction of the segment."""
+    uniques = []
+    for ax in np.where(array == 1):
+        uniques.append(len(np.unique(ax)))
+    uniques = np.array(uniques)
+    if not np.count_nonzero(uniques == 1) == len(uniques) - 1:
+        raise ValueError("The array is not lying down on one axis.")
+    return np.argmax(uniques)
+
+
+@pytest.mark.parametrize("rotation_angle", [-0.2, -0.05, 0, 0.1, 0.2])
+def test_rotate_small_z(
+    rotation_angle: float, mock_rotation_z_image: Image, mock_rotation_image_size: int
+):
+    """Test small rotations on the z axis."""
+    original_array = mock_rotation_z_image.numpy().astype(np.uint8)
+    rotated_image = mock_rotation_z_image.rotate(angle_z=rotation_angle)
+    np.testing.assert_equal(
+        original_array,
+        mock_rotation_z_image.numpy(copy=False),
+    )
+    rotated_array = (rotated_image.numpy(copy=False) >= 0.5).astype(np.uint8)
+    rotated_angle = _compute_angle(rotated_array[mock_rotation_image_size // 2])
+    original_angle = _compute_angle(original_array[mock_rotation_image_size // 2])
+    rotation_matrix = np.array(
+        (
+            (np.cos(rotation_angle), -np.sin(rotation_angle), 0),
+            (np.sin(rotation_angle), np.cos(rotation_angle), 0),
+            (0, 0, 1),
+        )
+    )
+    expected_direction = (rotation_matrix @ mock_rotation_z_image._cosine_matrix).flatten()
+    np.testing.assert_almost_equal(
+        (rotated_angle - original_angle) % np.pi, rotation_angle % np.pi, decimal=2
+    )
+    np.testing.assert_allclose(rotated_image.direction, expected_direction)
+
+
+@pytest.mark.parametrize("rotation_angle", [-0.2, -0.05, 0, 0.1, 0.2])
+def test_rotate_small_y(
+    rotation_angle: float, mock_rotation_y_image: Image, mock_rotation_image_size: int
+):
+    """Test small rotations on the y axis."""
+    original_array = mock_rotation_y_image.numpy().astype(np.uint8)
+    rotated_image = mock_rotation_y_image.rotate(angle_y=rotation_angle)
+    np.testing.assert_equal(
+        original_array,
+        mock_rotation_y_image.numpy(copy=False),
+    )
+    rotated_array = (rotated_image.numpy(copy=False) >= 0.5).astype(np.uint8)
+    rotated_angle = _compute_angle(rotated_array[:, mock_rotation_image_size // 2].T)
+    original_angle = _compute_angle(original_array[:, mock_rotation_image_size // 2].T)
+    rotation_matrix = np.array(
+        (
+            (np.cos(rotation_angle), 0, np.sin(rotation_angle)),
+            (0, 1, 0),
+            (-np.sin(rotation_angle), 0, np.cos(rotation_angle)),
+        )
+    )
+    expected_direction = (rotation_matrix @ mock_rotation_y_image._cosine_matrix).flatten()
+    np.testing.assert_almost_equal(
+        (rotated_angle - original_angle) % np.pi, rotation_angle % np.pi, decimal=2
+    )
+    np.testing.assert_allclose(rotated_image.direction, expected_direction)
+
+
+@pytest.mark.parametrize("rotation_angle", [-0.2, -0.05, 0, 0.1, 0.2])
+def test_rotate_small_x(
+    rotation_angle: float, mock_rotation_x_image: Image, mock_rotation_image_size: int
+):
+    """Test small rotations on the x axis."""
+    original_array = mock_rotation_x_image.numpy().astype(np.uint8)
+    rotated_image = mock_rotation_x_image.rotate(angle_x=rotation_angle)
+    np.testing.assert_equal(
+        original_array,
+        mock_rotation_x_image.numpy(copy=False),
+    )
+    rotated_array = (rotated_image.numpy(copy=False) >= 0.5).astype(np.uint8)
+    rotated_angle = _compute_angle(rotated_array[:, :, mock_rotation_image_size // 2])
+    original_angle = _compute_angle(original_array[:, :, mock_rotation_image_size // 2])
+    rotation_matrix = np.array(
+        (
+            (1, 0, 0),
+            (0, np.cos(rotation_angle), -np.sin(rotation_angle)),
+            (0, np.sin(rotation_angle), np.cos(rotation_angle)),
+        )
+    )
+    expected_direction = (rotation_matrix @ mock_rotation_x_image._cosine_matrix).flatten()
+    np.testing.assert_almost_equal(
+        (rotated_angle - original_angle) % np.pi, rotation_angle % np.pi, decimal=2
+    )
+    np.testing.assert_allclose(rotated_image.direction, expected_direction)
+
+
+@pytest.mark.parametrize("rotation_angle", [-np.pi / 2, 0, np.pi / 2])
+def test_rotate_xy(rotation_angle: float, mock_rotation_x_image: Image):
+    """Test pi/2 rotation on the x and y axes."""
+    original_array = mock_rotation_x_image.numpy().astype(np.uint8)
+    rotated_image = mock_rotation_x_image.rotate(angle_x=rotation_angle, angle_y=rotation_angle)
+    np.testing.assert_equal(
+        original_array,
+        mock_rotation_x_image.numpy(copy=False),
+    )
+    rotated_array = (rotated_image.numpy(copy=False) >= 0.5).astype(np.uint8)
+    rx = np.array(
+        (
+            (1, 0, 0),
+            (0, np.cos(rotation_angle), -np.sin(rotation_angle)),
+            (0, np.sin(rotation_angle), np.cos(rotation_angle)),
+        )
+    )
+    ry = np.array(
+        (
+            (np.cos(rotation_angle), 0, np.sin(rotation_angle)),
+            (0, 1, 0),
+            (-np.sin(rotation_angle), 0, np.cos(rotation_angle)),
+        )
+    )
+    rotation_matrix = rx @ ry
+
+    temp = mock_rotation_x_image.rotate(angle_y=rotation_angle)
+    two_step_rotated_image = temp.rotate(angle_x=rotation_angle)
+
+    assert _flat_direction(original_array) == 0
+    if rotation_angle == 0:
+        assert _flat_direction(rotated_array) == 0
+    else:
+        assert _flat_direction(rotated_array) == 1
+    old_origin = mock_rotation_x_image.origin
+    centre = np.array(
+        mock_rotation_x_image.TransformContinuousIndexToPhysicalPoint(
+            [(sz - 1) / 2 for sz in mock_rotation_x_image.size]
+        )
+    )
+    shifted_origin = old_origin - centre
+    new_origin = (rotation_matrix @ shifted_origin) + centre
+    np.testing.assert_allclose(
+        rotated_image.origin, new_origin, atol=1e-12, err_msg=f"Expected origin: {new_origin}"
+    )
+    np.testing.assert_allclose(rotated_image.origin, two_step_rotated_image.origin, atol=1e-12)
+    expected_direction = (rotation_matrix @ mock_rotation_x_image._cosine_matrix).flatten()
+    np.testing.assert_allclose(rotated_image.direction, expected_direction, atol=1e-12)
+    np.testing.assert_allclose(
+        rotated_image.numpy(copy=False), two_step_rotated_image.numpy(copy=False), atol=1e-12
+    )
+
+
+def test_reorient_z(mock_rotation_z_image: Image, mock_rotation_image_size: int):
+    """Test pi/2 reorient on the z axis."""
+    rotation_matrix = np.array(
+        (
+            (0, -1, 0),
+            (1, 0, 0),
+            (0, 0, 1),
+        )
+    )
+    expected_direction = (rotation_matrix @ mock_rotation_z_image._cosine_matrix).flatten()
+    original_array = mock_rotation_z_image.numpy().astype(np.uint8)
+    rotated_image = mock_rotation_z_image.reorient(new_direction=expected_direction)
+    np.testing.assert_equal(
+        original_array,
+        mock_rotation_z_image.numpy(copy=False),
+    )
+    rotated_array = (rotated_image.numpy(copy=False) >= 0.5).astype(np.uint8)
+
+    assert _flat_direction(original_array) == 1
+    assert _flat_direction(rotated_array) == 2
+    np.testing.assert_allclose(
+        rotated_image.origin, (mock_rotation_image_size - 1, 0, 0), atol=1e-12
+    )
+    np.testing.assert_allclose(rotated_image.direction, expected_direction, atol=1e-12)
+
+
+def test_reorient_y(mock_rotation_y_image: Image, mock_rotation_image_size: int):
+    """Test pi/2 reorient on the y axis."""
+    rotation_matrix = np.array(
+        (
+            (0, 0, 1),
+            (0, 1, 0),
+            (-1, 0, 0),
+        )
+    )
+    expected_direction = (rotation_matrix @ mock_rotation_y_image._cosine_matrix).flatten()
+    original_array = mock_rotation_y_image.numpy().astype(np.uint8)
+    rotated_image = mock_rotation_y_image.reorient(new_direction=expected_direction)
+    np.testing.assert_equal(
+        original_array,
+        mock_rotation_y_image.numpy(copy=False),
+    )
+    rotated_array = (rotated_image.numpy(copy=False) >= 0.5).astype(np.uint8)
+
+    assert _flat_direction(original_array) == 2
+    assert _flat_direction(rotated_array) == 0
+    np.testing.assert_allclose(
+        rotated_image.origin, (0, 0, mock_rotation_image_size - 1), atol=1e-12
+    )
+    np.testing.assert_allclose(rotated_image.direction, expected_direction, atol=1e-12)
+
+
+def test_reorient_x(mock_rotation_x_image: Image, mock_rotation_image_size: int):
+    """Test pi/2 reorient on the x axis."""
+    rotation_matrix = np.array(
+        (
+            (1, 0, 0),
+            (0, 0, 1),
+            (0, -1, 0),
+        )
+    )
+    expected_direction = (rotation_matrix @ mock_rotation_x_image._cosine_matrix).flatten()
+    original_array = mock_rotation_x_image.numpy().astype(np.uint8)
+    rotated_image = mock_rotation_x_image.reorient(new_direction=expected_direction)
+    np.testing.assert_equal(
+        original_array,
+        mock_rotation_x_image.numpy(copy=False),
+    )
+    rotated_array = (rotated_image.numpy(copy=False) >= 0.5).astype(np.uint8)
+
+    assert _flat_direction(original_array) == 0
+    assert _flat_direction(rotated_array) == 1
+    np.testing.assert_allclose(
+        rotated_image.origin, (0, 0, mock_rotation_image_size - 1), atol=1e-12
+    )
+    np.testing.assert_allclose(rotated_image.direction, expected_direction, atol=1e-12)
+
+
+@pytest.mark.parametrize(
+    "angle",
+    [
+        {"x": 0.6, "y": 0.4, "z": -0.1},
+        {"x": 1.9, "y": -0.5, "z": -0.9},
+    ],
+)
+def test_reorient_two_rotations(mock_rotation_x_image: Image, angle: dict[str, float]):
+    """Test multiple rotations."""
+    rotation_matrix = _rz(angle["z"]) @ _rx(angle["x"]) @ _ry(angle["y"])
+
+    expected_direction = (rotation_matrix @ mock_rotation_x_image._cosine_matrix).flatten()
+    original_array = mock_rotation_x_image.numpy().astype(np.uint8)
+    rotated_image = mock_rotation_x_image.reorient(new_direction=expected_direction)
+    np.testing.assert_equal(
+        original_array,
+        mock_rotation_x_image.numpy(copy=False),
+    )
+    np.testing.assert_allclose(rotated_image.direction, expected_direction, atol=1e-12)
+
+    angle_rotated_image = mock_rotation_x_image.rotate(
+        angle_x=angle["x"], angle_y=angle["y"], angle_z=angle["z"]
+    )
+    np.testing.assert_allclose(angle_rotated_image.origin, rotated_image.origin, atol=1e-12)
+    np.testing.assert_allclose(angle_rotated_image.direction, rotated_image.direction, atol=1e-12)
+    np.testing.assert_allclose(
+        angle_rotated_image.numpy(copy=False), rotated_image.numpy(copy=False), atol=1e-12
+    )
+
+
+@pytest.mark.parametrize(
+    "angle",
+    [
+        {"x": 0.6, "y": 0.4, "z": -0.1},
+        {"x": 1.9, "y": -0.5, "z": -0.9},
+    ],
+)
+@pytest.mark.parametrize("default_direction", [True, False])
+def test_reorient_and_back(
+    mock_rotation_x_image: Image, angle: dict[str, float], default_direction: bool
+):
+    """Test rotation and inverse with ``reorient``."""
+    rotation_matrix = _rz(angle["z"]) @ _rx(angle["x"]) @ _ry(angle["y"])
+
+    expected_direction = (rotation_matrix @ mock_rotation_x_image._cosine_matrix).flatten()
+    original_array = mock_rotation_x_image.numpy().astype(np.uint8)
+    rotated_image = mock_rotation_x_image.reorient(new_direction=expected_direction)
+    if default_direction:
+        rotated_image = rotated_image.reorient()
+    else:
+        rotated_image = rotated_image.reorient(mock_rotation_x_image.direction)
+    rotated_array = (rotated_image.numpy() >= 0.5).astype(np.uint8)
+    np.testing.assert_equal(
+        original_array,
+        mock_rotation_x_image.numpy(copy=False),
+    )
+    np.testing.assert_allclose(rotated_array, original_array, atol=1e-12)
+    np.testing.assert_allclose(rotated_image.direction, mock_rotation_x_image.direction, atol=1e-12)
+    np.testing.assert_allclose(rotated_image.origin, mock_rotation_x_image.origin, atol=1e-12)
+
+
+@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.parametrize(
+    "angle",
+    [
+        {"x": 0.6, "y": 0.4, "z": -0.1},
+    ],
+)
+def test_reorient_flip_rotation(mock_rotation_x_image: Image, angle: dict[str, float]):
+    """Test improper rotation."""
+    rotation_matrix = -(_rz(angle["z"]) @ _rx(angle["x"]) @ _ry(angle["y"]))
+
+    expected_direction = (rotation_matrix @ mock_rotation_x_image._cosine_matrix).flatten()
+    original_array = mock_rotation_x_image.numpy().astype(np.uint8)
+    rotated_image = mock_rotation_x_image.reorient(new_direction=expected_direction)
+    np.testing.assert_equal(
+        original_array,
+        mock_rotation_x_image.numpy(copy=False),
+    )
+    np.testing.assert_allclose(rotated_image.direction, expected_direction, atol=1e-12)
+
+    angle_rotated_image = mock_rotation_x_image.rotate(
+        angle_x=angle["x"], angle_y=angle["y"], angle_z=angle["z"]
+    )
+    np.testing.assert_allclose(angle_rotated_image.origin, rotated_image.origin, atol=1e-12)
+    np.testing.assert_allclose(angle_rotated_image.direction, rotated_image.direction, atol=1e-12)
+    np.testing.assert_allclose(
+        angle_rotated_image.numpy(copy=False), rotated_image.numpy(copy=False), atol=1e-12
+    )

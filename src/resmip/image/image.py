@@ -29,6 +29,8 @@ from resmip.image.metadata import (
 )
 from resmip.utils import PathLike, format_digit_string
 
+from .transforms import _rx, _ry, _rz
+
 __all__ = ["Image"]
 
 logger = logging.getLogger(__name__)
@@ -611,6 +613,147 @@ class Image(sitk.Image):
             [str(x) for x in new_img.spacing[:2]]
         )
         new_img.metadata[string_tag_for_keyword("SliceThickness")] = str(new_img.spacing[2])
+        return new_img
+
+    @staticmethod
+    def _cosine_matrix_from_direction(direction: np.ndarray | tuple[float, ...]) -> np.ndarray:
+        """Reshape a flat direction array into a 3x3 direction cosine matrix.
+
+        Args:
+            direction (np.ndarray | tuple[float, ...]): Flattened 9-element
+                direction array in row-major order, as returned by
+                ``sitk.Image.GetDirection()``.
+
+        Raises:
+            ValueError: If ``direction`` is not one-dimensional.
+            NotImplementedError: If ``direction`` does not have exactly 9
+                elements (i.e. the image is not 3D).
+
+        Returns:
+            np.ndarray: 3x3 direction cosine matrix where each row is a
+                direction cosine vector.
+        """
+        if not isinstance(direction, np.ndarray):
+            direction = np.array(direction)
+        if direction.ndim != 1:
+            raise ValueError("Only one dimensional direction arrays are supported.")
+        if direction.shape != (9,):
+            raise NotImplementedError("Only 3D images are currently supported.")
+        return direction.reshape(3, 3).copy()
+
+    @property
+    def _cosine_matrix(self) -> np.ndarray:
+        """3x3 direction cosine matrix of the image."""
+        return Image._cosine_matrix_from_direction(self.direction)
+
+    def reorient(
+        self,
+        new_direction=None,
+        interpolator: int = sitk.sitkBSpline,
+        default_pixel_value: float = 0,
+    ) -> Image:
+        """Rotate the image to match a target direction cosine matrix.
+
+        Computes the rotation matrix that maps the current image direction
+        to ``new_direction`` and applies it via ``rotate``. Only pure
+        rotations (det = +1) are supported; improper rotations (det = -1,
+        e.g. reflections) raise ``NotImplementedError``.
+
+        Args:
+            new_direction (np.ndarray | tuple[float, ...] | None): Target
+                direction as a 9-element flattened row-major rotation matrix
+                or a 3x3 array. If ``None``, defaults to the identity
+                direction (standard axial orientation).
+            interpolator (int): SimpleITK interpolator constant forwarded
+                to ``rotate``.
+            default_pixel_value (float): Fill value for voxels outside the
+                original image extent, forwarded to ``rotate``.
+
+        Raises:
+            NotImplementedError: If the computed rotation is an improper
+                rotation (determinant = -1) or is not a valid rotation matrix
+                (determinant ≠ ±1).
+
+        Returns:
+            Image: Reoriented image matching ``new_direction``.
+        """
+        if new_direction is None:
+            # set default value
+            new_direction = np.eye(3).flatten()
+
+        # generate overall transformation
+        current_direction = self._cosine_matrix
+        final_direction = Image._cosine_matrix_from_direction(new_direction)
+        overall_rotation = final_direction @ np.linalg.inv(current_direction)
+
+        # check if the overall rotation is a pure rotation:
+        # det(R) = +1
+        if np.isclose(np.linalg.det(overall_rotation), -1):
+            # flip the rotation
+            raise NotImplementedError("Currently only pure rotations are supported.")
+
+        if not np.isclose(np.linalg.det(overall_rotation), 1):
+            raise NotImplementedError("Currently only pure rotations are supported.")
+
+        angle_x = np.arctan2(
+            overall_rotation[2, 1],
+            np.sqrt(overall_rotation[2, 0] ** 2 + overall_rotation[2, 2] ** 2),
+        )
+        angle_y = np.arctan2(-overall_rotation[2, 0], overall_rotation[2, 2])
+        angle_z = np.arctan2(-overall_rotation[0, 1], overall_rotation[1, 1])
+        return self.rotate(
+            angle_x=angle_x,
+            angle_y=angle_y,
+            angle_z=angle_z,
+            interpolator=interpolator,
+            default_pixel_value=default_pixel_value,
+        )
+
+    def rotate(
+        self,
+        angle_x: float = 0,
+        angle_y: float = 0,
+        angle_z: float = 0,
+        *,
+        interpolator: int = sitk.sitkBSpline,
+        default_pixel_value: float = 0,
+    ) -> Image:
+        """Apply a 3D rotation to the image and return the transformed copy.
+
+        Rotations are applied in the intrinsic order Y -> X -> Z, centred on
+        the middle voxel of the image in physical coordinates. The output
+        image has the same size and spacing as the input. Direction and
+        origin are updated to reflect the rotation.
+
+        Args:
+            angle_x (float): Rotation angle around the X axis in radians.
+            angle_y (float): Rotation angle around the Y axis in radians.
+            angle_z (float): Rotation angle around the Z axis in radians.
+            interpolator (int): SimpleITK interpolator constant used during
+                resampling.
+            default_pixel_value (float): Value used for voxels outside the
+                original image extent after rotation.
+
+        Returns:
+            Image: Rotated image with updated direction and origin, and the
+                same size, spacing, and metadata as the original.
+        """
+        transform = sitk.Euler3DTransform()
+        rotation_center = np.array(
+            self.TransformContinuousIndexToPhysicalPoint([(sz - 1) / 2 for sz in self.size])
+        )
+        transform.SetCenter(rotation_center)
+        transform.SetRotation(angleX=angle_x, angleY=angle_y, angleZ=angle_z)
+        new_img = Image(
+            sitk.Resample(
+                self, self, transform, interpolator, default_pixel_value, self.GetPixelID()
+            ),
+            metadata=self.metadata,
+            modality=self.modality,
+        )
+        rotation_matrix = _rz(angle_z) @ _rx(angle_x) @ _ry(angle_y)
+        new_img.direction = (rotation_matrix @ self._cosine_matrix).flatten()
+        new_img.origin = transform.TransformPoint(self.origin)
         return new_img
 
     def pad(self, reference_image: Image, **kwargs) -> Image:

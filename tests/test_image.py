@@ -1155,3 +1155,99 @@ def test_reorient_flip_rotation(mock_rotation_x_image: Image, angle: dict[str, f
     np.testing.assert_allclose(
         angle_rotated_image.numpy(copy=False), rotated_image.numpy(copy=False), atol=1e-12
     )
+
+
+@pytest.mark.parametrize("flip_axis", [0, 1, 2])
+def test_reorient_reflection_optin(mock_rotation_x_image: Image, flip_axis: int):
+    """det -1 target reorients when allow_reflection=True; axis is output-invariant."""
+    angle = {"x": 0.6, "y": 0.4, "z": -0.1}
+    improper = -(_rz(angle["z"]) @ _rx(angle["x"]) @ _ry(angle["y"]))
+    expected_direction = (improper @ mock_rotation_x_image._cosine_matrix).flatten()
+    out = mock_rotation_x_image.reorient(
+        new_direction=expected_direction, allow_reflection=True, flip_axis=flip_axis
+    )
+    np.testing.assert_allclose(out.direction, expected_direction, atol=1e-12)
+
+
+def test_reorient_gimbal_with_z(mock_rotation_x_image: Image):
+    """angle_x = pi/2 with a real z component must reconstruct (old code silently failed)."""
+    target = _rz(0.5) @ _rx(np.pi / 2)
+    expected = (target @ mock_rotation_x_image._cosine_matrix).flatten()
+    out = mock_rotation_x_image.reorient(new_direction=expected)
+    np.testing.assert_allclose(out.direction, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize("flip_axis", [0, 1, 2])
+def test_reorient_reflection_mirrors_data(flip_axis: int):
+    """Reflection actually mirrors the voxels, independent of the internal flip axis."""
+    pattern = np.arange(7 * 7 * 7, dtype=np.float64).reshape(7, 7, 7)
+    image = Image.from_array(
+        pattern,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=tuple(np.eye(3).flatten()),
+    )
+    target = np.diag([-1.0, 1.0, 1.0])
+    out = image.reorient(
+        new_direction=target.flatten(),
+        interpolator=sitk.sitkNearestNeighbor,
+        allow_reflection=True,
+        flip_axis=flip_axis,
+    )
+    np.testing.assert_allclose(out.direction, target.flatten(), atol=1e-12)
+    np.testing.assert_array_equal(out.numpy(copy=False), np.flip(pattern, axis=2))
+
+
+def test_reorient_proper_does_not_mirror_data():
+    """Negative control: a proper reorient must NOT mirror the data (oracle has teeth)."""
+    pattern = np.arange(7 * 7 * 7, dtype=np.float64).reshape(7, 7, 7)
+    image = Image.from_array(
+        pattern,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=tuple(np.eye(3).flatten()),
+    )
+    out = image.reorient()
+    assert not np.array_equal(out.numpy(copy=False), np.flip(pattern, axis=2))
+
+
+def test_reorient_image_non_orthogonal():
+    """Non orthogonal reorientations are not supported."""
+    pattern = np.arange(7 * 7 * 7, dtype=np.float64).reshape(7, 7, 7)
+    image = Image.from_array(
+        pattern,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=tuple(np.eye(3).flatten()),
+    )
+    with pytest.raises(NotImplementedError):
+        _ = image.reorient(new_direction=(0.5, 0, 0, 0, 1, 0, 0, 0, 1))
+
+
+def test_flip_does_not_mutate_source():
+    """_flip must not touch the caller's array or metadata."""
+    pattern = np.arange(7 * 7 * 7, dtype=np.float64).reshape(7, 7, 7)
+    image = Image.from_array(
+        pattern,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=tuple(np.eye(3).flatten()),
+    )
+    before = image.numpy()
+    _ = image._flip(0)
+    np.testing.assert_array_equal(image.numpy(copy=False), before)
+
+
+def test_flip_metadata_is_independent():
+    """Derived images must not share the metadata dict by reference."""
+    tag = string_tag_for_keyword("PatientID")
+    image = Image.from_array(
+        np.arange(7 * 7 * 7, dtype=np.float64).reshape(7, 7, 7),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=tuple(np.eye(3).flatten()),
+        metadata={tag: "ORIGINAL"},
+    )
+    flipped = image._flip(0)
+    flipped.metadata[tag] = "MODIFIED"
+    assert image.metadata[tag] == "ORIGINAL"

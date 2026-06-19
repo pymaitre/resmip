@@ -609,10 +609,12 @@ class Image(sitk.Image):
 
         new_img = Image(resampler.Execute(self))
         new_img.metadata = self.metadata
-        new_img.metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
-            [str(x) for x in new_img.spacing[:2]]
-        )
-        new_img.metadata[string_tag_for_keyword("SliceThickness")] = str(new_img.spacing[2])
+        if string_tag_for_keyword("PixelSpacing") in new_img.metadata:
+            new_img.metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
+                [str(x) for x in new_img.spacing[:2]]
+            )
+        if string_tag_for_keyword("SliceThickness") in new_img.metadata:
+            new_img.metadata[string_tag_for_keyword("SliceThickness")] = str(new_img.spacing[2])
         return new_img
 
     @staticmethod

@@ -11,7 +11,6 @@ def _rx(angle: float) -> np.ndarray:
 
     Returns:
         np.ndarray: 3x3 active rotation matrix.
-
     """
     return np.array(
         (
@@ -30,7 +29,6 @@ def _ry(angle: float) -> np.ndarray:
 
     Returns:
         np.ndarray: 3x3 active rotation matrix.
-
     """
     return np.array(
         (
@@ -49,7 +47,6 @@ def _rz(angle: float) -> np.ndarray:
 
     Returns:
         np.ndarray: 3x3 active rotation matrix.
-
     """
     return np.array(
         (
@@ -75,7 +72,6 @@ def _nearest_orthogonal(matrix: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Nearest 3x3 orthogonal matrix, with the same determinant
             sign as ``matrix``.
-
     """
     u, _, vt = np.linalg.svd(matrix)
     return u @ vt
@@ -100,7 +96,6 @@ def _euler_zxy_from_matrix(rotation: np.ndarray) -> tuple[float, float, float]:
     Returns:
         tuple[float, float, float]: Rotation angles ``(angle_x, angle_y,
             angle_z)`` in radians, in the Z-X-Y convention.
-
     """
     cos_x = np.sqrt(rotation[2, 0] ** 2 + rotation[2, 2] ** 2)
     angle_x = np.arctan2(rotation[2, 1], cos_x)

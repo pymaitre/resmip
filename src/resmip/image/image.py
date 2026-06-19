@@ -29,7 +29,7 @@ from resmip.image.metadata import (
 )
 from resmip.utils import PathLike, format_digit_string
 
-from .transforms import _rx, _ry, _rz
+from .transforms import _euler_zxy_from_matrix, _nearest_orthogonal, _rx, _ry, _rz
 
 __all__ = ["Image"]
 
@@ -648,16 +648,20 @@ class Image(sitk.Image):
 
     def reorient(
         self,
-        new_direction=None,
+        new_direction: np.ndarray | tuple[float, ...] | None = None,
+        *,
         interpolator: int = sitk.sitkBSpline,
         default_pixel_value: float = 0,
+        allow_reflection: bool = False,
+        flip_axis: int = 0,
     ) -> Image:
         """Rotate the image to match a target direction cosine matrix.
 
         Computes the rotation matrix that maps the current image direction
         to ``new_direction`` and applies it via ``rotate``. Only pure
         rotations (det = +1) are supported; improper rotations (det = -1,
-        e.g. reflections) raise ``NotImplementedError``.
+        e.g. reflections) are optionally supported. Transformations with
+        -1 < det < 1 raise ``NotImplementedError``.
 
         Args:
             new_direction (np.ndarray | tuple[float, ...] | None): Target
@@ -668,11 +672,10 @@ class Image(sitk.Image):
                 to ``rotate``.
             default_pixel_value (float): Fill value for voxels outside the
                 original image extent, forwarded to ``rotate``.
-
-        Raises:
-            NotImplementedError: If the computed rotation is an improper
-                rotation (determinant = -1) or is not a valid rotation matrix
-                (determinant ≠ ±1).
+            allow_reflection (bool): Allow reflections for rotations with
+                negative determinant. If set to false, improper rotations
+                raise an exception.
+            flip_axis (int): Internal reflection axis for improper rotations.
 
         Returns:
             Image: Reoriented image matching ``new_direction``.
@@ -683,23 +686,28 @@ class Image(sitk.Image):
         # generate overall transformation
         current_direction = self._cosine_matrix
         final_direction = Image._cosine_matrix_from_direction(new_direction)
-        overall_rotation = final_direction @ np.linalg.inv(current_direction)
+        raw_transform = final_direction @ np.linalg.inv(current_direction)
+        overall_rotation = _nearest_orthogonal(raw_transform)
+        if not np.allclose(raw_transform, overall_rotation, atol=1e-4):
+            raise NotImplementedError("Target direction is not orthogonal.")
+        det = np.linalg.det(overall_rotation)
 
-        # check if the overall rotation is a pure rotation:
-        # det(R) = +1
-        if np.isclose(np.linalg.det(overall_rotation), -1):
-            # flip the rotation
-            raise NotImplementedError("Currently only pure rotations are supported.")
+        if np.isclose(det, -1):
+            if not allow_reflection:
+                raise NotImplementedError(
+                    "Reorientation requires a reflection (det = -1). "
+                    "Pass allow_reflection=True to mirror the data."
+                )
+            return self._flip(flip_axis).reorient(
+                new_direction,
+                interpolator=interpolator,
+                default_pixel_value=default_pixel_value,
+                allow_reflection=False,  # guard against infinite recursion
+            )
+        if not np.isclose(det, 1):
+            raise NotImplementedError("Computed transform is not a valid rotation.")
 
-        if not np.isclose(np.linalg.det(overall_rotation), 1):
-            raise NotImplementedError("Currently only pure rotations are supported.")
-
-        angle_x = np.arctan2(
-            overall_rotation[2, 1],
-            np.sqrt(overall_rotation[2, 0] ** 2 + overall_rotation[2, 2] ** 2),
-        )
-        angle_y = np.arctan2(-overall_rotation[2, 0], overall_rotation[2, 2])
-        angle_z = np.arctan2(-overall_rotation[0, 1], overall_rotation[1, 1])
+        angle_x, angle_y, angle_z = _euler_zxy_from_matrix(overall_rotation)
         return self.rotate(
             angle_x=angle_x,
             angle_y=angle_y,
@@ -729,7 +737,6 @@ class Image(sitk.Image):
         Returns:
             Image: Mirrored image with the same spacing, size and metadata, and
                 a direction cosine matrix of opposite determinant.
-
         """
         if axis not in (0, 1, 2):
             raise ValueError(f"flip_axis must be 0, 1 or 2; got {axis}.")

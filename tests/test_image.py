@@ -1251,3 +1251,18 @@ def test_flip_metadata_is_independent():
     flipped = image._flip(0)
     flipped.metadata[tag] = "MODIFIED"
     assert image.metadata[tag] == "ORIGINAL"
+
+
+def test_new_image_metadata_is_independent():
+    """Derived images must not share the metadata dict by reference."""
+    tag = string_tag_for_keyword("PatientID")
+    image = Image.from_array(
+        np.arange(7 * 7 * 7, dtype=np.float64).reshape(7, 7, 7),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=tuple(np.eye(3).flatten()),
+        metadata={tag: "ORIGINAL"},
+    )
+    new_image = Image(image)
+    new_image.metadata[tag] = "MODIFIED"
+    assert image.metadata[tag] == "ORIGINAL"

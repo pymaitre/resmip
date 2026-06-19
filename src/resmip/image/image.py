@@ -718,11 +718,6 @@ class Image(sitk.Image):
         )
 
     def _flip(self, axis: int) -> Image:
-        """Reverse voxel order along an image axis (x=0, y=1, z=2). Lossless reindex.
-
-        Flips the data and adjusts direction/origin so the image is physically
-        unchanged but its direction determinant flips sign. Its own inverse.
-        """
         """Reverse the voxel order along one image axis, mirroring the image.
 
         The voxels are reversed along the given axis while the direction and

@@ -1159,7 +1159,7 @@ def test_reorient_flip_rotation(mock_rotation_x_image: Image, angle: dict[str, f
 
 @pytest.mark.parametrize("flip_axis", [0, 1, 2])
 def test_reorient_reflection_optin(mock_rotation_x_image: Image, flip_axis: int):
-    """det -1 target reorients when allow_reflection=True; axis is output-invariant."""
+    """Det -1 target reorients when allow_reflection=True; axis is output-invariant."""
     angle = {"x": 0.6, "y": 0.4, "z": -0.1}
     improper = -(_rz(angle["z"]) @ _rx(angle["x"]) @ _ry(angle["y"]))
     expected_direction = (improper @ mock_rotation_x_image._cosine_matrix).flatten()
@@ -1170,7 +1170,7 @@ def test_reorient_reflection_optin(mock_rotation_x_image: Image, flip_axis: int)
 
 
 def test_reorient_gimbal_with_z(mock_rotation_x_image: Image):
-    """angle_x = pi/2 with a real z component must reconstruct (old code silently failed)."""
+    """Rotation with angle_x = pi/2 with a real z component must reconstruct."""
     target = _rz(0.5) @ _rx(np.pi / 2)
     expected = (target @ mock_rotation_x_image._cosine_matrix).flatten()
     out = mock_rotation_x_image.reorient(new_direction=expected)
@@ -1225,7 +1225,7 @@ def test_reorient_image_non_orthogonal():
 
 
 def test_flip_does_not_mutate_source():
-    """_flip must not touch the caller's array or metadata."""
+    """Method _flip must not touch the caller's array or metadata."""
     pattern = np.arange(7 * 7 * 7, dtype=np.float64).reshape(7, 7, 7)
     image = Image.from_array(
         pattern,

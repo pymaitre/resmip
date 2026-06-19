@@ -661,8 +661,8 @@ class Image(sitk.Image):
 
         Args:
             new_direction (np.ndarray | tuple[float, ...] | None): Target
-                direction as a 9-element flattened row-major rotation matrix
-                or a 3x3 array. If ``None``, defaults to the identity
+                direction as a 9-element flattened row-major rotation matrix.
+                If ``None``, defaults to the identity
                 direction (standard axial orientation).
             interpolator (int): SimpleITK interpolator constant forwarded
                 to ``rotate``.
@@ -678,7 +678,6 @@ class Image(sitk.Image):
             Image: Reoriented image matching ``new_direction``.
         """
         if new_direction is None:
-            # set default value
             new_direction = np.eye(3).flatten()
 
         # generate overall transformation
@@ -707,6 +706,45 @@ class Image(sitk.Image):
             angle_z=angle_z,
             interpolator=interpolator,
             default_pixel_value=default_pixel_value,
+        )
+
+    def _flip(self, axis: int) -> Image:
+        """Reverse voxel order along an image axis (x=0, y=1, z=2). Lossless reindex.
+
+        Flips the data and adjusts direction/origin so the image is physically
+        unchanged but its direction determinant flips sign. Its own inverse.
+        """
+        """Reverse the voxel order along one image axis, mirroring the image.
+
+        The voxels are reversed along the given axis while the direction and
+        origin are updated so the image occupies the same physical extent as
+        before; only its handedness changes (the determinant of the direction
+        cosine matrix flips sign). The operation is lossless and is its own
+        inverse: flipping twice along the same axis restores the original image.
+
+        Args:
+            axis (int): Image axis to reverse, in (x, y, z) order
+                (``x=0``, ``y=1``, ``z=2``).
+
+        Returns:
+            Image: Mirrored image with the same spacing, size and metadata, and
+                a direction cosine matrix of opposite determinant.
+
+        """
+        if axis not in (0, 1, 2):
+            raise ValueError(f"flip_axis must be 0, 1 or 2; got {axis}.")
+        data = np.flip(self.numpy(), axis=2 - axis).copy()  # image axis -> numpy axis
+        direction = self._cosine_matrix
+        spacing = np.array(self.spacing)
+        size = np.array(self.size)
+        new_origin = np.array(self.origin) + direction[:, axis] * spacing[axis] * (size[axis] - 1)
+        direction[:, axis] *= -1
+        return Image.from_array(
+            data,
+            spacing=self.spacing,
+            origin=tuple(new_origin),
+            direction=tuple(direction.flatten()),
+            metadata=self.metadata,
         )
 
     def rotate(

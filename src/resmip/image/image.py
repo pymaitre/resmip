@@ -84,7 +84,7 @@ class Image(sitk.Image):
         # Copy metadata when creating an image from an existing one
         if len(args) > 0:
             if isinstance(args[0], Image):
-                self._metadata = args[0].metadata
+                self._metadata = args[0].metadata.copy()
         if metadata:
             self._metadata.update(metadata)
         if modality:
@@ -288,7 +288,7 @@ class Image(sitk.Image):
         """
         new_image = cls(sitk.GetImageFromArray(array), **kwargs)
         if metadata is not None:
-            new_image.metadata = metadata
+            new_image.metadata = metadata.copy()
         new_image.spacing = spacing
         new_image.origin = origin
         new_image.direction = direction
@@ -607,8 +607,7 @@ class Image(sitk.Image):
         new_size = [int(s) for s in new_size]
         resampler.SetSize(new_size)
 
-        new_img = Image(resampler.Execute(self))
-        new_img.metadata = self.metadata
+        new_img = Image(resampler.Execute(self), metadata=self.metadata)
         if string_tag_for_keyword("PixelSpacing") in new_img.metadata:
             new_img.metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
                 [str(x) for x in new_img.spacing[:2]]

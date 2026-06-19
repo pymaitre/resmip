@@ -11,8 +11,7 @@ import pydicom
 import pydicom.errors
 import SimpleITK as sitk
 
-from resmip.image import Image, ImageDTypeLike
-from resmip.image.metadata import DicomModality
+from resmip.image import DicomModality, Image, ImageDTypeLike
 from resmip.utils import PathLike
 
 __all__ = ["Dose"]

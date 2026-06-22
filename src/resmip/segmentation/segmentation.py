@@ -691,6 +691,7 @@ class SegmentationCollection(dict[str, Segmentation]):
         filename: PathLike | list[PathLike],
         *,
         structure_names: list[str] | None = None,
+        read_metadata: bool = True,
         regex: bool = False,
         parallel: bool = True,
     ) -> SegmentationCollection:
@@ -702,6 +703,8 @@ class SegmentationCollection(dict[str, Segmentation]):
             structure_names (list[str] | None): Names of the segments to
                 read. If ``None``, all segments are returned. Only used
                 for DICOM SEG input.
+            read_metadata (bool): If ``True``, read the sidecar JSON metadata
+                file for non-DICOM formats. Has no effect for DICOM files.
             regex (bool): If ``True``, ``structure_names`` are treated as
                 regular expression patterns.
             parallel (bool): If ``True``, convert segments to images in
@@ -734,14 +737,16 @@ class SegmentationCollection(dict[str, Segmentation]):
                     if seg.name is not None
                 ]
             )
-        return cls._read_nondicom(filename=filename)
+        return cls._read_nondicom(filename=filename, read_metadata=read_metadata)
 
     @classmethod
-    def _read_nondicom(cls, filename: list[PathLike]):
+    def _read_nondicom(cls, filename: list[PathLike], read_metadata: bool = True):
         """Read segmentations from a list of non-DICOM files.
 
         Args:
             filename (list[PathLike]): List of paths to non-DICOM image files.
+            read_metadata (bool): If ``True``, read the sidecar JSON metadata
+                file for non-DICOM formats.
 
         Returns:
             SegmentationCollection: Collection of segmentations read from
@@ -749,7 +754,7 @@ class SegmentationCollection(dict[str, Segmentation]):
         """
         segmentations = []
         for f in filename:
-            segmentations.append(Segmentation.read(f))
+            segmentations.append(Segmentation.read(f, read_metadata=read_metadata))
         return cls(segmentations)
 
     def write(
@@ -944,6 +949,7 @@ class RTStructureSet(SegmentationCollection):
         filename: PathLike | list[PathLike],
         *,
         structure_names: list[str] | None = None,
+        read_metadata: bool = True,
         regex: bool = False,
         parallel: bool = True,
         reference_image: Image | None = None,
@@ -956,6 +962,8 @@ class RTStructureSet(SegmentationCollection):
             structure_names (list[str] | None): Names of the ROIs to read.
                 If ``None``, all ROIs are returned. Only used for DICOM
                 RTSTRUCT input.
+            read_metadata (bool): If ``True``, read the sidecar JSON metadata
+                file for non-DICOM formats. Has no effect for DICOM files.
             regex (bool): If ``True``, ``structure_names`` are treated as
                 regular expression patterns. Defaults to ``False``.
             parallel (bool): If ``True``, convert ROIs to images in parallel
@@ -979,7 +987,7 @@ class RTStructureSet(SegmentationCollection):
             return cls(
                 [Segmentation(x.image, name=x.name) for x in segmentations if x.name is not None]
             )
-        return cls._read_nondicom(filename=filename)
+        return cls._read_nondicom(filename=filename, read_metadata=read_metadata)
 
     def write(
         self,

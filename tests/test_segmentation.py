@@ -224,23 +224,23 @@ def test_crop_structure(mock_dicom_structure: Segmentation):
     )
 
 
-def test_segmentation_from_array(mock_dicom_structure: Segmentation):
+def test_segmentation_from_array(mock_dicom_segmentation: Segmentation):
     """Test Segmentation creation from a numpy array."""
     new_structure = Segmentation.from_array(
-        mock_dicom_structure.numpy(),
-        spacing=mock_dicom_structure.spacing,
-        origin=mock_dicom_structure.origin,
-        direction=mock_dicom_structure.direction,
-        metadata=mock_dicom_structure.metadata,
-        name=mock_dicom_structure.name,
+        mock_dicom_segmentation.numpy(),
+        spacing=mock_dicom_segmentation.spacing,
+        origin=mock_dicom_segmentation.origin,
+        direction=mock_dicom_segmentation.direction,
+        metadata=mock_dicom_segmentation.metadata,
+        name=mock_dicom_segmentation.name,
     )
-    assert new_structure.size == mock_dicom_structure.size
-    assert new_structure.spacing == mock_dicom_structure.spacing
-    assert new_structure.origin == mock_dicom_structure.origin
-    assert new_structure.direction == mock_dicom_structure.direction
-    assert np.all(new_structure.numpy() == mock_dicom_structure.numpy())
-    assert new_structure.metadata == mock_dicom_structure.metadata
-    assert new_structure.name == mock_dicom_structure.name
+    assert new_structure.size == mock_dicom_segmentation.size
+    assert new_structure.spacing == mock_dicom_segmentation.spacing
+    assert new_structure.origin == mock_dicom_segmentation.origin
+    assert new_structure.direction == mock_dicom_segmentation.direction
+    assert np.all(new_structure.numpy() == mock_dicom_segmentation.numpy())
+    assert new_structure.metadata == mock_dicom_segmentation.metadata
+    assert new_structure.name == mock_dicom_segmentation.name
 
 
 @pytest.mark.parametrize("extension", ["nii", "nii.gz"])

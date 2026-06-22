@@ -44,6 +44,14 @@ resmip.image.metadata module
    :undoc-members:
    :show-inheritance:
 
+resmip.image.transforms module
+------------------------------
+
+.. automodule:: resmip.image.transforms
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

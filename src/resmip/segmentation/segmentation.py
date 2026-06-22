@@ -691,6 +691,7 @@ class SegmentationCollection(dict[str, Segmentation]):
         filename: PathLike | list[PathLike],
         *,
         structure_names: list[str] | None = None,
+        read_metadata: bool = True,
         regex: bool = False,
         parallel: bool = True,
     ) -> SegmentationCollection:
@@ -702,6 +703,8 @@ class SegmentationCollection(dict[str, Segmentation]):
             structure_names (list[str] | None): Names of the segments to
                 read. If ``None``, all segments are returned. Only used
                 for DICOM SEG input.
+            read_metadata (bool): If ``True``, read the sidecar JSON metadata
+                file for non-DICOM formats. Has no effect for DICOM files.
             regex (bool): If ``True``, ``structure_names`` are treated as
                 regular expression patterns.
             parallel (bool): If ``True``, convert segments to images in
@@ -734,14 +737,16 @@ class SegmentationCollection(dict[str, Segmentation]):
                     if seg.name is not None
                 ]
             )
-        return cls._read_nondicom(filename=filename)
+        return cls._read_nondicom(filename=filename, read_metadata=read_metadata)
 
     @classmethod
-    def _read_nondicom(cls, filename: list[PathLike]):
+    def _read_nondicom(cls, filename: list[PathLike], read_metadata: bool = True):
         """Read segmentations from a list of non-DICOM files.
 
         Args:
             filename (list[PathLike]): List of paths to non-DICOM image files.
+            read_metadata (bool): If ``True``, read the sidecar JSON metadata
+                file for non-DICOM formats.
 
         Returns:
             SegmentationCollection: Collection of segmentations read from
@@ -749,7 +754,7 @@ class SegmentationCollection(dict[str, Segmentation]):
         """
         segmentations = []
         for f in filename:
-            segmentations.append(Segmentation.read(f))
+            segmentations.append(Segmentation.read(f, read_metadata=read_metadata))
         return cls(segmentations)
 
     def write(
@@ -757,6 +762,7 @@ class SegmentationCollection(dict[str, Segmentation]):
         filename: PathLike | list[PathLike],
         *,
         file_format: str | None = None,
+        write_metadata: bool = True,
         reference_image_path: PathLike | None = None,
         series_description: str = "",
     ) -> None:
@@ -775,6 +781,8 @@ class SegmentationCollection(dict[str, Segmentation]):
             file_format (str | None): File suffix for non-DICOM output when
                 ``filename`` is a directory (e.g. ``".nii.gz"``). Must be
                 provided when writing to a directory.
+            write_metadata (bool): If ``True``, write a sidecar JSON metadata
+                file alongside non-DICOM outputs. Has no effect for DICOM.
             reference_image_path (PathLike | None): Path to the reference
                 DICOM series directory. Required for DICOM SEG output.
                 Ignored for non-DICOM formats.
@@ -793,14 +801,16 @@ class SegmentationCollection(dict[str, Segmentation]):
                     "saving a non-DICOM segmentation collection to a directory."
                 )
             filename = [filename / f"{struct_name}{file_format}" for struct_name in self]
-        return self._write_nondicom(filename=filename)
+        return self._write_nondicom(filename=filename, write_metadata=write_metadata)
 
-    def _write_nondicom(self, filename: list[PathLike]):
+    def _write_nondicom(self, filename: list[PathLike], write_metadata: bool = True):
         """Write each segmentation in the collection to a separate non-DICOM file.
 
         Args:
             filename (list[PathLike]): List of output file paths, one per
                 segmentation. Must have the same length as the collection.
+            write_metadata (bool): If ``True``, write a sidecar JSON metadata
+                file alongside non-DICOM outputs.
 
         Raises:
             ValueError: If the number of filenames does not match the number
@@ -812,7 +822,7 @@ class SegmentationCollection(dict[str, Segmentation]):
                 "The number of filenames provided is different than the number of structures."
             )
         for structure_filename, structure in zip(filename, self.values()):
-            structure.write(structure_filename)
+            structure.write(structure_filename, write_metadata=write_metadata)
 
     def validate(self):
         """Check that all segmentations in the collection are spatially compatible.
@@ -939,6 +949,7 @@ class RTStructureSet(SegmentationCollection):
         filename: PathLike | list[PathLike],
         *,
         structure_names: list[str] | None = None,
+        read_metadata: bool = True,
         regex: bool = False,
         parallel: bool = True,
         reference_image: Image | None = None,
@@ -951,6 +962,8 @@ class RTStructureSet(SegmentationCollection):
             structure_names (list[str] | None): Names of the ROIs to read.
                 If ``None``, all ROIs are returned. Only used for DICOM
                 RTSTRUCT input.
+            read_metadata (bool): If ``True``, read the sidecar JSON metadata
+                file for non-DICOM formats. Has no effect for DICOM files.
             regex (bool): If ``True``, ``structure_names`` are treated as
                 regular expression patterns. Defaults to ``False``.
             parallel (bool): If ``True``, convert ROIs to images in parallel
@@ -974,13 +987,14 @@ class RTStructureSet(SegmentationCollection):
             return cls(
                 [Segmentation(x.image, name=x.name) for x in segmentations if x.name is not None]
             )
-        return cls._read_nondicom(filename=filename)
+        return cls._read_nondicom(filename=filename, read_metadata=read_metadata)
 
     def write(
         self,
         filename: PathLike | list[PathLike],
         *,
         file_format: str | None = None,
+        write_metadata: bool = True,
         reference_image_path: PathLike | None = None,
         series_description: str = "",
     ) -> None:
@@ -998,6 +1012,8 @@ class RTStructureSet(SegmentationCollection):
             file_format (str | None): File suffix for non-DICOM output when
                 ``filename`` is a directory (e.g. ``".nii.gz"``). Must be
                 provided when writing to a directory.
+            write_metadata (bool): If ``True``, write a sidecar JSON metadata
+                file alongside non-DICOM outputs.
             reference_image_path (PathLike | None): Path to the reference
                 DICOM series directory. Required for DICOM RTSTRUCT output.
                 Ignored for non-DICOM formats.
@@ -1020,4 +1036,4 @@ class RTStructureSet(SegmentationCollection):
                     "saving a non-DICOM RT structure set to a directory."
                 )
             filename = [filename / f"{struct_name}{file_format}" for struct_name in self]
-        return self._write_nondicom(filename=filename)
+        return self._write_nondicom(filename=filename, write_metadata=write_metadata)

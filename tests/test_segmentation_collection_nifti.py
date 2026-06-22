@@ -102,3 +102,102 @@ def test_write_structure_set_to_nifti_wrong_number(
         save_paths.append(tmp_path / f"{structure}.{extension}")
     with pytest.raises(ValueError):
         collection.write(save_paths, file_format=f".{extension}")
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+@pytest.mark.parametrize("class_type", [SegmentationCollection, RTStructureSet])
+def test_should_not_write_metadata_when_write_metadata_false_list(
+    extension, class_type, mock_dicom_image: resmip.Image, tmp_path
+):
+    """Sidecar JSON absent when write_metadata=False, list-of-paths mode."""
+    structure_name = "GTV-1"
+    rtst = RTStructureSet.read(
+        dicom_rtst_path(),
+        structure_names=[structure_name],
+        reference_image=mock_dicom_image,
+    )
+    collection = class_type(rtst.values())
+    structure_path = tmp_path / f"{structure_name}.{extension}"
+    metadata_path = structure_path.parent / f".{structure_path.stem}.json"
+    collection.write([structure_path], write_metadata=False)
+    assert not metadata_path.exists()
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+@pytest.mark.parametrize("class_type", [SegmentationCollection, RTStructureSet])
+def test_should_not_write_metadata_when_write_metadata_false_dir(
+    extension, class_type, mock_dicom_image: resmip.Image, tmp_path
+):
+    """Sidecar JSON absent when write_metadata=False, directory mode."""
+    structure_name = "GTV-1"
+    rtst = RTStructureSet.read(
+        dicom_rtst_path(),
+        structure_names=[structure_name],
+        reference_image=mock_dicom_image,
+    )
+    collection = class_type(rtst.values())
+    structure_path = tmp_path / f"{structure_name}.{extension}"
+    metadata_path = structure_path.parent / f".{structure_path.stem}.json"
+    collection.write(tmp_path, file_format=f".{extension}", write_metadata=False)
+    assert not metadata_path.exists()
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+@pytest.mark.parametrize("class_type", [SegmentationCollection, RTStructureSet])
+def test_should_write_metadata_by_default(
+    extension, class_type, mock_dicom_image: resmip.Image, tmp_path
+):
+    """Sidecar JSON present with the default write_metadata=True."""
+    structure_name = "GTV-1"
+    rtst = RTStructureSet.read(
+        dicom_rtst_path(),
+        structure_names=[structure_name],
+        reference_image=mock_dicom_image,
+    )
+    collection = class_type(rtst.values())
+    structure_path = tmp_path / f"{structure_name}.{extension}"
+    metadata_path = structure_path.parent / f".{structure_path.stem}.json"
+    collection.write([structure_path])
+    assert metadata_path.exists()
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+@pytest.mark.parametrize("class_type", [SegmentationCollection, RTStructureSet])
+def test_should_not_read_metadata_when_read_metadata_false(
+    extension, class_type, mock_dicom_image: resmip.Image, tmp_path
+):
+    """Sidecar-only metadata absent when reading with read_metadata=False."""
+    structure_name = "GTV-1"
+    sentinel_key = "resmip_test_key"
+    rtst = RTStructureSet.read(
+        dicom_rtst_path(),
+        structure_names=[structure_name],
+        reference_image=mock_dicom_image,
+    )
+    collection = class_type(rtst.values())
+    collection[structure_name].metadata[sentinel_key] = "resmip_test_value"
+    structure_path = tmp_path / f"{structure_name}.{extension}"
+    collection.write([structure_path])
+    loaded = class_type.read([structure_path], read_metadata=False)
+    assert sentinel_key not in loaded[structure_name].metadata
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+@pytest.mark.parametrize("class_type", [SegmentationCollection, RTStructureSet])
+def test_should_read_metadata_by_default(
+    extension, class_type, mock_dicom_image: resmip.Image, tmp_path
+):
+    """Sidecar metadata present with default read_metadata=True."""
+    structure_name = "GTV-1"
+    sentinel_key = "resmip_test_key"
+    rtst = RTStructureSet.read(
+        dicom_rtst_path(),
+        structure_names=[structure_name],
+        reference_image=mock_dicom_image,
+    )
+    collection = class_type(rtst.values())
+    collection[structure_name].metadata[sentinel_key] = "resmip_test_value"
+    structure_path = tmp_path / f"{structure_name}.{extension}"
+    collection.write([structure_path])
+    loaded = class_type.read([structure_path])
+    assert loaded[structure_name].metadata[sentinel_key] == "resmip_test_value"

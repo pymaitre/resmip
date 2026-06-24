@@ -7,6 +7,7 @@ import warnings
 from pathlib import Path
 from typing import Iterable
 
+import numpy as np
 import pydicom
 import pydicom.errors
 import SimpleITK as sitk
@@ -260,6 +261,108 @@ class Dose(Image):
         return Dose(
             super().resample(
                 new_spacing=new_spacing,
+                interpolator=interpolator,
+                default_pixel_value=default_pixel_value,
+            )
+        )
+
+    def reorient(
+        self,
+        new_direction: np.ndarray | tuple[float, ...] | None = None,
+        *,
+        interpolator: int = sitk.sitkBSpline,
+        default_pixel_value: float = 0,
+        allow_reflection: bool = False,
+        flip_axis: int = 0,
+    ) -> Image:
+        """Rotate the dose to match a target direction cosine matrix.
+
+        Computes the rotation matrix that maps the current image direction
+        to ``new_direction`` and applies it via ``rotate``. Only pure
+        rotations (det = +1) are supported; improper rotations (det = -1,
+        e.g. reflections) are optionally supported. Transformations with
+        -1 < det < 1 raise ``NotImplementedError``.
+
+        Args:
+            new_direction (np.ndarray | tuple[float, ...] | None): Target
+                direction as a 9-element flattened row-major rotation matrix.
+                If ``None``, defaults to the identity
+                direction (standard axial orientation).
+            interpolator (int): SimpleITK interpolator constant forwarded
+                to ``rotate``.
+            default_pixel_value (float): Fill value for voxels outside the
+                original image extent, forwarded to ``rotate``.
+            allow_reflection (bool): Allow reflections for rotations with
+                negative determinant. If set to false, improper rotations
+                raise an exception.
+            flip_axis (int): Internal reflection axis for improper rotations.
+
+        Returns:
+            Dose: Reoriented dose matching ``new_direction``.
+        """
+        return Dose(
+            super().reorient(
+                new_direction=new_direction,
+                interpolator=interpolator,
+                default_pixel_value=default_pixel_value,
+                allow_reflection=allow_reflection,
+                flip_axis=flip_axis,
+            )
+        )
+
+    def _flip(self, axis: int) -> Dose:
+        """Reverse the voxel order along one image axis, mirroring the dose.
+
+        The voxels are reversed along the given axis while the direction and
+        origin are updated so the image occupies the same physical extent as
+        before; only its handedness changes (the determinant of the direction
+        cosine matrix flips sign). The operation is lossless and is its own
+        inverse: flipping twice along the same axis restores the original image.
+
+        Args:
+            axis (int): Image axis to reverse, in (x, y, z) order
+                (``x=0``, ``y=1``, ``z=2``).
+
+        Returns:
+            Dose: Mirrored dose with the same spacing, size and metadata, and
+                a direction cosine matrix of opposite determinant.
+        """
+        return Dose(super()._flip(axis=axis))
+
+    def rotate(
+        self,
+        angle_x: float = 0,
+        angle_y: float = 0,
+        angle_z: float = 0,
+        *,
+        interpolator: int = sitk.sitkBSpline,
+        default_pixel_value: float = 0,
+    ) -> Dose:
+        """Apply a 3D rotation to the dose and return the transformed copy.
+
+        Rotations are applied in the intrinsic order Y -> X -> Z, centred on
+        the middle voxel of the image in physical coordinates. The output
+        image has the same size and spacing as the input. Direction and
+        origin are updated to reflect the rotation.
+
+        Args:
+            angle_x (float): Rotation angle around the X axis in radians.
+            angle_y (float): Rotation angle around the Y axis in radians.
+            angle_z (float): Rotation angle around the Z axis in radians.
+            interpolator (int): SimpleITK interpolator constant used during
+                resampling.
+            default_pixel_value (float): Value used for voxels outside the
+                original image extent after rotation.
+
+        Returns:
+            Dose: Rotated dose with updated direction and origin, and the
+                same size, spacing, and metadata as the original.
+        """
+        return Dose(
+            super().rotate(
+                angle_x=angle_x,
+                angle_y=angle_y,
+                angle_z=angle_z,
                 interpolator=interpolator,
                 default_pixel_value=default_pixel_value,
             )

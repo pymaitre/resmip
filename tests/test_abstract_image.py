@@ -1,5 +1,7 @@
 """Test module for Image class and its children."""
 
+# pylint: disable=W0212
+
 import logging
 from pathlib import Path
 

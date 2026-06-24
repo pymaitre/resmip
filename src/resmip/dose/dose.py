@@ -178,7 +178,7 @@ class Dose(Image):
         self,
         filename: PathLike,
         *,
-        write_metadata: bool = False,
+        write_metadata: bool = True,
         use_existing_ids: bool = False,
         file_format: str | None = None,
         # reference_image_path: Optional[PathLike] = None,
@@ -205,14 +205,14 @@ class Dose(Image):
             file_format = filename.suffix
         filename.parent.mkdir(parents=True, exist_ok=True)
         if file_format != ".dcm":
-            return self._write_nondicom(filename)
+            return self._write_nondicom(filename, write_metadata=write_metadata)
         raise NotImplementedError("Saving to DICOM RT Dose is currently not supported.")
 
     def write_image(
         self,
         filename: PathLike,
         *,
-        write_metadata: bool = False,
+        write_metadata: bool = True,
         file_format: str | None = None,
         # reference_image_path: Optional[PathLike] = None,
     ) -> None:  # pragma: no cover

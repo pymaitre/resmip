@@ -78,3 +78,51 @@ def test_dose_modality(read_existing_dose):
         dose = Dose()
     assert isinstance(dose, Dose)
     assert dose.modality == "RTDOSE"
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+def test_should_not_write_metadata_when_write_metadata_false_dir(extension, tmp_path):
+    """Sidecar JSON absent when write_metadata=False, directory mode."""
+    image = Image.read(REFERENCE_DICOM_IMAGE_PATH)
+    dose = Dose.read(REFERENCE_DICOM_DOSE_PATH, reference_image=image)
+    nifti_dose_path = tmp_path / f"dose.{extension}"
+    metadata_path = nifti_dose_path.parent / f".{nifti_dose_path.stem}.json"
+    dose.write(nifti_dose_path, write_metadata=False)
+    assert not metadata_path.exists()
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+def test_should_write_metadata_by_default(extension, tmp_path):
+    """Sidecar JSON present with the default write_metadata=True."""
+    image = Image.read(REFERENCE_DICOM_IMAGE_PATH)
+    dose = Dose.read(REFERENCE_DICOM_DOSE_PATH, reference_image=image)
+    nifti_dose_path = tmp_path / f"dose.{extension}"
+    metadata_path = nifti_dose_path.parent / f".{nifti_dose_path.stem}.json"
+    dose.write(nifti_dose_path)
+    assert metadata_path.exists()
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+def test_should_not_read_metadata_when_read_metadata_false(extension, tmp_path):
+    """Sidecar-only metadata absent when reading with read_metadata=False."""
+    image = Image.read(REFERENCE_DICOM_IMAGE_PATH)
+    dose = Dose.read(REFERENCE_DICOM_DOSE_PATH, reference_image=image)
+    nifti_dose_path = tmp_path / f"dose.{extension}"
+    sentinel_key = "resmip_test_key"
+    dose.metadata[sentinel_key] = "resmip_test_value"
+    dose.write(nifti_dose_path, write_metadata=True)
+    loaded = Dose.read(nifti_dose_path, read_metadata=False)
+    assert sentinel_key not in loaded.metadata
+
+
+@pytest.mark.parametrize("extension", ["nii", "nii.gz"])
+def test_should_read_metadata_by_default(extension, tmp_path):
+    """Sidecar metadata present with default read_metadata=True."""
+    image = Image.read(REFERENCE_DICOM_IMAGE_PATH)
+    dose = Dose.read(REFERENCE_DICOM_DOSE_PATH, reference_image=image)
+    nifti_dose_path = tmp_path / f"dose.{extension}"
+    sentinel_key = "resmip_test_key"
+    dose.metadata[sentinel_key] = "resmip_test_value"
+    dose.write(nifti_dose_path, write_metadata=True)
+    loaded = Dose.read(nifti_dose_path)
+    assert loaded.metadata[sentinel_key] == "resmip_test_value"

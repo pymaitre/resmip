@@ -299,9 +299,9 @@ def test_image_reorient_default(image):
     input_image: Image = image()
     image_type = type(input_image)
     new_direction = (0, 1, 0, -1, 0, 0, 0, 0, 1)
-    assert np.all(input_image._cosine_matrix == np.eye(3))
+    assert np.allclose(input_image._cosine_matrix, np.eye(3))
     input_image.direction = new_direction
-    assert np.any(input_image._cosine_matrix != np.eye(3))
+    assert not np.allclose(input_image._cosine_matrix, np.eye(3))
     assert np.allclose(input_image.direction, new_direction)
     reoriented_image = input_image.reorient()
     assert_object_compatible(reoriented_image, input_image, image_type)
@@ -314,9 +314,9 @@ def test_image_rotate(image):
     input_image: Image = image()
     image_type = type(input_image)
     new_direction = (0, 1, 0, -1, 0, 0, 0, 0, 1)
-    assert np.all(input_image._cosine_matrix == np.eye(3))
+    assert np.allclose(input_image._cosine_matrix, np.eye(3))
     input_image.direction = new_direction
-    assert np.any(input_image._cosine_matrix != np.eye(3))
+    assert not np.allclose(input_image._cosine_matrix, np.eye(3))
     assert np.allclose(input_image.direction, new_direction)
     rotated_image = input_image.rotate(angle_z=np.pi / 2)
     assert_object_compatible(rotated_image, input_image, image_type)
@@ -328,7 +328,7 @@ def test_image_flip(image):
     """Test image flip."""
     input_image: Image = image()
     image_type = type(input_image)
-    assert np.all(input_image._cosine_matrix == np.eye(3))
+    assert np.allclose(input_image._cosine_matrix, np.eye(3))
     flipped_image = input_image._flip(axis=0)
     assert_object_compatible(flipped_image, input_image, image_type)
     assert np.allclose(flipped_image.direction, (-1, 0, 0, 0, 1, 0, 0, 0, 1))

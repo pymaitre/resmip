@@ -1,5 +1,7 @@
 """Test module for Image class and its children."""
 
+# pylint: disable=W0212
+
 import logging
 from pathlib import Path
 
@@ -288,3 +290,47 @@ def test_image_from_array_metadata(image, level):
             if dicom_tag in input_image.metadata:
                 assert new_image.metadata[dicom_tag] == input_image.metadata[dicom_tag]
     assert_object_compatible(new_image, input_image, image_type, check_metadata=False)
+
+
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+def test_image_reorient_default(image):
+    """Test image reorientation.
+
+    Default orientation is (1, 0, 0, 0, 1, 0, 0, 0, 1).
+    """
+    input_image: Image = image()
+    image_type = type(input_image)
+    new_direction = (0, 1, 0, -1, 0, 0, 0, 0, 1)
+    assert np.allclose(input_image._cosine_matrix, np.eye(3))
+    input_image.direction = new_direction
+    assert not np.allclose(input_image._cosine_matrix, np.eye(3))
+    assert np.allclose(input_image.direction, new_direction)
+    reoriented_image = input_image.reorient()
+    assert_object_compatible(reoriented_image, input_image, image_type)
+    assert np.allclose(reoriented_image._cosine_matrix, np.eye(3))
+
+
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+def test_image_rotate(image):
+    """Test image rotation."""
+    input_image: Image = image()
+    image_type = type(input_image)
+    new_direction = (0, 1, 0, -1, 0, 0, 0, 0, 1)
+    assert np.allclose(input_image._cosine_matrix, np.eye(3))
+    input_image.direction = new_direction
+    assert not np.allclose(input_image._cosine_matrix, np.eye(3))
+    assert np.allclose(input_image.direction, new_direction)
+    rotated_image = input_image.rotate(angle_z=np.pi / 2)
+    assert_object_compatible(rotated_image, input_image, image_type)
+    assert np.allclose(rotated_image._cosine_matrix, np.eye(3))
+
+
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+def test_image_flip(image):
+    """Test image flip."""
+    input_image: Image = image()
+    image_type = type(input_image)
+    assert np.allclose(input_image._cosine_matrix, np.eye(3))
+    flipped_image = input_image._flip(axis=0)
+    assert_object_compatible(flipped_image, input_image, image_type)
+    assert np.allclose(flipped_image.direction, (-1, 0, 0, 0, 1, 0, 0, 0, 1))

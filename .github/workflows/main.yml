@@ -32,6 +32,9 @@ jobs:
           poetry run prospector
           poetry run pylint tests
           poetry run ruff check
+      - name: Test code
+        run: |
+          poetry run pytest
       - name: Build and test docs
         run: |
           python -m pip install .
@@ -39,7 +42,3 @@ jobs:
           cd docs
           make html
           make doctest
-      - name: Test code
-        run: |
-          poetry install --with test
-          poetry run pytest

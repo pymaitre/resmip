@@ -26,10 +26,9 @@ jobs:
         uses: snok/install-poetry@v1
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --with test
       - name: Control code structure
         run: |
-          poetry install --with test
           poetry run prospector
           poetry run pylint tests
           poetry run ruff check

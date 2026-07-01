@@ -36,10 +36,6 @@ jobs:
     defaults:
       run:
         shell: bash
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-        python-version: ['3.10', '3.12']
     env:
       JOB_TYPE: BUILD
     steps:

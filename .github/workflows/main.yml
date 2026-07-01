@@ -27,14 +27,38 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install --with test
+      - name: Test code
+        run: |
+          poetry run pytest
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        python-version: ['3.10', '3.12']
+    env:
+      JOB_TYPE: BUILD
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Install dependencies
+        run: |
+          poetry install --with test
       - name: Control code structure
         run: |
           poetry run prospector
           poetry run pylint tests
           poetry run ruff check
-      - name: Test code
-        run: |
-          poetry run pytest
   docs:
     name: Documentation
     runs-on: ubuntu-latest

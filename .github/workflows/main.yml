@@ -3,8 +3,8 @@ on:
   push:
   pull_request:
 jobs:
-  build-windows:
-    name: Build
+  test:
+    name: Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -26,7 +26,7 @@ jobs:
         uses: snok/install-poetry@v1
       - name: Install dependencies
         run: |
-          poetry install --with docs,test
+          poetry install --with test
       - name: Control code structure
         run: |
           poetry run prospector
@@ -35,8 +35,20 @@ jobs:
       - name: Test code
         run: |
           poetry run pytest
-      - name: Build and test docs
-        run: |
-          cd docs
-          poetry run make html
-          poetry run make doctest
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: snok/install-poetry@v1
+      - name: Install dependencies
+        run: poetry install --with docs
+      - name: Build documentation
+        working-directory: docs
+        run: poetry run make html
+      - name: Run doctests
+        working-directory: docs
+        run: poetry run make doctest

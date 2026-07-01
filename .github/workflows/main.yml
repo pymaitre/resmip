@@ -26,7 +26,7 @@ jobs:
         uses: snok/install-poetry@v1
       - name: Install dependencies
         run: |
-          poetry install --with test
+          poetry install --with docs,test
       - name: Control code structure
         run: |
           poetry run prospector
@@ -37,8 +37,6 @@ jobs:
           poetry run pytest
       - name: Build and test docs
         run: |
-          python -m pip install .
-          python -m pip install sphinx sphinx-rtd-theme
           cd docs
-          make html
-          make doctest
+          poetry run make html
+          poetry run make doctest

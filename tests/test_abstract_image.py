@@ -334,3 +334,12 @@ def test_image_flip(image):
     flipped_image = input_image._flip(axis=0)
     assert_object_compatible(flipped_image, input_image, image_type)
     assert np.allclose(flipped_image.direction, (-1, 0, 0, 0, 1, 0, 0, 0, 1))
+
+
+@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+def test_image_resample_onto(image):
+    """Test image resample_onto."""
+    input_image: Image = image()
+    image_type = type(input_image)
+    resampled_image = input_image.resample_onto(reference_image=input_image)
+    assert_object_compatible(resampled_image, input_image, obj_type=image_type)

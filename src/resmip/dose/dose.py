@@ -266,6 +266,49 @@ class Dose(Image):
             )
         )
 
+    def resample_onto(
+        self,
+        reference_image: Image,
+        transform: sitk.Transform | None = None,
+        *,
+        interpolator: int = sitk.sitkLinear,
+        default_pixel_value: float = 0.0,
+    ) -> Dose:
+        """Resample the dose onto another image's grid by applying a transform.
+
+        Behaves like ``Image.resample_onto`` -- the returned dose adopts the grid
+        (size, spacing, origin, direction) of ``reference_image``, and the
+        transform follows the SimpleITK reverse-mapping convention
+        (``output(p) = self(transform(p))``); when ``transform`` is ``None`` an
+        identity transform is used, reducing the operation to pure grid
+        resampling. This is the operation used to bring a dose distribution into a
+        reference frame, e.g. warping a dose through a registration result for
+        dose accumulation.
+
+        Linear interpolation is used by default, as dose is a continuous quantity.
+
+        Args:
+            reference_image (Image): Image whose grid defines the output sampling
+                geometry.
+            transform (sitk.Transform | None): Transform mapping reference-space
+                points into self-space. If ``None``, an identity transform is used.
+            interpolator (int): SimpleITK interpolator constant. Defaults to
+                ``sitk.sitkLinear``.
+            default_pixel_value (float): Value assigned to output voxels whose
+                sampling coordinate falls outside the extent of ``self``.
+
+        Returns:
+            Dose: New dose sampled onto ``reference_image``'s grid.
+        """
+        return Dose(
+            super().resample_onto(
+                reference_image=reference_image,
+                transform=transform,
+                interpolator=interpolator,
+                default_pixel_value=default_pixel_value,
+            )
+        )
+
     def reorient(
         self,
         new_direction: np.ndarray | tuple[float, ...] | None = None,

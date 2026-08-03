@@ -364,6 +364,55 @@ class RTStructure(Image):
         resampled_structure = RTStructure(resampled_image, name=self.name)
         return resampled_structure
 
+    def resample_onto(
+        self,
+        reference_image: Image,
+        transform: sitk.Transform | None = None,
+        *,
+        interpolator: int = sitk.sitkNearestNeighbor,
+        default_pixel_value: float = 0.0,
+    ) -> RTStructure:
+        """Resample the structure onto another image's grid by applying a transform.
+
+        Behaves like ``Image.resample_onto`` -- the returned structure adopts the
+        grid (size, spacing, origin, direction) of ``reference_image``, and the
+        transform follows the SimpleITK reverse-mapping convention
+        (``output(p) = self(transform(p))``); when ``transform`` is ``None`` an
+        identity transform is used, reducing the operation to pure grid
+        resampling. This is the operation used to propagate a structure onto a
+        reference frame, e.g. carrying it through a registration result.
+
+        Nearest-neighbour interpolation is used by default to preserve the
+        discrete label values of the mask. Passing any other interpolator emits a
+        warning, as interpolation may introduce voxel values absent from the input.
+
+        Args:
+            reference_image (Image): Image whose grid defines the output sampling
+                geometry.
+            transform (sitk.Transform | None): Transform mapping reference-space
+                points into self-space. If ``None``, an identity transform is used.
+            interpolator (int): SimpleITK interpolator constant. Defaults to
+                ``sitk.sitkNearestNeighbor``; other values are discouraged for
+                RT structures and trigger a warning.
+            default_pixel_value (float): Value assigned to output voxels whose
+                sampling coordinate falls outside the extent of ``self``.
+
+        Returns:
+            RTStructure: New structure sampled onto ``reference_image``'s grid,
+                preserving this structure's name.
+        """
+        if interpolator != sitk.sitkNearestNeighbor:
+            logger.warning(
+                "Only sitk.sitkNearestNeighbor should be used when resampling RT structures."
+            )
+        resampled_image = super().resample_onto(
+            reference_image=reference_image,
+            transform=transform,
+            interpolator=interpolator,
+            default_pixel_value=default_pixel_value,
+        )
+        return RTStructure(resampled_image, name=self.name)
+
     def reorient(
         self,
         new_direction: np.ndarray | tuple[float, ...] | None = None,

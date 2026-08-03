@@ -616,6 +616,71 @@ class Image(sitk.Image):
             new_img.metadata[string_tag_for_keyword("SliceThickness")] = str(new_img.spacing[2])
         return new_img
 
+    def resample_onto(
+        self,
+        reference_image: Image,
+        transform: sitk.Transform | None = None,
+        *,
+        interpolator: int = sitk.sitkLinear,
+        default_pixel_value: float = 0.0,
+    ) -> Image:
+        """Resample the image onto another image's grid by applying a transform.
+
+        Unlike ``resample``, which changes the voxel spacing while keeping the
+        image on its own grid, ``resample_onto`` maps the image onto the grid of
+        ``reference_image``: the returned image adopts the reference's size,
+        spacing, origin, and direction. This is the operation used to bring a
+        moving image into a fixed reference frame (e.g. applying a registration
+        result, or propagating a mask onto a reference).
+
+        The transform follows the SimpleITK resampling convention, which is a
+        *reverse* mapping: it maps points from the output (reference) space back
+        into the input (self) space. For every output voxel at physical point
+        ``p`` on the reference grid, the sampled value is taken from ``self`` at
+        ``transform(p)`` -- i.e. ``output(p) = self(transform(p))``. A transform
+        that translates content in the ``+x`` direction is therefore expressed as
+        the mapping that subtracts that shift from the sampling coordinate. This
+        matches ``sitk.Resample`` and the transform returned by ``coregister``,
+        so a transform estimated by registration can be passed here directly.
+
+        When ``transform`` is ``None`` an identity transform is used, reducing the
+        operation to pure grid resampling: the image is placed onto the reference
+        grid without any deformation. This is useful for aligning an image to a
+        reference frame that differs only in sampling geometry.
+
+        The caller is responsible for choosing an interpolator appropriate to the
+        pixel data: ``sitk.sitkLinear`` (the default) for continuous intensities
+        such as CT numbers, and ``sitk.sitkNearestNeighbor`` for label images such
+        as masks, where interpolation must not introduce values absent from the
+        input. The output preserves the pixel type of ``self``.
+
+        Args:
+            reference_image (Image): Image whose grid (size, spacing, origin,
+                direction) defines the output sampling geometry.
+            transform (sitk.Transform | None): Transform mapping reference-space
+                points into self-space, following the SimpleITK reverse-mapping
+                convention. If ``None``, an identity transform is used.
+            interpolator (int): SimpleITK interpolator constant used for sampling.
+                Defaults to ``sitk.sitkLinear``.
+            default_pixel_value (float): Value assigned to output voxels whose
+                sampling coordinate falls outside the extent of ``self``.
+
+        Returns:
+            Image: New image sampled onto ``reference_image``'s grid, carrying a
+                copy of this image's metadata and preserving its pixel type.
+        """
+        if transform is None:
+            transform = sitk.Transform(self.GetDimension(), sitk.sitkIdentity)
+        resampled_image = sitk.Resample(
+            self,
+            reference_image,
+            transform,
+            interpolator,
+            default_pixel_value,
+            self.GetPixelID(),
+        )
+        return Image(resampled_image, metadata=self.metadata)
+
     @staticmethod
     def _cosine_matrix_from_direction(direction: np.ndarray | tuple[float, ...]) -> np.ndarray:
         """Reshape a flat direction array into a 3x3 direction cosine matrix.

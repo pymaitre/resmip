@@ -10,7 +10,7 @@ import pytest
 
 from resmip import Dose, Image, RTStructure, Segmentation
 from resmip.dicom_utils import string_tag_for_keyword
-from resmip.image import CoregistrationMetric, DicomModality
+from resmip.image import SERIES_MODALITIES, CoregistrationMetric, DicomModality
 from resmip.image.dicom_fields import PATIENT_RELATED_FIELDS, STUDY_RELATED_FIELDS
 
 from .utils import dicom_ct_path, ibsi_rtst_path
@@ -19,6 +19,13 @@ from .utils import dicom_ct_path, ibsi_rtst_path
 def mock_image():
     """Mock image used in this module."""
     return Image.read(dicom_ct_path())
+
+
+def mock_mri():
+    """Mock MRI image used in this module (actual CT with modality MR)."""
+    image = Image.read(dicom_ct_path())
+    image.metadata[string_tag_for_keyword("Modality")] = "MR"
+    return image
 
 
 def mock_structure():
@@ -63,11 +70,13 @@ def assert_object_compatible(obj1: Image, obj2: Image, obj_type=None, check_meta
         assert obj1.modality == DicomModality.seg.value
         assert obj2.modality == DicomModality.seg.value
     else:
-        assert obj1.modality == DicomModality.ct.value
-        assert obj2.modality == DicomModality.ct.value
+        assert obj1.modality == obj2.modality
+        assert obj2.modality in [x.value for x in SERIES_MODALITIES]
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 @pytest.mark.parametrize("factor", [-1, 0.2, 5])
 def test_image_sum(image, factor, caplog):
     """Add constant factor to image pixels."""
@@ -91,7 +100,9 @@ def test_image_sum(image, factor, caplog):
     assert np.all(summed_image.numpy() == input_image.numpy() + factor)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 @pytest.mark.parametrize("factor", [-1, 0.2, 5])
 def test_image_subtract(image, factor, caplog):
     """Remove constant factor to dose pixels."""
@@ -112,7 +123,9 @@ def test_image_subtract(image, factor, caplog):
     assert np.all(subtracted_image.numpy() == input_image.numpy() - factor)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 @pytest.mark.parametrize("factor", [-1, 0.2, 5])
 def test_image_multiply(image, factor, caplog):
     """Multiply constant factor to image pixels."""
@@ -134,7 +147,9 @@ def test_image_multiply(image, factor, caplog):
     assert np.all(multiplied_image.numpy() == input_image.numpy() * factor)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 @pytest.mark.parametrize("factor", [-1, 0.2, 5])
 def test_image_divide(image, factor):
     """Divide constant factor to image pixels."""
@@ -149,7 +164,9 @@ def test_image_divide(image, factor):
     assert np.all(divided_image.numpy() == input_image.numpy() / factor)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 @pytest.mark.parametrize("dtype", [int, np.float32, np.uint32])
 def test_image_astype(image, dtype):
     """Test image type casting."""
@@ -159,7 +176,9 @@ def test_image_astype(image, dtype):
     assert_object_compatible(cast_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 def test_image_getitem(image):
     """Test image getitem (for slicing/cropping)."""
     input_image: Image = image()
@@ -168,7 +187,9 @@ def test_image_getitem(image):
     assert_object_compatible(cast_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 def test_image_from_array(image):
     """Test image getitem (for slicing/cropping)."""
     input_image: Image = image()
@@ -187,7 +208,9 @@ def test_image_from_array(image):
     assert_object_compatible(new_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 def test_image_resample(image):
     """Test image resampling."""
     input_image: Image = image()
@@ -198,7 +221,9 @@ def test_image_resample(image):
     assert_object_compatible(resampled_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 def test_image_pad(image):
     """Test image padding."""
     input_image: Image = image()
@@ -225,7 +250,9 @@ def test_image_pad(image):
     assert_object_compatible(padded_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 def test_image_coregistration(image):
     """Coregister images."""
     input_image: Image = image()
@@ -256,7 +283,9 @@ def test_image_coregistration(image):
     assert_object_compatible(coregistered_image, input_image, image_type)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 @pytest.mark.parametrize("level", ["patient", "study", "series"])
 def test_image_from_array_metadata(image, level):
     """Test image getitem (for slicing/cropping)."""
@@ -265,6 +294,8 @@ def test_image_from_array_metadata(image, level):
     extra_args = {}
     if isinstance(input_image, (RTStructure, Segmentation)):
         extra_args["name"] = input_image.name
+    if type(input_image) == Image:
+        extra_args["modality"] = input_image.modality
     new_image = image_type.from_array(
         input_image.numpy(),
         spacing=input_image.spacing,
@@ -292,7 +323,9 @@ def test_image_from_array_metadata(image, level):
     assert_object_compatible(new_image, input_image, image_type, check_metadata=False)
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 def test_image_reorient_default(image):
     """Test image reorientation.
 
@@ -310,7 +343,9 @@ def test_image_reorient_default(image):
     assert np.allclose(reoriented_image._cosine_matrix, np.eye(3))
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 def test_image_rotate(image):
     """Test image rotation."""
     input_image: Image = image()
@@ -325,7 +360,9 @@ def test_image_rotate(image):
     assert np.allclose(rotated_image._cosine_matrix, np.eye(3))
 
 
-@pytest.mark.parametrize("image", [mock_image, mock_structure, mock_dose, mock_segmentation])
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
 def test_image_flip(image):
     """Test image flip."""
     input_image: Image = image()
@@ -334,3 +371,14 @@ def test_image_flip(image):
     flipped_image = input_image._flip(axis=0)
     assert_object_compatible(flipped_image, input_image, image_type)
     assert np.allclose(flipped_image.direction, (-1, 0, 0, 0, 1, 0, 0, 0, 1))
+
+
+@pytest.mark.parametrize(
+    "image", [mock_image, mock_mri, mock_structure, mock_dose, mock_segmentation]
+)
+def test_image_resample_onto(image):
+    """Test image resample_onto."""
+    input_image: Image = image()
+    image_type = type(input_image)
+    resampled_image = input_image.resample_onto(reference_image=input_image)
+    assert_object_compatible(resampled_image, input_image, obj_type=image_type)

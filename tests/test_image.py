@@ -103,6 +103,49 @@ def mock_rotation_x_image(mock_rotation_image_size):
     )
 
 
+@pytest.fixture
+def identity_transform():
+    """Identity spatial transform in 3D."""
+    return sitk.Transform(3, sitk.sitkIdentity)
+
+
+@pytest.fixture
+def unit_grid_image():
+    """10x10x10, unit spacing, identity direction, zero origin."""
+    array = np.zeros((10, 10, 10), dtype=np.float32)
+    return Image.from_array(
+        array,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+
+
+@pytest.fixture
+def reference_grid_image():
+    """A different grid: different size, spacing, origin, and a rotated direction."""
+    array = np.zeros((6, 8, 12), dtype=np.float32)
+    return Image.from_array(
+        array,
+        spacing=(2.0, 1.5, 5.0),
+        origin=(3.0, -4.0, 10.0),
+        direction=(0, 1, 0, -1, 0, 0, 0, 0, 1),
+    )
+
+
+@pytest.fixture
+def seeded_unit_grid_image() -> Image:
+    """10x10x10 unit-grid image with a single feature voxel at (z,y,x)=(5,5,5)."""
+    array = np.zeros((10, 10, 10), dtype=np.float32)
+    array[5, 5, 5] = 1.0
+    return Image.from_array(
+        array,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+
+
 def test_metadata_is_unique():
     """Test if setting one Image's metadata does not touch another series."""
     image_modality = "CT"
@@ -1280,4 +1323,124 @@ def test_new_image_metadata_is_independent():
     )
     new_image = Image(image)
     new_image.metadata[tag] = "MODIFIED"
+    assert image.metadata[tag] == "ORIGINAL"
+
+
+def test_resample_onto_identity_onto_self_returns_equivalent_image(
+    seeded_unit_grid_image: Image, identity_transform
+):
+    """Identity transform onto self's own grid is a no-op on pixels and geometry."""
+    out = seeded_unit_grid_image.resample_onto(seeded_unit_grid_image, identity_transform)
+    np.testing.assert_array_equal(out.numpy(copy=False), seeded_unit_grid_image.numpy(copy=False))
+
+
+def test_resample_onto_default_identity(seeded_unit_grid_image: Image):
+    """Identity transform onto self's own grid is a no-op on pixels and geometry."""
+    out = seeded_unit_grid_image.resample_onto(seeded_unit_grid_image)
+    np.testing.assert_array_equal(out.numpy(copy=False), seeded_unit_grid_image.numpy(copy=False))
+
+
+def test_resample_onto_output_adopts_reference_geometry(
+    unit_grid_image: Image, reference_grid_image: Image, identity_transform
+):
+    """Output lives on the reference grid.
+
+    Check that it's not on self's grid: this is what distinguishes
+    ``resample_onto`` from ``resample``.
+    """
+    out = unit_grid_image.resample_onto(reference_grid_image, identity_transform)
+
+    assert out.size == reference_grid_image.size
+    assert out.spacing == reference_grid_image.spacing
+    assert out.origin == reference_grid_image.origin
+    assert out.direction == reference_grid_image.direction
+
+
+def test_resample_onto_output_grid_differs_from_source_when_reference_differs(
+    unit_grid_image: Image, reference_grid_image, identity_transform
+):
+    """Resampling on a different grid could change image size."""
+    out = unit_grid_image.resample_onto(reference_grid_image, identity_transform)
+    assert out.size != unit_grid_image.size
+
+
+def test_resample_onto_out_of_bounds_filled_with_default_value():
+    """Voxels mapping outside self's extent take default_pixel_value."""
+    array = np.zeros((10, 10, 10), dtype=np.float32)
+    array[:] = 100.0
+    original_image = Image.from_array(
+        array,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+    push_off_grid = sitk.TranslationTransform(3, (-50.0, 0.0, 0.0))
+
+    out = original_image.resample_onto(
+        original_image,
+        push_off_grid,
+        interpolator=sitk.sitkNearestNeighbor,
+        default_pixel_value=-1000.0,
+    )
+
+    assert np.all(out.numpy(copy=False) == -1000.0)
+
+
+def test_resample_onto_preserves_source_dtype(identity_transform):
+    """Output keeps self's pixel type (as coregister does), not the metric float cast."""
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.int16),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+
+    out = image.resample_onto(image, identity_transform, interpolator=sitk.sitkNearestNeighbor)
+
+    assert out.dtype == image.dtype
+
+
+def test_resample_onto_does_not_mutate_source_or_reference(
+    seeded_unit_grid_image: Image, reference_grid_image: Image, identity_transform
+):
+    """Neither self nor the reference is modified."""
+    before_self = seeded_unit_grid_image.numpy()
+    before_ref = reference_grid_image.numpy()
+
+    _ = seeded_unit_grid_image.resample_onto(reference_grid_image, identity_transform)
+
+    np.testing.assert_array_equal(seeded_unit_grid_image.numpy(copy=False), before_self)
+    np.testing.assert_array_equal(reference_grid_image.numpy(copy=False), before_ref)
+
+
+def test_resample_onto_carries_source_metadata(identity_transform):
+    """Output carries self's metadata (self is the moving image being resampled)."""
+    tag = string_tag_for_keyword("PatientID")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "SOURCE"},
+    )
+
+    out = image.resample_onto(image, identity_transform)
+
+    assert out.metadata[tag] == "SOURCE"
+
+
+def test_resample_onto_metadata_is_independent(identity_transform):
+    """Mutating the output's metadata must not touch self (mirrors resample test)."""
+    tag = string_tag_for_keyword("PatientID")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "ORIGINAL"},
+    )
+    out = image.resample_onto(image, identity_transform)
+
+    out.metadata[tag] = "MODIFIED"
+
     assert image.metadata[tag] == "ORIGINAL"

@@ -31,6 +31,7 @@ They must be generated every time a Dicom series is saved.
 """
 
 DICOM_FIELDS = [
+    "ImageType",
     # "SOPClassUID",
     "SOPInstanceUID",
     "StudyDate",

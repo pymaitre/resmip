@@ -176,6 +176,14 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
         if dicom_tag in input_metadata:
             image_metadata[dicom_tag] = input_metadata[dicom_tag]
 
+    if hasattr(image, "modality"):
+        if image.modality == "CT":
+            dicom_tag = string_tag_for_keyword("KVP")
+            try:
+                image_metadata[dicom_tag] = input_metadata[dicom_tag]
+            except KeyError:
+                image_metadata[dicom_tag] = ""
+
     for series_dependent_field in SERIES_DEPENDENT_FIELDS:
         image_metadata[string_tag_for_keyword(series_dependent_field)] = pydicom.uid.generate_uid()
 

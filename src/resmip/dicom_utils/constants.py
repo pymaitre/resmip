@@ -22,7 +22,6 @@ SERIES_DEPENDENT_FIELDS = [
     # "SOPClassUID",
     "StudyInstanceUID",
     "SeriesInstanceUID",
-    "StudyID",
 ]
 """
 Dicom tags that are unique to each Dicom series.
@@ -38,6 +37,7 @@ DICOM_FIELDS = [
     "SeriesDate",
     "StudyTime",
     "Modality",
+    "Manufacturer",
     "ReferringPhysicianName",
     "OperatorsName",
     "PatientName",
@@ -48,13 +48,16 @@ DICOM_FIELDS = [
     "PatientWeight",
     "SliceThickness",
     "SpacingBetweenSlices",
+    "PatientPosition",
     "StudyInstanceUID",
     "SeriesInstanceUID",
     "StudyID",
+    "AcquisitionNumber",
     "InstanceNumber",
     "ImagePositionPatient",
     "ImageOrientationPatient",
     "FrameOfReferenceUID",
+    "PositionReferenceIndicator",
     "SliceLocation",
     "PixelSpacing",
     # "RescaleIntercept",

@@ -2,11 +2,17 @@
 
 # pylint: disable=W0621
 
+import logging
+
 import pytest
+from dicom_validator.spec_reader.edition_reader import EditionReader
+from dicom_validator.validator.dicom_file_validator import DicomFileValidator
 
 import resmip
 
 from .utils import dicom_ct_path, dicom_rtst_path
+
+DICOM_EDITION = "2026c"
 
 
 @pytest.fixture
@@ -31,3 +37,9 @@ def mock_dicom_segmentation(mock_dicom_image: resmip.Image):
     return resmip.Segmentation.read(
         dicom_rtst_path(), structure_name=structure_name, reference_image=mock_dicom_image
     )
+
+
+@pytest.fixture
+def dicom_validator():
+    dicom_info = EditionReader().dicom_info_for_edition(DICOM_EDITION)
+    return DicomFileValidator(dicom_info, log_level=logging.WARNING)

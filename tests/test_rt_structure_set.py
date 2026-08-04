@@ -248,3 +248,17 @@ def test_dicom_nifti_ibsi_conversion(mock_dicom_image: resmip.Image):
     )[structure_name]
     reference_rtst = Segmentation.read(ibsi_rtst_path())
     assert np.all(rtst.numpy() == reference_rtst.numpy())
+
+
+def test_written_dicom_rtstruct_is_dicom_conformant(
+    mock_dicom_segmentation: Segmentation, dicom_validator, tmp_path
+):
+    """Check that the written DICOM RTSTRUCT follow DICOM standard."""
+    output_path = tmp_path / "seg.dcm"
+    mock_dicom_segmentation.write(
+        output_path, modality=DicomModality.rtstruct.value, reference_image_path=dicom_ct_path()
+    )
+
+    result = next(iter(dicom_validator.validate(output_path).values()))
+
+    assert result.errors == 0, result.module_errors

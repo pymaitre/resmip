@@ -9,7 +9,12 @@ import SimpleITK as sitk
 from resmip.image import DicomModality, Image
 from resmip.segmentation import Segmentation, SegmentationType
 
-from .utils import dicom_rtst_path, generate_dummy_segmentation, ibsi_rtst_path
+from .utils import (
+    dicom_ct_path,
+    dicom_rtst_path,
+    generate_dummy_segmentation,
+    ibsi_rtst_path,
+)
 
 TEST_SEG_SIZE = (204, 201, 60)
 """Size of the test Segmentation."""
@@ -260,3 +265,15 @@ def test_write_dicom_segmentation_unsupported_modality(
     seg_path = tmp_path / "out.dcm"
     with pytest.raises(ValueError):
         mock_dicom_segmentation.write(filename=seg_path, modality="")
+
+
+def test_written_dicom_segmentation_is_dicom_conformant(
+    mock_dicom_segmentation: Segmentation, dicom_validator, tmp_path
+):
+    """Check that the written DICOM SEG follow DICOM standard."""
+    output_path = tmp_path / "seg.dcm"
+    mock_dicom_segmentation.write(output_path, reference_image_path=dicom_ct_path())
+
+    result = next(iter(dicom_validator.validate(output_path).values()))
+
+    assert result.errors == 0, result.module_errors

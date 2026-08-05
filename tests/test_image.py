@@ -1300,7 +1300,7 @@ def test_written_new_dicom_series_is_dicom_conformant(
 ):
     """Check that the newly written DICOM series follow DICOM standard."""
     output_path = tmp_path / "CT"
-    identity_image.astype(np.uint8).write(output_path)
+    identity_image.astype(np.uint16).write(output_path)
 
     result = next(iter(dicom_validator.validate(output_path).values()))
 

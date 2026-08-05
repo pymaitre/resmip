@@ -11,6 +11,8 @@ import SimpleITK as sitk
 from resmip.dicom_utils.constants import (
     DICOM_FIELDS,
     SERIES_DEPENDENT_FIELDS,
+    SERIES_TYPE_1_ATTRIBUTES,
+    SERIES_TYPE_2_ATTRIBUTES,
     SLICE_DEPENDENT_FIELDS,
     string_tag_for_keyword,
 )
@@ -183,6 +185,17 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
                 image_metadata[dicom_tag] = input_metadata[dicom_tag]
             except KeyError:
                 image_metadata[dicom_tag] = ""
+
+    for type_1_attribute, default_value in SERIES_TYPE_1_ATTRIBUTES.items():
+        if string_tag_for_keyword(type_1_attribute) not in image_metadata:
+            image_metadata[string_tag_for_keyword(type_1_attribute)] = default_value
+
+    if string_tag_for_keyword("FrameOfReferenceUID") not in image_metadata:
+        image_metadata[string_tag_for_keyword("FrameOfReferenceUID")] = pydicom.uid.generate_uid()
+
+    for type_2_attribute in SERIES_TYPE_2_ATTRIBUTES:
+        if string_tag_for_keyword(type_2_attribute) not in image_metadata:
+            image_metadata[string_tag_for_keyword(type_2_attribute)] = ""
 
     for series_dependent_field in SERIES_DEPENDENT_FIELDS:
         image_metadata[string_tag_for_keyword(series_dependent_field)] = pydicom.uid.generate_uid()

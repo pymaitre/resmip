@@ -66,6 +66,26 @@ DICOM_FIELDS = [
 ]
 """DICOM fields saved in image metadata."""
 
+SERIES_TYPE_1_ATTRIBUTES = {
+    "ImageType": r"DERIVED\SECONDARY",
+    "AcquisitionNumber": 1,
+}
+"""DICOM attributes that are defined as Type 1 for Series.
+
+Type 1 attributes are required and cannot be empty.
+This dictionary provides default values used by the library.
+"""
+
+SERIES_TYPE_2_ATTRIBUTES = [
+    "PositionReferenceIndicator",
+    "Manufacturer",
+    "PatientPosition",
+]
+"""DICOM attributes that are defined as Type 2 for Series.
+
+Type 2 attributes are required and can be empty.
+"""
+
 _RESMIP_IMPLEMENTATION_CLASS_UID = UID(
     "2.25." + str(int(hashlib.md5(b"resmip").hexdigest(), 16))[:39]
 )

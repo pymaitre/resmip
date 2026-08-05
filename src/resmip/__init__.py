@@ -1,7 +1,6 @@
 """resmip."""
 
-import importlib.metadata as im
-
+from ._version import __version__
 from .dicom_utils import (
     get_contour_from_slice_mask,
     get_polygon_contours_from_slice_mask,
@@ -15,8 +14,6 @@ from .segmentation import (
     SegmentationCollection,
     SegmentationType,
 )
-
-__version__ = im.version(__package__)
 
 __all__ = [
     "CoregistrationMetric",
@@ -35,6 +32,7 @@ __all__ = [
     "SegmentationCollection",
     "SegmentationType",
     "write_image",
+    "__version__",
 ]
 
 

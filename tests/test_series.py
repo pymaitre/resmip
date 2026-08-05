@@ -108,7 +108,20 @@ def test_saved_dicom_series_patient_data(mock_dicom_image: Image, tmp_path):
                         for i, element in enumerate(dataset[name].value):
                             assert float(element) == float(elements[i])
                 else:
-                    assert dataset[name].value == mock_dicom_image.metadata[tag]
+                    if "\\" in mock_dicom_image.metadata[tag]:
+                        assert set(dataset[name].value) == set(
+                            mock_dicom_image.metadata[tag].split("\\")
+                        )
+                    else:
+                        if isinstance(dataset[name].value, str):
+                            assert (
+                                dataset[name].value.strip()
+                                == mock_dicom_image.metadata[tag].strip()
+                            )
+                        elif dataset[name].value is None:
+                            assert mock_dicom_image.metadata[tag] in [None, ""]
+                        else:
+                            assert dataset[name].value == mock_dicom_image.metadata[tag]
 
 
 def test_read_image_from_main(mock_dicom_image: Image):

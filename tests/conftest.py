@@ -41,5 +41,6 @@ def mock_dicom_segmentation(mock_dicom_image: resmip.Image):
 
 @pytest.fixture
 def dicom_validator():
+    """Validator used to check if generated DICOM files are valid."""
     dicom_info = EditionReader().dicom_info_for_edition(DICOM_EDITION)
     return DicomFileValidator(dicom_info, log_level=logging.WARNING)

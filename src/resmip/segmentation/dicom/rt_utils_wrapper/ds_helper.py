@@ -40,6 +40,10 @@ def add_required_elements_to_ds(ds: FileDataset):
 
     ds.ApprovalStatus = "UNAPPROVED"
 
+    ds.AccessionNumber = ""
+    ds.ReferringPhysicianName = ""
+    ds.OperatorsName = ""
+
 
 def add_sequence_lists_to_ds(ds: FileDataset):
     """Generate sequences for contours."""

@@ -1286,7 +1286,7 @@ def test_new_image_metadata_is_independent():
 def test_written_dicom_series_is_dicom_conformant(
     mock_dicom_image: Image, dicom_validator, tmp_path
 ):
-    """Check that the written DICOM series follow DICOM standard."""
+    """Check that the written DICOM series follows DICOM standard."""
     output_path = tmp_path / "CT"
     mock_dicom_image.write(output_path)
 
@@ -1298,7 +1298,7 @@ def test_written_dicom_series_is_dicom_conformant(
 def test_written_new_dicom_series_is_dicom_conformant(
     identity_image: Image, dicom_validator, tmp_path
 ):
-    """Check that the newly written DICOM series follow DICOM standard."""
+    """Check that the newly written DICOM series follows DICOM standard."""
     output_path = tmp_path / "CT"
     identity_image.astype(np.uint16).write(output_path)
 

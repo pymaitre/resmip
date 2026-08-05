@@ -9,8 +9,6 @@ import numpy as np
 import pydicom
 import SimpleITK as sitk
 
-from resmip.dicom_utils.utils import _set_content_datetime
-
 from ..utils import _copy_patient_and_study_information
 from .constants import ROIGenerationAlgorithm
 from .ds_helper import (
@@ -33,7 +31,6 @@ def create_rtstruct_dataset(series_data: list[pydicom.Dataset], **kwargs) -> pyd
     add_study_and_series_information(ds, series_data, **kwargs)
     _copy_patient_and_study_information(ds, series_data[0])
     add_refd_frame_of_ref_sequence(ds, series_data)
-    _set_content_datetime(ds)
     return ds
 
 

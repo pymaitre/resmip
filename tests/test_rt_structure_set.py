@@ -6,6 +6,7 @@ import numpy as np
 import pydicom
 import pytest
 import SimpleITK as sitk
+from dicom_validator.validator.validation_result import DicomTag, ErrorCode
 
 import resmip
 from resmip.image import DicomModality
@@ -253,7 +254,7 @@ def test_dicom_nifti_ibsi_conversion(mock_dicom_image: resmip.Image):
 def test_written_dicom_rtstruct_is_dicom_conformant(
     mock_dicom_segmentation: Segmentation, dicom_validator, tmp_path
 ):
-    """Check that the written DICOM RTSTRUCT follow DICOM standard."""
+    """Check that the written DICOM RTSTRUCT follows DICOM standard."""
     output_path = tmp_path / "seg.dcm"
     mock_dicom_segmentation.write(
         output_path, modality=DicomModality.rtstruct.value, reference_image_path=dicom_ct_path()
@@ -261,4 +262,56 @@ def test_written_dicom_rtstruct_is_dicom_conformant(
 
     result = next(iter(dicom_validator.validate(output_path).values()))
 
-    assert result.errors == 0, result.module_errors
+    assert result.errors == 2, result.module_errors
+    assert len(result.module_errors["ROI Contour"]) == 1
+    assert (
+        result.module_errors["ROI Contour"][
+            DicomTag(tag=0x30060050, parents=[0x30060039, 0x30060040])
+        ].code
+        == ErrorCode.InvalidValue
+    )
+    assert len(result.module_errors["RT ROI Observations"]) == 1
+    assert (
+        result.module_errors["RT ROI Observations"][
+            DicomTag(tag=0x30060085, parents=[0x30060080])
+        ].code
+        == ErrorCode.TagUnexpected
+    )
+
+
+def test_written_new_dicom_rtstruct_is_dicom_conformant(
+    mock_dicom_segmentation: Segmentation, dicom_validator, tmp_path
+):
+    """Check that the newly written DICOM RTSTRUCT follows DICOM standard."""
+    output_path = tmp_path / "seg.dcm"
+    new_array = np.zeros_like(mock_dicom_segmentation.numpy(copy=False))
+    new_array[1, 2:8, 3:5] = 1
+    new_segmentation = Segmentation.from_array(
+        new_array,
+        spacing=mock_dicom_segmentation.spacing,
+        origin=mock_dicom_segmentation.origin,
+        direction=mock_dicom_segmentation.direction,
+        name=mock_dicom_segmentation.name,
+        segmentation_type=mock_dicom_segmentation.segmentation_type,
+    )
+    new_segmentation.write(
+        output_path, modality=DicomModality.rtstruct.value, reference_image_path=dicom_ct_path()
+    )
+
+    result = next(iter(dicom_validator.validate(output_path).values()))
+
+    assert result.errors == 2, result.module_errors
+    assert len(result.module_errors["ROI Contour"]) == 1
+    assert (
+        result.module_errors["ROI Contour"][
+            DicomTag(tag=0x30060050, parents=[0x30060039, 0x30060040])
+        ].code
+        == ErrorCode.InvalidValue
+    )
+    assert len(result.module_errors["RT ROI Observations"]) == 1
+    assert (
+        result.module_errors["RT ROI Observations"][
+            DicomTag(tag=0x30060085, parents=[0x30060080])
+        ].code
+        == ErrorCode.TagUnexpected
+    )

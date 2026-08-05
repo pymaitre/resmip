@@ -270,7 +270,7 @@ def test_write_dicom_segmentation_unsupported_modality(
 def test_written_dicom_segmentation_is_dicom_conformant(
     mock_dicom_segmentation: Segmentation, dicom_validator, tmp_path
 ):
-    """Check that the written DICOM SEG follow DICOM standard."""
+    """Check that the written DICOM SEG follows DICOM standard."""
     output_path = tmp_path / "seg.dcm"
     mock_dicom_segmentation.write(output_path, reference_image_path=dicom_ct_path())
 

@@ -91,6 +91,25 @@ def get_spacing_from_dicom_header(
     return tuple(slice_xy_spacing + [slice_z_spacing])
 
 
+def _set_default_image_metadata(image_metadata: dict[str, str]) -> None:
+    """Set default values for required DICOM attributes.
+
+    Args:
+        image_metadata (dict[str,str]): dictionary containing DICOM metadata
+            that will be modified inplace.
+    """
+    for type_1_attribute, default_value in SERIES_TYPE_1_ATTRIBUTES.items():
+        if string_tag_for_keyword(type_1_attribute) not in image_metadata:
+            image_metadata[string_tag_for_keyword(type_1_attribute)] = default_value
+
+    if string_tag_for_keyword("FrameOfReferenceUID") not in image_metadata:
+        image_metadata[string_tag_for_keyword("FrameOfReferenceUID")] = pydicom.uid.generate_uid()
+
+    for type_2_attribute in SERIES_TYPE_2_ATTRIBUTES:
+        if string_tag_for_keyword(type_2_attribute) not in image_metadata:
+            image_metadata[string_tag_for_keyword(type_2_attribute)] = ""
+
+
 def read(dicom_series_directory_path: PathLike) -> tuple[sitk.Image, dict[str, str]]:
     """Read Dicom series from file.
 
@@ -186,16 +205,7 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
             except KeyError:
                 image_metadata[dicom_tag] = ""
 
-    for type_1_attribute, default_value in SERIES_TYPE_1_ATTRIBUTES.items():
-        if string_tag_for_keyword(type_1_attribute) not in image_metadata:
-            image_metadata[string_tag_for_keyword(type_1_attribute)] = default_value
-
-    if string_tag_for_keyword("FrameOfReferenceUID") not in image_metadata:
-        image_metadata[string_tag_for_keyword("FrameOfReferenceUID")] = pydicom.uid.generate_uid()
-
-    for type_2_attribute in SERIES_TYPE_2_ATTRIBUTES:
-        if string_tag_for_keyword(type_2_attribute) not in image_metadata:
-            image_metadata[string_tag_for_keyword(type_2_attribute)] = ""
+    _set_default_image_metadata(image_metadata)
 
     for series_dependent_field in SERIES_DEPENDENT_FIELDS:
         image_metadata[string_tag_for_keyword(series_dependent_field)] = pydicom.uid.generate_uid()

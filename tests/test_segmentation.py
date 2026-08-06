@@ -1,15 +1,23 @@
 """Test module for segmentation objects."""
 
+# pylint: disable=R0801
+
 from pathlib import Path
 
 import numpy as np
 import pytest
 import SimpleITK as sitk
+from dicom_validator.validator.validation_result import DicomTag, ErrorCode
 
 from resmip.image import DicomModality, Image
 from resmip.segmentation import Segmentation, SegmentationType
 
-from .utils import dicom_rtst_path, generate_dummy_segmentation, ibsi_rtst_path
+from .utils import (
+    dicom_ct_path,
+    dicom_rtst_path,
+    generate_dummy_segmentation,
+    ibsi_rtst_path,
+)
 
 TEST_SEG_SIZE = (204, 201, 60)
 """Size of the test Segmentation."""
@@ -260,3 +268,63 @@ def test_write_dicom_segmentation_unsupported_modality(
     seg_path = tmp_path / "out.dcm"
     with pytest.raises(ValueError):
         mock_dicom_segmentation.write(filename=seg_path, modality="")
+
+
+def test_written_dicom_segmentation_is_dicom_conformant(
+    mock_dicom_segmentation: Segmentation, dicom_validator, tmp_path
+):
+    """Check that the written DICOM SEG follows DICOM standard."""
+    output_path = tmp_path / "seg.dcm"
+    mock_dicom_segmentation.write(output_path, reference_image_path=dicom_ct_path())
+
+    result = next(iter(dicom_validator.validate(output_path).values()))
+
+    assert result.errors == 6, result.module_errors
+    assert len(result.module_errors["Multi-frame Functional Groups"]) == 6
+    for dicom_tag in [
+        DicomTag(0x00289110, parents=[0x52009229]),
+        DicomTag(0x00209116, parents=[0x52009229]),
+        DicomTag(0x00209111, parents=[0x52009230]),
+        DicomTag(0x0062000A, parents=[0x52009230]),
+        DicomTag(0x00209113, parents=[0x52009230]),
+        DicomTag(0x00089124, parents=[0x52009230]),
+    ]:
+        assert (
+            result.module_errors["Multi-frame Functional Groups"][dicom_tag].code
+            == ErrorCode.TagUnexpected
+        )
+
+
+def test_written_new_dicom_segmentation_is_dicom_conformant(
+    mock_dicom_segmentation: Segmentation, dicom_validator, tmp_path
+):
+    """Check that the written DICOM SEG follows DICOM standard."""
+    output_path = tmp_path / "seg.dcm"
+    new_array = np.zeros_like(mock_dicom_segmentation.numpy(copy=False))
+    new_array[1, 2:8, 3:5] = 1
+    new_segmentation = Segmentation.from_array(
+        new_array,
+        spacing=mock_dicom_segmentation.spacing,
+        origin=mock_dicom_segmentation.origin,
+        direction=mock_dicom_segmentation.direction,
+        name=mock_dicom_segmentation.name,
+        segmentation_type=mock_dicom_segmentation.segmentation_type,
+    )
+    new_segmentation.write(output_path, reference_image_path=dicom_ct_path())
+
+    result = next(iter(dicom_validator.validate(output_path).values()))
+
+    assert result.errors == 6, result.module_errors
+    assert len(result.module_errors["Multi-frame Functional Groups"]) == 6
+    for dicom_tag in [
+        DicomTag(0x00289110, parents=[0x52009229]),
+        DicomTag(0x00209116, parents=[0x52009229]),
+        DicomTag(0x00209111, parents=[0x52009230]),
+        DicomTag(0x0062000A, parents=[0x52009230]),
+        DicomTag(0x00209113, parents=[0x52009230]),
+        DicomTag(0x00089124, parents=[0x52009230]),
+    ]:
+        assert (
+            result.module_errors["Multi-frame Functional Groups"][dicom_tag].code
+            == ErrorCode.TagUnexpected
+        )

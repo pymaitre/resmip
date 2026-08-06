@@ -9,6 +9,7 @@ from pydicom import Dataset, FileDataset, Sequence, dcmread, dcmwrite
 from pydicom.tag import Tag
 from pydicom.uid import generate_uid
 
+from resmip._version import __version__
 from resmip.dicom_utils.rt_utils_wrapper.image_helper import load_sorted_image_series
 from resmip.dicom_utils.series import get_series_dicom_files
 from resmip.dicom_utils.utils import _set_content_datetime
@@ -152,12 +153,14 @@ class SegDataset:
 
         _set_content_datetime(ds)
 
-        # ds.AccessionNumber             = ""
+        ds.AccessionNumber = ""
         ds.Modality = "SEG"
-        ds.Manufacturer = "QIICR"
+        ds.Manufacturer = "pymaitre"
         ds.ReferringPhysicianName = ""
         ds.SeriesDescription = series_description
-        ds.ManufacturerModelName = "https://github.com/fedorov/dcmqi.git"
+        ds.ManufacturerModelName = "https://github.com/pymaitre/resmip.git"
+        ds.DeviceSerialNumber = "0"
+        ds.SoftwareVersions = __version__
 
         ds.SeriesInstanceUID = generate_uid()
         ds.SeriesNumber = "1"
@@ -221,6 +224,7 @@ class SegDataset:
         ds.SharedFunctionalGroupsSequence = Sequence([shared_fg])
 
         ds.ContentLabel = "SEGMENTATION"
+        ds.ContentDescription = ""
 
         self.dataset = ds
 

@@ -11,6 +11,8 @@ import SimpleITK as sitk
 from resmip.dicom_utils.constants import (
     DICOM_FIELDS,
     SERIES_DEPENDENT_FIELDS,
+    SERIES_TYPE_1_ATTRIBUTES,
+    SERIES_TYPE_2_ATTRIBUTES,
     SLICE_DEPENDENT_FIELDS,
     string_tag_for_keyword,
 )
@@ -87,6 +89,25 @@ def get_spacing_from_dicom_header(
         logger.warning("Only 1 slice detected. Setting z voxel spacing to 1 mm.")
         slice_z_spacing = 1
     return tuple(slice_xy_spacing + [slice_z_spacing])
+
+
+def _set_default_image_metadata(image_metadata: dict[str, str]) -> None:
+    """Set default values for required DICOM attributes.
+
+    Args:
+        image_metadata (dict[str,str]): dictionary containing DICOM metadata
+            that will be modified inplace.
+    """
+    for type_1_attribute, default_value in SERIES_TYPE_1_ATTRIBUTES.items():
+        if string_tag_for_keyword(type_1_attribute) not in image_metadata:
+            image_metadata[string_tag_for_keyword(type_1_attribute)] = default_value
+
+    if string_tag_for_keyword("FrameOfReferenceUID") not in image_metadata:
+        image_metadata[string_tag_for_keyword("FrameOfReferenceUID")] = pydicom.uid.generate_uid()
+
+    for type_2_attribute in SERIES_TYPE_2_ATTRIBUTES:
+        if string_tag_for_keyword(type_2_attribute) not in image_metadata:
+            image_metadata[string_tag_for_keyword(type_2_attribute)] = ""
 
 
 def read(dicom_series_directory_path: PathLike) -> tuple[sitk.Image, dict[str, str]]:
@@ -175,6 +196,16 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
         dicom_tag = string_tag_for_keyword(dicom_keyword)
         if dicom_tag in input_metadata:
             image_metadata[dicom_tag] = input_metadata[dicom_tag]
+
+    if hasattr(image, "modality"):
+        if image.modality == "CT":
+            dicom_tag = string_tag_for_keyword("KVP")
+            try:
+                image_metadata[dicom_tag] = input_metadata[dicom_tag]
+            except KeyError:
+                image_metadata[dicom_tag] = ""
+
+    _set_default_image_metadata(image_metadata)
 
     for series_dependent_field in SERIES_DEPENDENT_FIELDS:
         image_metadata[string_tag_for_keyword(series_dependent_field)] = pydicom.uid.generate_uid()

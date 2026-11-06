@@ -8,6 +8,8 @@ import numpy as np
 import pytest
 import SimpleITK as sitk
 from dicom_validator.validator.validation_result import DicomTag, ErrorCode
+from pydicom import dcmread
+from pydicom.uid import ExplicitVRLittleEndian
 
 from resmip.image import DicomModality, Image
 from resmip.segmentation import Segmentation, SegmentationType
@@ -328,6 +330,24 @@ def test_written_new_dicom_segmentation_is_dicom_conformant(
             result.module_errors["Multi-frame Functional Groups"][dicom_tag].code
             == ErrorCode.TagUnexpected
         )
+
+
+def test_written_dicom_seg_uses_explicit_vr_little_endian(
+    mock_dicom_segmentation: Segmentation, tmp_path
+):
+    """Write DICOM SEG in Explicit VR Little Endian.
+
+    Every SEG element that grows with the data is a sequence or Pixel Data, which have 32-bit
+    lengths in Explicit VR, so SEG does not need the Implicit VR that RTSTRUCT uses. Explicit
+    VR keeps each element's VR in the file and is the transfer syntax PS3.11 General Purpose
+    media profiles require.
+    """
+    output_path = tmp_path / "seg.dcm"
+    mock_dicom_segmentation.write(output_path, reference_image_path=dicom_ct_path())
+
+    written_dataset = dcmread(output_path)
+
+    assert written_dataset.file_meta.TransferSyntaxUID == ExplicitVRLittleEndian
 
 
 def test_read_back_rtstruct_with_contour_exceeding_explicit_vr_length(

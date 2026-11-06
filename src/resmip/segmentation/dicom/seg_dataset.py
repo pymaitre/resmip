@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from pydicom import Dataset, FileDataset, Sequence, dcmread, dcmwrite
 from pydicom.tag import Tag
-from pydicom.uid import generate_uid
+from pydicom.uid import ExplicitVRLittleEndian, generate_uid
 
 from resmip._version import __version__
 from resmip.dicom_utils.rt_utils_wrapper.image_helper import load_sorted_image_series
@@ -23,6 +23,15 @@ from .utils import (
 
 if TYPE_CHECKING:
     from resmip.segmentation.segmentation import SegmentationCollection
+
+_SEG_TRANSFER_SYNTAX_UID = ExplicitVRLittleEndian
+"""Transfer syntax of written DICOM SEG files.
+
+Every SEG element that grows with the data is a sequence or Pixel Data, which have 32-bit
+lengths in Explicit VR, so the Explicit VR 64 KiB limit of PS3.5 Section 6.2.2 never applies.
+Explicit VR keeps each element's VR in the file and is the transfer syntax PS3.11 General
+Purpose media profiles require (Table D.3-1).
+"""
 
 
 def _get_series_frames(image_directory: Path):
@@ -138,7 +147,10 @@ class SegDataset:
         ds = FileDataset(
             None,
             {},
-            file_meta=_setup_file_meta(storage_type="Segmentation Storage"),
+            file_meta=_setup_file_meta(
+                storage_type="Segmentation Storage",
+                transfer_syntax_uid=_SEG_TRANSFER_SYNTAX_UID,
+            ),
             preamble=b"\0" * 128,
         )
 

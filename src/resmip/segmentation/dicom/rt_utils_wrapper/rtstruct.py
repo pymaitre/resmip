@@ -126,6 +126,11 @@ class RTStruct:
             )
 
     def save(self, file_path: Path) -> None:
-        """Saves the RTStruct with the specified name / location."""
+        """Save the RTStruct to the given path in the DICOM File Format.
+
+        The encoding follows the Transfer Syntax UID in the file meta, so it is defined once,
+        in ``ds_helper``. ``enforce_file_format`` makes pydicom add the Type 1 File Meta
+        Information elements of PS3.10 Table 7.1-1 that the base dataset does not set.
+        """
         logger.info("Writing file to %s", file_path)
-        self.ds.save_as(file_path, implicit_vr=True, little_endian=True)
+        self.ds.save_as(file_path, enforce_file_format=True)

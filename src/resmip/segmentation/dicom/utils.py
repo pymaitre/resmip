@@ -2,7 +2,7 @@
 
 from pydicom import Dataset, FileMetaDataset
 from pydicom._uid_dict import UID_dictionary
-from pydicom.uid import UID, ExplicitVRLittleEndian, generate_uid
+from pydicom.uid import UID, ImplicitVRLittleEndian, generate_uid
 
 from resmip.dicom_utils.constants import _RESMIP_IMPLEMENTATION_CLASS_UID
 
@@ -70,7 +70,7 @@ def _setup_file_meta(storage_type: str):
     file_meta = FileMetaDataset()
     file_meta.MediaStorageSOPClassUID = _inverse_uid_lookup(storage_type)
     file_meta.MediaStorageSOPInstanceUID = generate_uid()
-    file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
+    file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
     file_meta.ImplementationClassUID = _RESMIP_IMPLEMENTATION_CLASS_UID
     return file_meta
 

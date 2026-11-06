@@ -315,3 +315,26 @@ def test_written_new_dicom_rtstruct_is_dicom_conformant(
         ].code
         == ErrorCode.TagUnexpected
     )
+
+
+@pytest.mark.parametrize(
+    "file_meta_keyword", ["FileMetaInformationGroupLength", "FileMetaInformationVersion"]
+)
+def test_written_dicom_rtstruct_contains_type_1_file_meta_element(
+    file_meta_keyword, mock_dicom_segmentation: Segmentation, tmp_path
+):
+    """Write the Type 1 File Meta Information elements of PS3.10 Table 7.1-1.
+
+    pydicom adds missing File Meta Information elements only when the file is written with
+    ``enforce_file_format=True``; otherwise both are omitted and dciodvfy reports them as
+    missing Type 1 attributes. dicom-validator does not report them, so the conformance tests
+    above cannot catch their absence.
+    """
+    output_path = tmp_path / "rtst.dcm"
+    mock_dicom_segmentation.write(
+        output_path, modality=DicomModality.rtstruct, reference_image_path=dicom_ct_path()
+    )
+
+    written_dataset = pydicom.dcmread(output_path)
+
+    assert file_meta_keyword in written_dataset.file_meta

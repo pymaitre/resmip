@@ -328,3 +328,40 @@ def test_written_new_dicom_segmentation_is_dicom_conformant(
             result.module_errors["Multi-frame Functional Groups"][dicom_tag].code
             == ErrorCode.TagUnexpected
         )
+
+
+def test_read_back_rtstruct_with_contour_exceeding_explicit_vr_length(
+    mock_dicom_image: Image, tmp_path
+):
+    """Read back an RTSTRUCT whose ContourData on one slice exceeds 64 KiB.
+
+    In an Explicit VR transfer syntax a DS element has a 16-bit length field, so a
+    ContourData value longer than 0xFFFF bytes cannot be encoded as DS. pydicom rewrites
+    it as UN, and on read the value comes back as raw bytes that the RTSTRUCT reader
+    cannot convert to coordinates. Implicit VR has a 32-bit length field and no such
+    limit, which is we prefer Implicit VR Little Endian.
+
+    The mask is a grid of 400 isolated voxels on one slice. Each voxel becomes its own
+    polygon, and all polygons on a slice are concatenated into a single ContourData,
+    which encodes to about 160 KB.
+    """
+    output_path = tmp_path / "rtst.dcm"
+    mask_array = np.zeros(mock_dicom_image.size[::-1], dtype=np.uint8)
+    mask_array[30, 0:40:2, 0:40:2] = 1
+    segmentation = Segmentation.from_array(
+        mask_array,
+        spacing=mock_dicom_image.spacing,
+        origin=mock_dicom_image.origin,
+        direction=mock_dicom_image.direction,
+        name="dense",
+    )
+    segmentation.write(
+        output_path, modality=DicomModality.rtstruct, reference_image_path=dicom_ct_path()
+    )
+
+    read_segmentation = Segmentation.read(
+        output_path, structure_name="dense", reference_image=mock_dicom_image
+    )
+
+    assert read_segmentation.name == "dense"
+    assert np.any(read_segmentation.numpy(copy=False))

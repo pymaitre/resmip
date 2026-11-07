@@ -8,7 +8,7 @@ home directory or on the working directory pytest is started from.
 
 from pathlib import Path
 
-DICOM_EDITION = "2026c"
+DICOM_EDITION = "2026d"
 """Edition of the DICOM standard that written files are validated against.
 
 NEMA publishes several editions a year (``a`` to ``e``). Each edition includes all earlier

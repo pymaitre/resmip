@@ -258,7 +258,7 @@ def test_image_coregistration(image):
     input_image: Image = image()
     reference_image: Image = image()
     image_type = type(input_image)
-    if image_type == Dose:  # mock dose does not have enough pixels on the z axis
+    if image_type is Dose:  # mock dose does not have enough pixels on the z axis
         input_image = Dose(mock_image())
         reference_image = Dose(mock_image())
     assert input_image.origin == reference_image.origin
@@ -294,7 +294,7 @@ def test_image_from_array_metadata(image, level):
     extra_args = {}
     if isinstance(input_image, (RTStructure, Segmentation)):
         extra_args["name"] = input_image.name
-    if type(input_image) == Image:
+    if image_type is Image:
         extra_args["modality"] = input_image.modality
     new_image = image_type.from_array(
         input_image.numpy(),

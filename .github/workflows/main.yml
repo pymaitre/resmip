@@ -27,6 +27,14 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install --with test
+      - name: Locate DICOM standard cache
+        id: dicom-standard
+        run: poetry run python -m tests.dicom_standard >> "$GITHUB_OUTPUT"
+      - name: Cache DICOM standard
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.dicom-standard.outputs.path }}
+          key: dicom-standard-${{ runner.os }}-${{ steps.dicom-standard.outputs.key }}
       - name: Test code
         run: |
           poetry run pytest

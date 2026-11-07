@@ -140,3 +140,7 @@ dmypy.json
 
 # macOS
 .DS_Store
+
+# Cache files
+/tests/.dicom-standard/
+.ruff_cache/

@@ -645,6 +645,23 @@ def test_image_coregistration(coregistration_metric, mock_dicom_image: Image):
     )
 
 
+def test_coregister_adopts_reference_frame_of_reference_uid(mock_dicom_image: Image):
+    """The coregistered image lives in the reference's space, so it carries its frame."""
+    tag = string_tag_for_keyword("FrameOfReferenceUID")
+    reference_image = Image.read(dicom_ct_path())
+    reference_image.metadata[tag] = "4.5.6"
+    mock_dicom_image.origin = (0, 0, 0)
+
+    coregistered_image = mock_dicom_image.coregister(
+        reference_image,
+        coregistration_metric=CoregistrationMetric.correlation,
+        seed=1,
+        num_threads=1,
+    )
+
+    assert coregistered_image.metadata[tag] == "4.5.6"
+
+
 @pytest.mark.parametrize(
     "image_type", [sitk.sitkInt16, sitk.sitkFloat32, int, float, np.int16, np.float32]
 )

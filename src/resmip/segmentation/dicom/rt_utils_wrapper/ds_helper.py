@@ -4,16 +4,28 @@ import datetime
 
 from pydicom.dataset import Dataset, FileDataset
 from pydicom.sequence import Sequence
-from pydicom.uid import generate_uid
+from pydicom.uid import ImplicitVRLittleEndian, generate_uid
 
 from ..utils import _setup_file_meta
 from .sopclass import SOPClassUID
+
+_RTSTRUCT_TRANSFER_SYNTAX_UID = ImplicitVRLittleEndian
+"""Transfer syntax of written DICOM RTSTRUCT files.
+
+ContourData is DS, which has a 16-bit length in Explicit VR, so a slice with enough contour
+points must be encoded as UN (PS3.5 Section 6.2.2), and the resmip reader cannot convert UN back
+to coordinates. Implicit VR encodes every length in 32 bits and is the Default Transfer Syntax
+every conformant implementation supports (PS3.5 Section 10.1). RTStructure writes the same
+syntax, so migrating does not change the output.
+"""
 
 
 def generate_base_dataset() -> FileDataset:
     """Generate the FileDataset used for the DICOM RTst."""
     file_name = "rt-utils-struct"
-    file_meta = _setup_file_meta("RT Structure Set Storage")
+    file_meta = _setup_file_meta(
+        "RT Structure Set Storage", transfer_syntax_uid=_RTSTRUCT_TRANSFER_SYNTAX_UID
+    )
     ds = FileDataset(file_name, {}, file_meta=file_meta, preamble=b"\0" * 128)
     add_required_elements_to_ds(ds)
     add_sequence_lists_to_ds(ds)

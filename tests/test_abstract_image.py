@@ -382,3 +382,13 @@ def test_image_resample_onto(image):
     image_type = type(input_image)
     resampled_image = input_image.resample_onto(reference_image=input_image)
     assert_object_compatible(resampled_image, input_image, obj_type=image_type)
+
+
+@pytest.mark.parametrize("image", [mock_structure, mock_dose, mock_segmentation])
+def test_register_raises_for_masks_and_doses(image):
+    """Masks and doses should use the transform from ``Image`` registration."""
+    input_image: Image = image()
+    reference_image = mock_image()
+
+    with pytest.raises(NotImplementedError):
+        input_image.register(reference_image, seed=1, num_threads=1)

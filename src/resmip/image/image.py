@@ -668,6 +668,12 @@ class Image(sitk.Image):
         as masks, where interpolation must not introduce values absent from the
         input. The output preserves the pixel type of ``self``.
 
+        The output lives in the reference's physical space, so its
+        ``FrameOfReferenceUID`` is taken from ``reference_image`` rather than
+        from ``self``. When the reference has none, the tag is removed instead of
+        keeping ``self``'s: the DICOM series writer keeps any UID it finds and
+        generates a new one only when the tag is missing.
+
         Args:
             reference_image (Image): Image whose grid (size, spacing, origin,
                 direction) defines the output sampling geometry.
@@ -695,6 +701,13 @@ class Image(sitk.Image):
         )
         new_image = Image(resampled_image, metadata=self.metadata)
         _update_spacing_metadata(new_image)
+        frame_of_reference_tag = string_tag_for_keyword("FrameOfReferenceUID")
+        if frame_of_reference_tag in reference_image.metadata:
+            new_image.metadata[frame_of_reference_tag] = reference_image.metadata[
+                frame_of_reference_tag
+            ]
+        else:
+            new_image.metadata.pop(frame_of_reference_tag, None)
         return new_image
 
     @staticmethod

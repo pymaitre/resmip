@@ -10,9 +10,8 @@ from dicom_validator.validator.dicom_file_validator import DicomFileValidator
 
 import resmip
 
+from .dicom_standard import DICOM_EDITION, DICOM_STANDARD_PATH
 from .utils import dicom_ct_path, dicom_rtst_path
-
-DICOM_EDITION = "2026c"
 
 
 @pytest.fixture
@@ -42,5 +41,5 @@ def mock_dicom_segmentation(mock_dicom_image: resmip.Image):
 @pytest.fixture
 def dicom_validator():
     """Validator used to check if generated DICOM files are valid."""
-    dicom_info = EditionReader().dicom_info_for_edition(DICOM_EDITION)
+    dicom_info = EditionReader(DICOM_STANDARD_PATH).dicom_info_for_edition(DICOM_EDITION)
     return DicomFileValidator(dicom_info, log_level=logging.WARNING)

@@ -52,6 +52,25 @@ def _metadata_file_name(filename: PathLike) -> Path:
     return filename.parent / f".{filename.stem}.json"
 
 
+def _update_spacing_metadata(image: Image) -> None:
+    """Rewrite the spacing tags in the image metadata from the image geometry.
+
+    ``PixelSpacing`` and ``SliceThickness`` are updated with the current spacing.
+    Only tags already present are rewritten:
+    adding them here would make every resampled image claim DICOM
+    attributes its source never had.
+
+    Args:
+        image (Image): Image whose metadata is updated in place.
+    """
+    if string_tag_for_keyword("PixelSpacing") in image.metadata:
+        image.metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
+            [str(x) for x in image.spacing[:2]]
+        )
+    if string_tag_for_keyword("SliceThickness") in image.metadata:
+        image.metadata[string_tag_for_keyword("SliceThickness")] = str(image.spacing[2])
+
+
 def _validate_modality(image_modality: str | DicomModality) -> DicomModality:
     """Check if the image modality saved in metadata is valid."""
     if image_modality == "":
@@ -608,12 +627,7 @@ class Image(sitk.Image):
         resampler.SetSize(new_size)
 
         new_img = Image(resampler.Execute(self), metadata=self.metadata)
-        if string_tag_for_keyword("PixelSpacing") in new_img.metadata:
-            new_img.metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
-                [str(x) for x in new_img.spacing[:2]]
-            )
-        if string_tag_for_keyword("SliceThickness") in new_img.metadata:
-            new_img.metadata[string_tag_for_keyword("SliceThickness")] = str(new_img.spacing[2])
+        _update_spacing_metadata(new_img)
         return new_img
 
     def resample_onto(
@@ -679,7 +693,9 @@ class Image(sitk.Image):
             default_pixel_value,
             self.GetPixelID(),
         )
-        return Image(resampled_image, metadata=self.metadata)
+        new_image = Image(resampled_image, metadata=self.metadata)
+        _update_spacing_metadata(new_image)
+        return new_image
 
     @staticmethod
     def _cosine_matrix_from_direction(direction: np.ndarray | tuple[float, ...]) -> np.ndarray:

@@ -654,7 +654,7 @@ class Image(sitk.Image):
         ``transform(p)`` -- i.e. ``output(p) = self(transform(p))``. A transform
         that translates content in the ``+x`` direction is therefore expressed as
         the mapping that subtracts that shift from the sampling coordinate. This
-        matches ``sitk.Resample`` and the transform returned by ``coregister``,
+        matches ``sitk.Resample`` and the transform returned by ``register``,
         so a transform estimated by registration can be passed here directly.
 
         When ``transform`` is ``None`` an identity transform is used, reducing the
@@ -1007,6 +1007,57 @@ class Image(sitk.Image):
         registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas=[2, 1, 0])
         registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
         return registration_method
+
+    def register(
+        self,
+        reference_image: Image,
+        *,
+        coregistration_metric: CoregistrationMetric = CoregistrationMetric.mutual_information,
+        seed: int = 0,
+        num_threads: int | None = None,
+    ) -> sitk.Transform:
+        """Estimate the rigid transform that aligns this image to a reference image.
+
+        Registration is split from resampling so that the estimated transform can
+        be reused: it is computed once on intensity images (e.g. MR onto CT) and
+        then applied, through ``resample_onto``, to this image and to any object
+        defined on its grid, such as segmentations or doses. ``fill_value`` is
+        therefore not a parameter here: it belongs to resampling, as
+        ``default_pixel_value`` of ``resample_onto``.
+
+        The transform follows the SimpleITK convention of
+        ``sitk.ImageRegistrationMethod.Execute(fixed, moving)``, with
+        ``reference_image`` as the fixed image and this image as the moving one:
+        it maps points in the reference space into this image's space. It can be
+        passed unchanged to ``resample_onto(reference_image, transform)``.
+
+        Args:
+            reference_image (Image): Fixed image of the registration.
+            coregistration_metric (CoregistrationMetric): Similarity metric optimised
+                by the registration.
+            seed (int): Random seed for the metric sampling. When set to 0, uses
+                system walltime. Use other values for deterministic behaviour.
+            num_threads (int | None): Number of threads used for registration. By
+                default, all available threads are used. Set it to 1 for
+                deterministic behaviour.
+
+        Returns:
+            sitk.Transform: Rigid transform mapping reference-space points into
+                this image's space.
+        """
+        registration_method = self._get_coregistration_method(
+            seed=seed, num_threads=num_threads, metric=coregistration_metric
+        )
+        fixed_image = reference_image.astype(np.float32)
+        moving_image = self.astype(np.float32)
+        initial_transform = sitk.CenteredTransformInitializer(
+            fixed_image,
+            moving_image,
+            sitk.Euler3DTransform(),
+            sitk.CenteredTransformInitializerFilter.GEOMETRY,
+        )
+        registration_method.SetInitialTransform(initial_transform, inPlace=False)
+        return registration_method.Execute(fixed_image, moving_image)
 
     def coregister(
         self,

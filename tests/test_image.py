@@ -578,6 +578,45 @@ def test_image_astype_numpy_unsupported(dtype, mock_dicom_image: Image):
         mock_dicom_image.astype(dtype)
 
 
+def test_register_returns_transform(mock_dicom_image: Image):
+    """Registration yields a reusable transform rather than a resampled image."""
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.origin = (0, 0, 0)
+
+    transform = mock_dicom_image.register(reference_image, seed=1, num_threads=1)
+
+    assert isinstance(transform, sitk.Transform)
+
+
+@pytest.mark.parametrize(
+    "coregistration_metric",
+    [CoregistrationMetric.correlation, CoregistrationMetric.mutual_information],
+)
+def test_register_transform_maps_reference_origin_onto_moving_origin(
+    coregistration_metric, mock_dicom_image: Image
+):
+    """The transform maps reference-space points into moving-image space.
+
+    The moving image is the reference with its origin moved to zero, so the
+    reference origin must land on the moving origin. The tolerance is a tenth of
+    the in-plane voxel size (0.977 mm); the measured deviation is at most 0.013 mm.
+    An inverted transform would miss by about twice the reference origin.
+    """
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.origin = (0, 0, 0)
+
+    transform = mock_dicom_image.register(
+        reference_image,
+        coregistration_metric=coregistration_metric,
+        seed=1,
+        num_threads=1,
+    )
+
+    np.testing.assert_allclose(
+        transform.TransformPoint(reference_image.origin), mock_dicom_image.origin, atol=0.1
+    )
+
+
 @pytest.mark.parametrize(
     "coregistration_metric",
     [CoregistrationMetric.correlation, CoregistrationMetric.mutual_information],

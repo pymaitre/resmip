@@ -1335,7 +1335,7 @@ def test_resample_onto_identity_onto_self_returns_equivalent_image(
 
 
 def test_resample_onto_default_identity(seeded_unit_grid_image: Image):
-    """Identity transform onto self's own grid is a no-op on pixels and geometry."""
+    """Omitting the transform defaults to identity, a no-op onto self's own grid."""
     out = seeded_unit_grid_image.resample_onto(seeded_unit_grid_image)
     np.testing.assert_array_equal(out.numpy(copy=False), seeded_unit_grid_image.numpy(copy=False))
 

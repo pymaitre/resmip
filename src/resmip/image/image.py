@@ -1070,6 +1070,10 @@ class Image(sitk.Image):
     ) -> Image:
         """Coregiser the image on top of another (reference) image.
 
+        .. warning::
+            ``Image.coregister`` is deprecated and will be removed in a future release.
+            Use ``Image.register`` and ``Image.resample_onto`` instead.
+
         Args:
             reference_image (Image): Image used as reference for coregistration.
             fill_value (float): Value used to fill voxels during resampling (defaults to 0).
@@ -1083,34 +1087,23 @@ class Image(sitk.Image):
         Returns:
             Image: New image coregistered with reference_image.
         """
-        registration_method = self._get_coregistration_method(
-            seed=seed, num_threads=num_threads, metric=coregistration_metric
+        warnings.warn(
+            "'Image.coregister' is deprecated and will be removed in a future release. "
+            "Use 'Image.register' and 'Image.resample_onto' instead."
         )
-        current_type = self.GetPixelID()
-
-        fixed_image = reference_image.astype(np.float32)
-        moving_image = self.astype(np.float32)
-        initial_transform = sitk.CenteredTransformInitializer(
-            fixed_image,
-            moving_image,
-            sitk.Euler3DTransform(),
-            sitk.CenteredTransformInitializerFilter.GEOMETRY,
+        transform = self.register(
+            reference_image,
+            coregistration_metric=coregistration_metric,
+            seed=seed,
+            num_threads=num_threads,
         )
-        registration_method.SetInitialTransform(initial_transform, inPlace=False)
-        final_transform = registration_method.Execute(fixed_image, moving_image)
-
-        moving_image = Image(
-            sitk.Resample(
-                moving_image,
-                fixed_image,
-                final_transform,
-                sitk.sitkLinear,
-                fill_value,
-                moving_image.GetPixelID(),
-            ),
-            metadata=self.metadata,
+        coregistered_image = self.astype(np.float32).resample_onto(
+            reference_image,
+            transform,
+            interpolator=sitk.sitkLinear,
+            default_pixel_value=fill_value,
         )
-        return moving_image.astype(current_type)
+        return coregistered_image.astype(self.GetPixelID())
 
     def __add__(self, value: int | float) -> Image:
         """Add constant value to pixel data.

@@ -2,10 +2,15 @@
 
 # pylint: disable=W0621
 
+import logging
+
 import pytest
+from dicom_validator.spec_reader.edition_reader import EditionReader
+from dicom_validator.validator.dicom_file_validator import DicomFileValidator
 
 import resmip
 
+from .dicom_standard import DICOM_EDITION, DICOM_STANDARD_PATH
 from .utils import dicom_ct_path, dicom_rtst_path
 
 
@@ -31,3 +36,10 @@ def mock_dicom_segmentation(mock_dicom_image: resmip.Image):
     return resmip.Segmentation.read(
         dicom_rtst_path(), structure_name=structure_name, reference_image=mock_dicom_image
     )
+
+
+@pytest.fixture
+def dicom_validator():
+    """Validator used to check if generated DICOM files are valid."""
+    dicom_info = EditionReader(DICOM_STANDARD_PATH).dicom_info_for_edition(DICOM_EDITION)
+    return DicomFileValidator(dicom_info, log_level=logging.WARNING)

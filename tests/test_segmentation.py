@@ -1,15 +1,25 @@
 """Test module for segmentation objects."""
 
+# pylint: disable=R0801
+
 from pathlib import Path
 
 import numpy as np
 import pytest
 import SimpleITK as sitk
+from dicom_validator.validator.validation_result import DicomTag, ErrorCode
+from pydicom import dcmread
+from pydicom.uid import ExplicitVRLittleEndian
 
 from resmip.image import DicomModality, Image
 from resmip.segmentation import Segmentation, SegmentationType
 
-from .utils import dicom_rtst_path, generate_dummy_segmentation, ibsi_rtst_path
+from .utils import (
+    dicom_ct_path,
+    dicom_rtst_path,
+    generate_dummy_segmentation,
+    ibsi_rtst_path,
+)
 
 TEST_SEG_SIZE = (204, 201, 60)
 """Size of the test Segmentation."""
@@ -260,3 +270,118 @@ def test_write_dicom_segmentation_unsupported_modality(
     seg_path = tmp_path / "out.dcm"
     with pytest.raises(ValueError):
         mock_dicom_segmentation.write(filename=seg_path, modality="")
+
+
+def test_written_dicom_segmentation_is_dicom_conformant(
+    mock_dicom_segmentation: Segmentation, dicom_validator, tmp_path
+):
+    """Check that the written DICOM SEG follows DICOM standard."""
+    output_path = tmp_path / "seg.dcm"
+    mock_dicom_segmentation.write(output_path, reference_image_path=dicom_ct_path())
+
+    result = next(iter(dicom_validator.validate(output_path).values()))
+
+    assert result.errors == 6, result.module_errors
+    assert len(result.module_errors["Multi-frame Functional Groups"]) == 6
+    for dicom_tag in [
+        DicomTag(0x00289110, parents=[0x52009229]),
+        DicomTag(0x00209116, parents=[0x52009229]),
+        DicomTag(0x00209111, parents=[0x52009230]),
+        DicomTag(0x0062000A, parents=[0x52009230]),
+        DicomTag(0x00209113, parents=[0x52009230]),
+        DicomTag(0x00089124, parents=[0x52009230]),
+    ]:
+        assert (
+            result.module_errors["Multi-frame Functional Groups"][dicom_tag].code
+            == ErrorCode.TagUnexpected
+        )
+
+
+def test_written_new_dicom_segmentation_is_dicom_conformant(
+    mock_dicom_segmentation: Segmentation, dicom_validator, tmp_path
+):
+    """Check that the written DICOM SEG follows DICOM standard."""
+    output_path = tmp_path / "seg.dcm"
+    new_array = np.zeros_like(mock_dicom_segmentation.numpy(copy=False))
+    new_array[1, 2:8, 3:5] = 1
+    new_segmentation = Segmentation.from_array(
+        new_array,
+        spacing=mock_dicom_segmentation.spacing,
+        origin=mock_dicom_segmentation.origin,
+        direction=mock_dicom_segmentation.direction,
+        name=mock_dicom_segmentation.name,
+        segmentation_type=mock_dicom_segmentation.segmentation_type,
+    )
+    new_segmentation.write(output_path, reference_image_path=dicom_ct_path())
+
+    result = next(iter(dicom_validator.validate(output_path).values()))
+
+    assert result.errors == 6, result.module_errors
+    assert len(result.module_errors["Multi-frame Functional Groups"]) == 6
+    for dicom_tag in [
+        DicomTag(0x00289110, parents=[0x52009229]),
+        DicomTag(0x00209116, parents=[0x52009229]),
+        DicomTag(0x00209111, parents=[0x52009230]),
+        DicomTag(0x0062000A, parents=[0x52009230]),
+        DicomTag(0x00209113, parents=[0x52009230]),
+        DicomTag(0x00089124, parents=[0x52009230]),
+    ]:
+        assert (
+            result.module_errors["Multi-frame Functional Groups"][dicom_tag].code
+            == ErrorCode.TagUnexpected
+        )
+
+
+def test_written_dicom_seg_uses_explicit_vr_little_endian(
+    mock_dicom_segmentation: Segmentation, tmp_path
+):
+    """Write DICOM SEG in Explicit VR Little Endian.
+
+    Every SEG element that grows with the data is a sequence or Pixel Data, which have 32-bit
+    lengths in Explicit VR, so SEG does not need the Implicit VR that RTSTRUCT uses. Explicit
+    VR keeps each element's VR in the file and is the transfer syntax PS3.11 General Purpose
+    media profiles require.
+    """
+    output_path = tmp_path / "seg.dcm"
+    mock_dicom_segmentation.write(output_path, reference_image_path=dicom_ct_path())
+
+    written_dataset = dcmread(output_path)
+
+    assert written_dataset.file_meta.TransferSyntaxUID == ExplicitVRLittleEndian
+
+
+def test_read_back_rtstruct_with_contour_exceeding_explicit_vr_length(
+    mock_dicom_image: Image, tmp_path
+):
+    """Read back an RTSTRUCT whose ContourData on one slice exceeds 64 KiB.
+
+    In an Explicit VR transfer syntax a DS element has a 16-bit length field, so a
+    ContourData value longer than 0xFFFF bytes cannot be encoded as DS. pydicom rewrites
+    it as UN, and on read the value comes back as raw bytes that the RTSTRUCT reader
+    cannot convert to coordinates. Implicit VR has a 32-bit length field and no such
+    limit, which is we prefer Implicit VR Little Endian.
+
+    The mask is a grid of 400 isolated voxels on one slice. Each voxel becomes its own
+    polygon, and all polygons on a slice are concatenated into a single ContourData,
+    which encodes to about 160 KB.
+    """
+    output_path = tmp_path / "rtst.dcm"
+    mask_array = np.zeros(mock_dicom_image.size[::-1], dtype=np.uint8)
+    mask_array[30, 0:40:2, 0:40:2] = 1
+    segmentation = Segmentation.from_array(
+        mask_array,
+        spacing=mock_dicom_image.spacing,
+        origin=mock_dicom_image.origin,
+        direction=mock_dicom_image.direction,
+        name="dense",
+    )
+    segmentation.write(
+        output_path, modality=DicomModality.rtstruct, reference_image_path=dicom_ct_path()
+    )
+
+    read_segmentation = Segmentation.read(
+        output_path, structure_name="dense", reference_image=mock_dicom_image
+    )
+
+    assert read_segmentation.name == "dense"
+    assert np.any(read_segmentation.numpy(copy=False))

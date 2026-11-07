@@ -9,8 +9,6 @@ import numpy as np
 import pydicom
 import SimpleITK as sitk
 
-from resmip.dicom_utils.utils import _set_content_datetime
-
 from ..utils import _copy_patient_and_study_information
 from .constants import ROIGenerationAlgorithm
 from .ds_helper import (
@@ -33,7 +31,6 @@ def create_rtstruct_dataset(series_data: list[pydicom.Dataset], **kwargs) -> pyd
     add_study_and_series_information(ds, series_data, **kwargs)
     _copy_patient_and_study_information(ds, series_data[0])
     add_refd_frame_of_ref_sequence(ds, series_data)
-    _set_content_datetime(ds)
     return ds
 
 
@@ -129,6 +126,11 @@ class RTStruct:
             )
 
     def save(self, file_path: Path) -> None:
-        """Saves the RTStruct with the specified name / location."""
+        """Save the RTStruct to the given path in the DICOM File Format.
+
+        The encoding follows the Transfer Syntax UID in the file meta, so it is defined once,
+        in ``ds_helper``. ``enforce_file_format`` makes pydicom add the Type 1 File Meta
+        Information elements of PS3.10 Table 7.1-1 that the base dataset does not set.
+        """
         logger.info("Writing file to %s", file_path)
-        self.ds.save_as(file_path, implicit_vr=False, little_endian=True)
+        self.ds.save_as(file_path, enforce_file_format=True)

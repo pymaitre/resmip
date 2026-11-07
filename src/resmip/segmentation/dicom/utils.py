@@ -2,7 +2,7 @@
 
 from pydicom import Dataset, FileMetaDataset
 from pydicom._uid_dict import UID_dictionary
-from pydicom.uid import UID, ExplicitVRLittleEndian, generate_uid
+from pydicom.uid import UID, generate_uid
 
 from resmip.dicom_utils.constants import _RESMIP_IMPLEMENTATION_CLASS_UID
 
@@ -52,16 +52,18 @@ def _inverse_uid_lookup(name: str):
     return UID(_INVERSE_UID_DICTIONARY[name])
 
 
-def _setup_file_meta(storage_type: str):
+def _setup_file_meta(storage_type: str, *, transfer_syntax_uid: UID):
     """Create a DICOM File Meta Information dataset for a given storage type.
 
     Generates a new ``MediaStorageSOPInstanceUID`` on every call.
-    The transfer syntax is set to Explicit VR Little Endian, which is
-    the recommended default for modern DICOM.
+    The transfer syntax is keyword-only and has no default because the right choice
+    depends on the elements of the IOD being written: each writer passes the default
+    defined in its own module instead of inheriting a shared one.
 
     Args:
         storage_type (str): Human-readable name of the SOP storage class,
             e.g. ``"Segmentation Storage"`` or ``"RT Structure Set Storage"``.
+        transfer_syntax_uid (UID): Transfer syntax used to encode the data set.
 
     Returns:
         FileMetaDataset: Populated file meta dataset ready to attach to a
@@ -70,7 +72,7 @@ def _setup_file_meta(storage_type: str):
     file_meta = FileMetaDataset()
     file_meta.MediaStorageSOPClassUID = _inverse_uid_lookup(storage_type)
     file_meta.MediaStorageSOPInstanceUID = generate_uid()
-    file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
+    file_meta.TransferSyntaxUID = transfer_syntax_uid
     file_meta.ImplementationClassUID = _RESMIP_IMPLEMENTATION_CLASS_UID
     return file_meta
 

@@ -1446,6 +1446,38 @@ def test_resample_onto_metadata_is_independent(identity_transform):
     assert image.metadata[tag] == "ORIGINAL"
 
 
+def test_resample_onto_updates_pixel_spacing_to_reference(reference_grid_image: Image):
+    """PixelSpacing describes the reference grid the output now lives on, not self's grid."""
+    tag = string_tag_for_keyword("PixelSpacing")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "1.0\\1.0"},
+    )
+
+    out = image.resample_onto(reference_grid_image)
+
+    assert out.metadata[tag] == "2.0\\1.5"
+
+
+def test_resample_onto_updates_slice_thickness_to_reference(reference_grid_image: Image):
+    """SliceThickness describes the reference grid the output now lives on, not self's grid."""
+    tag = string_tag_for_keyword("SliceThickness")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "1.0"},
+    )
+
+    out = image.resample_onto(reference_grid_image)
+
+    assert out.metadata[tag] == "5.0"
+
+
 def test_written_dicom_series_is_dicom_conformant(
     mock_dicom_image: Image, dicom_validator, tmp_path
 ):

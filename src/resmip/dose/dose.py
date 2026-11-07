@@ -428,6 +428,15 @@ class Dose(Image):
         """
         return Dose(super().pad(reference_image=reference_image, **kwargs))
 
+    def register(self, *args, **kwargs) -> sitk.Transform:
+        """Estimate a registration transform from the dose.
+
+        A dose is not registered itself: the transform is estimated on the
+        images it was computed on, then applied to the dose with
+        ``resample_onto``.
+        """
+        raise NotImplementedError
+
     def coregister(
         self,
         *args,

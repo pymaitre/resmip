@@ -540,6 +540,16 @@ class RTStructure(Image):
         """
         return RTStructure(super().pad(reference_image=reference_image, **kwargs), name=self.name)
 
+    def register(self, *args, **kwargs) -> sitk.Transform:
+        """Estimate a registration transform from the structure.
+
+        A structure is not registered itself: the transform is estimated on the
+        images it was drawn on, then applied to the structure with
+        ``resample_onto``. Kept identical to ``Segmentation.register`` so that
+        migrating code behaves the same.
+        """
+        raise NotImplementedError
+
     def coregister(self, *args, **kwargs) -> RTStructure:
         """Coregiser the structure on top of another (reference) image.
 

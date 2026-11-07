@@ -614,6 +614,15 @@ class Segmentation(Image):
             segmentation_type=self.segmentation_type,
         )
 
+    def register(self, *args, **kwargs) -> sitk.Transform:
+        """Estimate a registration transform from the segmentation.
+
+        A segmentation is not registered itself: the transform is estimated on
+        the images it was drawn on, then applied to the segmentation with
+        ``resample_onto``.
+        """
+        raise NotImplementedError
+
     def coregister(self, *args, **kwargs) -> Segmentation:
         """Coregiser the segmentation on top of another (reference) image.
 

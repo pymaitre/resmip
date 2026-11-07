@@ -1478,6 +1478,48 @@ def test_resample_onto_updates_slice_thickness_to_reference(reference_grid_image
     assert out.metadata[tag] == "5.0"
 
 
+def test_resample_onto_adopts_reference_frame_of_reference_uid():
+    """The output lives in the reference's physical space, so it carries the reference's frame."""
+    tag = string_tag_for_keyword("FrameOfReferenceUID")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "1.2.3"},
+    )
+    reference_image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "4.5.6"},
+    )
+
+    out = image.resample_onto(reference_image)
+
+    assert out.metadata[tag] == "4.5.6"
+
+
+def test_resample_onto_drops_frame_of_reference_uid_when_reference_has_none(
+    reference_grid_image: Image,
+):
+    """Without a reference frame, the output must not claim self's frame it no longer lives in."""
+    tag = string_tag_for_keyword("FrameOfReferenceUID")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "1.2.3"},
+    )
+    assert tag not in reference_grid_image.metadata
+
+    out = image.resample_onto(reference_grid_image)
+
+    assert tag not in out.metadata
+
+
 def test_written_dicom_series_is_dicom_conformant(
     mock_dicom_image: Image, dicom_validator, tmp_path
 ):

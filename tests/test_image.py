@@ -2,6 +2,7 @@
 
 # pylint: disable=W0621,W0212,C0302
 
+import itertools
 import logging
 from pathlib import Path
 
@@ -12,7 +13,12 @@ from pydicom import dcmread
 
 import resmip.dicom_utils.series as dicom_series
 from resmip.dicom_utils.constants import string_tag_for_keyword
-from resmip.image import CoregistrationMetric, Image, RigidRegistration
+from resmip.image import (
+    AffineRegistration,
+    CoregistrationMetric,
+    Image,
+    RigidRegistration,
+)
 from resmip.image.data_types import sitk_image_dtype
 from resmip.image.image import _metadata_file_name
 from resmip.image.metadata import SERIES_MODALITIES, DicomModality
@@ -629,6 +635,59 @@ def test_register_defaults_to_rigid_euler_transform(mock_dicom_image: Image):
     transform = mock_dicom_image.register(reference_image, seed=1, num_threads=1)
 
     assert sitk.CompositeTransform(transform).GetNthTransform(0).GetName() == "Euler3DTransform"
+
+
+@pytest.mark.parametrize(
+    "coregistration_metric",
+    [CoregistrationMetric.correlation, CoregistrationMetric.mutual_information],
+)
+def test_affine_registration_recovers_anisotropic_spacing(
+    coregistration_metric, mock_dicom_image: Image
+):
+    """Affine registration recovers a scaling that no rigid transform can represent.
+
+    The moving image is the reference pixel array with x spacing stretched by 10% and
+    y spacing shrunk by 10%, so each reference corner must land on the same corner index
+    of the moving image. Corners are checked rather than the origin alone, because the
+    scaling error grows with distance from the image centre.
+
+    Measured with seed=1 and num_threads=1, maximum corner deviation: affine 0.014 mm
+    (correlation) and 0.050 mm (mutual information); rigid 26.5 mm and 30.3 mm. The
+    tolerance is a tenth of the in-plane voxel size (0.977 mm).
+    """
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.spacing = tuple(
+        spacing * scale for spacing, scale in zip(reference_image.spacing, (1.1, 0.9, 1.0))
+    )
+    corner_indices_xyz = list(itertools.product(*[(0, size - 1) for size in reference_image.size]))
+
+    transform = mock_dicom_image.register(
+        reference_image,
+        method=AffineRegistration(metric=coregistration_metric),
+        seed=1,
+        num_threads=1,
+    )
+
+    mapped_corners = [
+        transform.TransformPoint(reference_image.TransformIndexToPhysicalPoint(index))
+        for index in corner_indices_xyz
+    ]
+    expected_corners = [
+        mock_dicom_image.TransformIndexToPhysicalPoint(index) for index in corner_indices_xyz
+    ]
+    np.testing.assert_allclose(mapped_corners, expected_corners, atol=0.1)
+
+
+def test_affine_registration_uses_affine_transform(mock_dicom_image: Image):
+    """The affine method optimises an affine transform, not the rigid default."""
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.origin = (0, 0, 0)
+
+    transform = mock_dicom_image.register(
+        reference_image, method=AffineRegistration(), seed=1, num_threads=1
+    )
+
+    assert sitk.CompositeTransform(transform).GetNthTransform(0).GetName() == "AffineTransform"
 
 
 @pytest.mark.parametrize(

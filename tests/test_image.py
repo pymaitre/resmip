@@ -2,6 +2,7 @@
 
 # pylint: disable=W0621,W0212,C0302
 
+import itertools
 import logging
 from pathlib import Path
 
@@ -12,7 +13,13 @@ from pydicom import dcmread
 
 import resmip.dicom_utils.series as dicom_series
 from resmip.dicom_utils.constants import string_tag_for_keyword
-from resmip.image import CoregistrationMetric, Image
+from resmip.image import (
+    AffineRegistration,
+    CoregistrationMetric,
+    Image,
+    RegistrationMethod,
+    RigidRegistration,
+)
 from resmip.image.data_types import sitk_image_dtype
 from resmip.image.image import _metadata_file_name
 from resmip.image.metadata import SERIES_MODALITIES, DicomModality
@@ -99,6 +106,49 @@ def mock_rotation_x_image(mock_rotation_image_size):
         mask,
         spacing=(1, 1, 1),
         origin=(0, 0, 0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+
+
+@pytest.fixture
+def identity_transform():
+    """Identity spatial transform in 3D."""
+    return sitk.Transform(3, sitk.sitkIdentity)
+
+
+@pytest.fixture
+def unit_grid_image():
+    """10x10x10, unit spacing, identity direction, zero origin."""
+    array = np.zeros((10, 10, 10), dtype=np.float32)
+    return Image.from_array(
+        array,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+
+
+@pytest.fixture
+def reference_grid_image():
+    """A different grid: different size, spacing, origin, and a rotated direction."""
+    array = np.zeros((6, 8, 12), dtype=np.float32)
+    return Image.from_array(
+        array,
+        spacing=(2.0, 1.5, 5.0),
+        origin=(3.0, -4.0, 10.0),
+        direction=(0, 1, 0, -1, 0, 0, 0, 0, 1),
+    )
+
+
+@pytest.fixture
+def seeded_unit_grid_image() -> Image:
+    """10x10x10 unit-grid image with a single feature voxel at (z,y,x)=(5,5,5)."""
+    array = np.zeros((10, 10, 10), dtype=np.float32)
+    array[5, 5, 5] = 1.0
+    return Image.from_array(
+        array,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
         direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
     )
 
@@ -535,6 +585,146 @@ def test_image_astype_numpy_unsupported(dtype, mock_dicom_image: Image):
         mock_dicom_image.astype(dtype)
 
 
+def test_register_returns_transform(mock_dicom_image: Image):
+    """Registration yields a reusable transform rather than a resampled image."""
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.origin = (0, 0, 0)
+
+    transform = mock_dicom_image.register(reference_image, seed=1, num_threads=1)
+
+    assert isinstance(transform, sitk.Transform)
+
+
+@pytest.mark.parametrize(
+    "coregistration_metric",
+    [CoregistrationMetric.correlation, CoregistrationMetric.mutual_information],
+)
+def test_register_transform_maps_reference_origin_onto_moving_origin(
+    coregistration_metric, mock_dicom_image: Image
+):
+    """The transform maps reference-space points into moving-image space.
+
+    The moving image is the reference with its origin moved to zero, so the
+    reference origin must land on the moving origin. The tolerance is a tenth of
+    the in-plane voxel size (0.977 mm); the measured deviation is at most 0.013 mm.
+    An inverted transform would miss by about twice the reference origin.
+    """
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.origin = (0, 0, 0)
+
+    transform = mock_dicom_image.register(
+        reference_image,
+        method=RigidRegistration(metric=coregistration_metric),
+        seed=1,
+        num_threads=1,
+    )
+
+    np.testing.assert_allclose(
+        transform.TransformPoint(reference_image.origin), mock_dicom_image.origin, atol=0.1
+    )
+
+
+def test_register_defaults_to_rigid_euler_transform(mock_dicom_image: Image):
+    """Without an explicit method, registration stays rigid, as before the selector existed.
+
+    ``Execute`` wraps the optimised transform in a composite with one inner transform,
+    so the method is read from that inner transform.
+    """
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.origin = (0, 0, 0)
+
+    transform = mock_dicom_image.register(reference_image, seed=1, num_threads=1)
+
+    assert sitk.CompositeTransform(transform).GetNthTransform(0).GetName() == "Euler3DTransform"
+
+
+@pytest.mark.parametrize(
+    "coregistration_metric",
+    [CoregistrationMetric.correlation, CoregistrationMetric.mutual_information],
+)
+def test_affine_registration_recovers_anisotropic_spacing(
+    coregistration_metric, mock_dicom_image: Image
+):
+    """Affine registration recovers a scaling that no rigid transform can represent.
+
+    The moving image is the reference pixel array with x spacing stretched by 10% and
+    y spacing shrunk by 10%, so each reference corner must land on the same corner index
+    of the moving image. Corners are checked rather than the origin alone, because the
+    scaling error grows with distance from the image centre.
+
+    Measured with seed=1 and num_threads=1, maximum corner deviation: affine 0.014 mm
+    (correlation) and 0.050 mm (mutual information); rigid 26.5 mm and 30.3 mm. The
+    tolerance is a tenth of the in-plane voxel size (0.977 mm).
+    """
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.spacing = tuple(
+        spacing * scale for spacing, scale in zip(reference_image.spacing, (1.1, 0.9, 1.0))
+    )
+    corner_indices_xyz = list(itertools.product(*[(0, size - 1) for size in reference_image.size]))
+
+    transform = mock_dicom_image.register(
+        reference_image,
+        method=AffineRegistration(metric=coregistration_metric),
+        seed=1,
+        num_threads=1,
+    )
+
+    mapped_corners = [
+        transform.TransformPoint(reference_image.TransformIndexToPhysicalPoint(index))
+        for index in corner_indices_xyz
+    ]
+    expected_corners = [
+        mock_dicom_image.TransformIndexToPhysicalPoint(index) for index in corner_indices_xyz
+    ]
+    np.testing.assert_allclose(mapped_corners, expected_corners, atol=0.1)
+
+
+def test_affine_registration_uses_affine_transform(mock_dicom_image: Image):
+    """The affine method optimises an affine transform, not the rigid default."""
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.origin = (0, 0, 0)
+
+    transform = mock_dicom_image.register(
+        reference_image, method=AffineRegistration(), seed=1, num_threads=1
+    )
+
+    assert sitk.CompositeTransform(transform).GetNthTransform(0).GetName() == "AffineTransform"
+
+
+def test_affine_registration_result_depends_on_metric(mock_dicom_image: Image):
+    """The metric chosen in the method config reaches the optimiser.
+
+    A transform does not record the metric that produced it, so the check is indirect.
+    With seed=1 and num_threads=1, repeated runs are bit-identical, so ignoring the
+    metric would make both transforms equal. The measured parameter difference between
+    correlation and mutual information is 0.0066.
+    """
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.spacing = tuple(
+        spacing * scale for spacing, scale in zip(reference_image.spacing, (1.1, 0.9, 1.0))
+    )
+
+    transforms = [
+        mock_dicom_image.register(
+            reference_image, method=AffineRegistration(metric=metric), seed=1, num_threads=1
+        )
+        for metric in (CoregistrationMetric.correlation, CoregistrationMetric.mutual_information)
+    ]
+
+    parameters = [sitk.CompositeTransform(t).GetNthTransform(0).GetParameters() for t in transforms]
+    assert parameters[0] != parameters[1]
+
+
+def test_register_rejects_unsupported_method(identity_image: Image):
+    """A method without a known transform is refused before any optimisation runs.
+
+    The base class stands for any method ``register`` does not recognise. The check
+    happens before the images are touched, so a 10x10x10 image keeps the test fast.
+    """
+    with pytest.raises(TypeError):
+        identity_image.register(identity_image, method=RegistrationMethod())
+
+
 @pytest.mark.parametrize(
     "coregistration_metric",
     [CoregistrationMetric.correlation, CoregistrationMetric.mutual_information],
@@ -561,6 +751,23 @@ def test_image_coregistration(coregistration_metric, mock_dicom_image: Image):
         coregistered_image.numpy(),
         reference_coregistered_image.numpy(),
     )
+
+
+def test_coregister_adopts_reference_frame_of_reference_uid(mock_dicom_image: Image):
+    """The coregistered image lives in the reference's space, so it carries its frame."""
+    tag = string_tag_for_keyword("FrameOfReferenceUID")
+    reference_image = Image.read(dicom_ct_path())
+    reference_image.metadata[tag] = "4.5.6"
+    mock_dicom_image.origin = (0, 0, 0)
+
+    coregistered_image = mock_dicom_image.coregister(
+        reference_image,
+        coregistration_metric=CoregistrationMetric.correlation,
+        seed=1,
+        num_threads=1,
+    )
+
+    assert coregistered_image.metadata[tag] == "4.5.6"
 
 
 @pytest.mark.parametrize(
@@ -1281,6 +1488,200 @@ def test_new_image_metadata_is_independent():
     new_image = Image(image)
     new_image.metadata[tag] = "MODIFIED"
     assert image.metadata[tag] == "ORIGINAL"
+
+
+def test_resample_onto_identity_onto_self_returns_equivalent_image(
+    seeded_unit_grid_image: Image, identity_transform
+):
+    """Identity transform onto self's own grid is a no-op on pixels and geometry."""
+    out = seeded_unit_grid_image.resample_onto(seeded_unit_grid_image, identity_transform)
+    np.testing.assert_array_equal(out.numpy(copy=False), seeded_unit_grid_image.numpy(copy=False))
+
+
+def test_resample_onto_default_identity(seeded_unit_grid_image: Image):
+    """Omitting the transform defaults to identity, a no-op onto self's own grid."""
+    out = seeded_unit_grid_image.resample_onto(seeded_unit_grid_image)
+    np.testing.assert_array_equal(out.numpy(copy=False), seeded_unit_grid_image.numpy(copy=False))
+
+
+def test_resample_onto_output_adopts_reference_geometry(
+    unit_grid_image: Image, reference_grid_image: Image, identity_transform
+):
+    """Output lives on the reference grid.
+
+    Check that it's not on self's grid: this is what distinguishes
+    ``resample_onto`` from ``resample``.
+    """
+    out = unit_grid_image.resample_onto(reference_grid_image, identity_transform)
+
+    assert out.size == reference_grid_image.size
+    assert out.spacing == reference_grid_image.spacing
+    assert out.origin == reference_grid_image.origin
+    assert out.direction == reference_grid_image.direction
+
+
+def test_resample_onto_output_grid_differs_from_source_when_reference_differs(
+    unit_grid_image: Image, reference_grid_image, identity_transform
+):
+    """Resampling on a different grid could change image size."""
+    out = unit_grid_image.resample_onto(reference_grid_image, identity_transform)
+    assert out.size != unit_grid_image.size
+
+
+def test_resample_onto_out_of_bounds_filled_with_default_value():
+    """Voxels mapping outside self's extent take default_pixel_value."""
+    array = np.zeros((10, 10, 10), dtype=np.float32)
+    array[:] = 100.0
+    original_image = Image.from_array(
+        array,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+    push_off_grid = sitk.TranslationTransform(3, (-50.0, 0.0, 0.0))
+
+    out = original_image.resample_onto(
+        original_image,
+        push_off_grid,
+        interpolator=sitk.sitkNearestNeighbor,
+        default_pixel_value=-1000.0,
+    )
+
+    assert np.all(out.numpy(copy=False) == -1000.0)
+
+
+def test_resample_onto_preserves_source_dtype(identity_transform):
+    """Output keeps self's pixel type (as coregister does), not the metric float cast."""
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.int16),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    )
+
+    out = image.resample_onto(image, identity_transform, interpolator=sitk.sitkNearestNeighbor)
+
+    assert out.dtype == image.dtype
+
+
+def test_resample_onto_does_not_mutate_source_or_reference(
+    seeded_unit_grid_image: Image, reference_grid_image: Image, identity_transform
+):
+    """Neither self nor the reference is modified."""
+    before_self = seeded_unit_grid_image.numpy()
+    before_ref = reference_grid_image.numpy()
+
+    _ = seeded_unit_grid_image.resample_onto(reference_grid_image, identity_transform)
+
+    np.testing.assert_array_equal(seeded_unit_grid_image.numpy(copy=False), before_self)
+    np.testing.assert_array_equal(reference_grid_image.numpy(copy=False), before_ref)
+
+
+def test_resample_onto_carries_source_metadata(identity_transform):
+    """Output carries self's metadata (self is the moving image being resampled)."""
+    tag = string_tag_for_keyword("PatientID")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "SOURCE"},
+    )
+
+    out = image.resample_onto(image, identity_transform)
+
+    assert out.metadata[tag] == "SOURCE"
+
+
+def test_resample_onto_metadata_is_independent(identity_transform):
+    """Mutating the output's metadata must not touch self (mirrors resample test)."""
+    tag = string_tag_for_keyword("PatientID")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "ORIGINAL"},
+    )
+    out = image.resample_onto(image, identity_transform)
+
+    out.metadata[tag] = "MODIFIED"
+
+    assert image.metadata[tag] == "ORIGINAL"
+
+
+def test_resample_onto_updates_pixel_spacing_to_reference(reference_grid_image: Image):
+    """PixelSpacing describes the reference grid the output now lives on, not self's grid."""
+    tag = string_tag_for_keyword("PixelSpacing")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "1.0\\1.0"},
+    )
+
+    out = image.resample_onto(reference_grid_image)
+
+    assert out.metadata[tag] == "2.0\\1.5"
+
+
+def test_resample_onto_updates_slice_thickness_to_reference(reference_grid_image: Image):
+    """SliceThickness describes the reference grid the output now lives on, not self's grid."""
+    tag = string_tag_for_keyword("SliceThickness")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "1.0"},
+    )
+
+    out = image.resample_onto(reference_grid_image)
+
+    assert out.metadata[tag] == "5.0"
+
+
+def test_resample_onto_adopts_reference_frame_of_reference_uid():
+    """The output lives in the reference's physical space, so it carries the reference's frame."""
+    tag = string_tag_for_keyword("FrameOfReferenceUID")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "1.2.3"},
+    )
+    reference_image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "4.5.6"},
+    )
+
+    out = image.resample_onto(reference_image)
+
+    assert out.metadata[tag] == "4.5.6"
+
+
+def test_resample_onto_drops_frame_of_reference_uid_when_reference_has_none(
+    reference_grid_image: Image,
+):
+    """Without a reference frame, the output must not claim self's frame it no longer lives in."""
+    tag = string_tag_for_keyword("FrameOfReferenceUID")
+    image = Image.from_array(
+        np.zeros((8, 8, 8), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        metadata={tag: "1.2.3"},
+    )
+    assert tag not in reference_grid_image.metadata
+
+    out = image.resample_onto(reference_grid_image)
+
+    assert tag not in out.metadata
 
 
 def test_written_dicom_series_is_dicom_conformant(

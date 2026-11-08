@@ -6,7 +6,15 @@ from .dicom_utils import (
     get_polygon_contours_from_slice_mask,
 )
 from .dose import Dose
-from .image import CoregistrationMetric, DicomModality, Image, ImageDTypeLike
+from .image import (
+    AffineRegistration,
+    CoregistrationMetric,
+    DicomModality,
+    Image,
+    ImageDTypeLike,
+    RegistrationMethod,
+    RigidRegistration,
+)
 from .rt_structure import RTStructure
 from .segmentation import (
     RTStructureSet,
@@ -16,6 +24,7 @@ from .segmentation import (
 )
 
 __all__ = [
+    "AffineRegistration",
     "CoregistrationMetric",
     "DicomModality",
     "Dose",
@@ -26,6 +35,8 @@ __all__ = [
     "read_image",
     "read_structure",
     "read_structure_set",
+    "RegistrationMethod",
+    "RigidRegistration",
     "RTStructure",
     "RTStructureSet",
     "Segmentation",

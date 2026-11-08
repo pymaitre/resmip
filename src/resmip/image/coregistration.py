@@ -3,7 +3,12 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
-__all__ = ["CoregistrationMetric", "RegistrationMethod", "RigidRegistration"]
+__all__ = [
+    "AffineRegistration",
+    "CoregistrationMetric",
+    "RegistrationMethod",
+    "RigidRegistration",
+]
 
 
 class CoregistrationMetric(Enum):
@@ -38,6 +43,18 @@ class RigidRegistration(RegistrationMethod):
 
     Suits images of the same patient whose anatomy has not deformed, such as
     an MR acquired on the same day as the planning CT.
+    """
+
+    metric: CoregistrationMetric = CoregistrationMetric.mutual_information
+    """Similarity metric optimised by the registration."""
+
+
+@dataclass(frozen=True)
+class AffineRegistration(RegistrationMethod):
+    """Affine registration: rigid motion plus scaling and shearing, twelve degrees of freedom.
+
+    Suits images whose geometry differs by more than a rigid motion, such as a
+    calibration error in voxel size, or a global change in patient size.
     """
 
     metric: CoregistrationMetric = CoregistrationMetric.mutual_information

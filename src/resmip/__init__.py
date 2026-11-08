@@ -7,6 +7,7 @@ from .dicom_utils import (
 )
 from .dose import Dose
 from .image import (
+    AffineRegistration,
     CoregistrationMetric,
     DicomModality,
     Image,
@@ -23,6 +24,7 @@ from .segmentation import (
 )
 
 __all__ = [
+    "AffineRegistration",
     "CoregistrationMetric",
     "DicomModality",
     "Dose",

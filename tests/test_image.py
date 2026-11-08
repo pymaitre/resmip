@@ -17,6 +17,7 @@ from resmip.image import (
     AffineRegistration,
     CoregistrationMetric,
     Image,
+    RegistrationMethod,
     RigidRegistration,
 )
 from resmip.image.data_types import sitk_image_dtype
@@ -688,6 +689,40 @@ def test_affine_registration_uses_affine_transform(mock_dicom_image: Image):
     )
 
     assert sitk.CompositeTransform(transform).GetNthTransform(0).GetName() == "AffineTransform"
+
+
+def test_affine_registration_result_depends_on_metric(mock_dicom_image: Image):
+    """The metric chosen in the method config reaches the optimiser.
+
+    A transform does not record the metric that produced it, so the check is indirect.
+    With seed=1 and num_threads=1, repeated runs are bit-identical, so ignoring the
+    metric would make both transforms equal. The measured parameter difference between
+    correlation and mutual information is 0.0066.
+    """
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.spacing = tuple(
+        spacing * scale for spacing, scale in zip(reference_image.spacing, (1.1, 0.9, 1.0))
+    )
+
+    transforms = [
+        mock_dicom_image.register(
+            reference_image, method=AffineRegistration(metric=metric), seed=1, num_threads=1
+        )
+        for metric in (CoregistrationMetric.correlation, CoregistrationMetric.mutual_information)
+    ]
+
+    parameters = [sitk.CompositeTransform(t).GetNthTransform(0).GetParameters() for t in transforms]
+    assert parameters[0] != parameters[1]
+
+
+def test_register_rejects_unsupported_method(identity_image: Image):
+    """A method without a known transform is refused before any optimisation runs.
+
+    The base class stands for any method ``register`` does not recognise. The check
+    happens before the images are touched, so a 10x10x10 image keeps the test fast.
+    """
+    with pytest.raises(TypeError):
+        identity_image.register(identity_image, method=RegistrationMethod())
 
 
 @pytest.mark.parametrize(

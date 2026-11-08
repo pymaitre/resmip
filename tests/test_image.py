@@ -12,7 +12,7 @@ from pydicom import dcmread
 
 import resmip.dicom_utils.series as dicom_series
 from resmip.dicom_utils.constants import string_tag_for_keyword
-from resmip.image import CoregistrationMetric, Image
+from resmip.image import CoregistrationMetric, Image, RigidRegistration
 from resmip.image.data_types import sitk_image_dtype
 from resmip.image.image import _metadata_file_name
 from resmip.image.metadata import SERIES_MODALITIES, DicomModality
@@ -607,7 +607,7 @@ def test_register_transform_maps_reference_origin_onto_moving_origin(
 
     transform = mock_dicom_image.register(
         reference_image,
-        coregistration_metric=coregistration_metric,
+        method=RigidRegistration(metric=coregistration_metric),
         seed=1,
         num_threads=1,
     )
@@ -615,6 +615,20 @@ def test_register_transform_maps_reference_origin_onto_moving_origin(
     np.testing.assert_allclose(
         transform.TransformPoint(reference_image.origin), mock_dicom_image.origin, atol=0.1
     )
+
+
+def test_register_defaults_to_rigid_euler_transform(mock_dicom_image: Image):
+    """Without an explicit method, registration stays rigid, as before the selector existed.
+
+    ``Execute`` wraps the optimised transform in a composite with one inner transform,
+    so the method is read from that inner transform.
+    """
+    reference_image = Image.read(dicom_ct_path())
+    mock_dicom_image.origin = (0, 0, 0)
+
+    transform = mock_dicom_image.register(reference_image, seed=1, num_threads=1)
+
+    assert sitk.CompositeTransform(transform).GetNthTransform(0).GetName() == "Euler3DTransform"
 
 
 @pytest.mark.parametrize(

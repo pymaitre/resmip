@@ -15,7 +15,11 @@ from pydicom.uid import generate_uid
 
 import resmip.dicom_utils.series as dicom_series
 from resmip.dicom_utils import string_tag_for_keyword
-from resmip.image.coregistration import CoregistrationMetric
+from resmip.image.coregistration import (
+    CoregistrationMetric,
+    RegistrationMethod,
+    RigidRegistration,
+)
 from resmip.image.data_types import (
     ImageDTypeLike,
     datatype_from_id,
@@ -1012,7 +1016,7 @@ class Image(sitk.Image):
         self,
         reference_image: Image,
         *,
-        coregistration_metric: CoregistrationMetric = CoregistrationMetric.mutual_information,
+        method: RegistrationMethod = RigidRegistration(),
         seed: int = 0,
         num_threads: int | None = None,
     ) -> sitk.Transform:
@@ -1033,8 +1037,8 @@ class Image(sitk.Image):
 
         Args:
             reference_image (Image): Fixed image of the registration.
-            coregistration_metric (CoregistrationMetric): Similarity metric optimised
-                by the registration.
+            method (RegistrationMethod): Registration method and its parameters,
+                including the similarity metric optimised by the registration.
             seed (int): Random seed for the metric sampling. When set to 0, uses
                 system walltime. Use other values for deterministic behaviour.
             num_threads (int | None): Number of threads used for registration. By
@@ -1046,7 +1050,7 @@ class Image(sitk.Image):
                 this image's space.
         """
         registration_method = self._get_coregistration_method(
-            seed=seed, num_threads=num_threads, metric=coregistration_metric
+            seed=seed, num_threads=num_threads, metric=method.metric
         )
         fixed_image = reference_image.astype(np.float32)
         moving_image = self.astype(np.float32)
@@ -1093,7 +1097,7 @@ class Image(sitk.Image):
         )
         transform = self.register(
             reference_image,
-            coregistration_metric=coregistration_metric,
+            method=RigidRegistration(metric=coregistration_metric),
             seed=seed,
             num_threads=num_threads,
         )

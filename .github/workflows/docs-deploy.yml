@@ -1,0 +1,93 @@
+name: Deploy documentation
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Release tag to build (v-prefixed)
+        required: true
+        type: string
+      python-version:
+        description: Python version that tag supports
+        required: true
+        default: '3.14'
+        type: string
+concurrency:
+  group: gh-pages
+  queue: max
+permissions:
+  contents: write
+jobs:
+  deploy:
+    name: Deploy documentation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      SOURCE_REF: ${{ inputs.ref || github.ref_name }}
+      TARGET_DIR: ${{ github.event_name == 'push' && 'dev' || inputs.ref || github.ref_name }}
+    steps:
+      - name: Check out the workflow revision
+        uses: actions/checkout@v6
+        with:
+          path: tooling
+      - name: Check out the documented revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.SOURCE_REF }}
+          path: source
+      - name: Check out the published site
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          path: site
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ inputs.python-version || '3.14' }}
+      - uses: snok/install-poetry@v1
+      - name: Install dependencies
+        working-directory: source
+        run: poetry install --with docs
+      - name: Add the version switcher
+        run: |
+          mkdir -p source/docs/source/_templates
+          cp tooling/docs/source/_templates/layout.html source/docs/source/_templates/layout.html
+      - name: Build documentation
+        working-directory: source/docs
+        run: poetry run make html
+      - name: Publish to gh-pages
+        working-directory: site
+        run: |
+          if [[ ! "$TARGET_DIR" =~ ^(dev|v[0-9][A-Za-z0-9._-]*)$ ]]; then
+            echo "::error::Refusing to publish to '$TARGET_DIR': expected dev or a v-prefixed release tag."
+            exit 1
+          fi
+          rm -rf "$TARGET_DIR"
+          cp -r ../source/docs/build/html "$TARGET_DIR"
+          mapfile -t releases < <(find . -mindepth 1 -maxdepth 1 -type d -name 'v*' -printf '%f\n' | sort -Vr)
+          landing=dev
+          if (( ${#releases[@]} > 0 )); then
+            rm -rf latest
+            cp -r "${releases[0]}" latest
+            landing=latest
+          fi
+          entries=()
+          if [[ -d latest ]]; then entries+=(latest); fi
+          if [[ -d dev ]]; then entries+=(dev); fi
+          entries+=("${releases[@]}")
+          python3 -c 'import json, sys; print(json.dumps(sys.argv[1:]))' "${entries[@]}" > versions.json
+          printf '<!DOCTYPE html>\n<meta charset="utf-8">\n<meta http-equiv="refresh" content="0; url=%s/">\n<a href="%s/">Redirecting to %s</a>\n' \
+            "$landing" "$landing" "$landing" > index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to publish."
+          else
+            git commit -m "docs: publish $TARGET_DIR from $SOURCE_REF"
+            git push
+          fi

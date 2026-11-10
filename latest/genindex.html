@@ -62,7 +62,17 @@
             switcher.appendChild(option);
         });
         switcher.addEventListener("change", function () {
-            window.location.href = new URL(switcher.value + "/index.html", siteRoot).href;
+            var currentRoot = new URL(currentVersion + "/", siteRoot);
+            var targetRoot = new URL(switcher.value + "/", siteRoot);
+            var targetIndex = new URL("index.html", targetRoot).href;
+            var samePage = new URL(window.location.pathname.slice(currentRoot.pathname.length), targetRoot).href;
+            fetch(samePage, { method: "HEAD" })
+            .then(function (response) {
+                window.location.href = response.ok ? samePage : targetIndex;
+            })
+            .catch(function () {
+                window.location.href = targetIndex;
+            });
         });
         switcher.hidden = false;
         })

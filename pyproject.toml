@@ -2,7 +2,7 @@
 name = "resmip"
 description = "Python library for Medical Image Processing (MIP)."
 license = "GNU Lesser General Public License v2.1"
-version = "0.0.5"
+version = "0.0.6.dev0"
 readme = "README.md"
 authors = [{name = "G. Palazzo, M.G. Ubeira-Gabellini"}]
 requires-python = '>=3.11,<3.15'

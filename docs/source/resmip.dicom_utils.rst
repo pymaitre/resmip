@@ -12,6 +12,14 @@ Subpackages
 Submodules
 ----------
 
+resmip.dicom\_utils.attributes module
+-------------------------------------
+
+.. automodule:: resmip.dicom_utils.attributes
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 resmip.dicom\_utils.constants module
 ------------------------------------
 
@@ -51,3 +59,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: get_contour_from_slice_mask, get_polygon_contours_from_slice_mask

@@ -66,6 +66,8 @@ jobs:
   docs:
     name: Documentation
     runs-on: ubuntu-latest
+    env:
+      SPHINXOPTS: -W --keep-going
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6

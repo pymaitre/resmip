@@ -11,6 +11,7 @@ resmip.rt\_structure.rt\_structure module
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: RTStructure
 
 resmip.rt\_structure.utils module
 ---------------------------------
@@ -27,3 +28,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: RTStructure

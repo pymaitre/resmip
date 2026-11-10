@@ -7,10 +7,11 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 """
 
+import datetime
 import importlib.metadata
 
 project = "resmip"
-copyright = "2023, G. Palazzo, M.G. Ubeira-Gabellini"
+copyright = f"2023-{datetime.date.today().year}, G. Palazzo, M.G. Ubeira-Gabellini"
 author = "G. Palazzo, M.G. Ubeira-Gabellini"
 # The full version, including alpha/beta/rc tags
 release = importlib.metadata.version(project)

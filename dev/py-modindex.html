@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python Module Index &mdash; resmip 0.0.5 documentation</title>
+  <title>Python Module Index &mdash; resmip 0.0.6.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=282f96c0"></script>
+      <script src="_static/documentation_options.js?v=1ffe7161"></script>
       <script src="_static/doctools.js?v=9a2dae69"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -65,7 +65,17 @@
             switcher.appendChild(option);
         });
         switcher.addEventListener("change", function () {
-            window.location.href = new URL(switcher.value + "/index.html", siteRoot).href;
+            var currentRoot = new URL(currentVersion + "/", siteRoot);
+            var targetRoot = new URL(switcher.value + "/", siteRoot);
+            var targetIndex = new URL("index.html", targetRoot).href;
+            var samePage = new URL(window.location.pathname.slice(currentRoot.pathname.length), targetRoot).href;
+            fetch(samePage, { method: "HEAD" })
+            .then(function (response) {
+                window.location.href = response.ok ? samePage : targetIndex;
+            })
+            .catch(function () {
+                window.location.href = targetIndex;
+            });
         });
         switcher.hidden = false;
         })
@@ -131,6 +141,11 @@
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="resmip.dicom_utils.html#module-resmip.dicom_utils"><code class="xref">resmip.dicom_utils</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="resmip.dicom_utils.html#module-resmip.dicom_utils.attributes"><code class="xref">resmip.dicom_utils.attributes</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -362,7 +377,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, G. Palazzo, M.G. Ubeira-Gabellini.</p>
+    <p>&#169; Copyright 2023-2026, G. Palazzo, M.G. Ubeira-Gabellini.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -19,6 +19,7 @@ resmip.dicom\_utils.rt\_utils\_wrapper.contours module
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: get_contour_from_slice_mask, get_polygon_contours_from_slice_mask
 
 resmip.dicom\_utils.rt\_utils\_wrapper.ds\_helper module
 --------------------------------------------------------
@@ -75,3 +76,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: get_contour_from_slice_mask, get_polygon_contours_from_slice_mask

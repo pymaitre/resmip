@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>resmip.dicom_utils.rt_utils_wrapper package &mdash; resmip 0.0.5 documentation</title>
+  <title>resmip.dicom_utils.rt_utils_wrapper package &mdash; resmip 0.0.6.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=282f96c0"></script>
+      <script src="_static/documentation_options.js?v=1ffe7161"></script>
       <script src="_static/doctools.js?v=9a2dae69"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -65,7 +65,17 @@
             switcher.appendChild(option);
         });
         switcher.addEventListener("change", function () {
-            window.location.href = new URL(switcher.value + "/index.html", siteRoot).href;
+            var currentRoot = new URL(currentVersion + "/", siteRoot);
+            var targetRoot = new URL(switcher.value + "/", siteRoot);
+            var targetIndex = new URL("index.html", targetRoot).href;
+            var samePage = new URL(window.location.pathname.slice(currentRoot.pathname.length), targetRoot).href;
+            fetch(samePage, { method: "HEAD" })
+            .then(function (response) {
+                window.location.href = response.ok ? samePage : targetIndex;
+            })
+            .catch(function () {
+                window.location.href = targetIndex;
+            });
         });
         switcher.hidden = false;
         })
@@ -175,42 +185,6 @@
 <dt class="sig sig-object py" id="resmip.dicom_utils.rt_utils_wrapper.contours.create_contour">
 <span class="sig-prename descclassname"><span class="pre">resmip.dicom_utils.rt_utils_wrapper.contours.</span></span><span class="sig-name descname"><span class="pre">create_contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_slice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dataset</span></span></span><a class="headerlink" href="#resmip.dicom_utils.rt_utils_wrapper.contours.create_contour" title="Link to this definition"></a></dt>
 <dd><p>Create contours for a specific DICOM series slice.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="resmip.dicom_utils.rt_utils_wrapper.contours.get_contour_from_slice_mask">
-<span class="sig-prename descclassname"><span class="pre">resmip.dicom_utils.rt_utils_wrapper.contours.</span></span><span class="sig-name descname"><span class="pre">get_contour_from_slice_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slice_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#resmip.dicom_utils.rt_utils_wrapper.contours.get_contour_from_slice_mask" title="Link to this definition"></a></dt>
-<dd><p>Convert the slice mask to a polygon contour.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>slice_mask</strong> (<em>np.ndarray</em>) – Mask of the slice to be converted, of shape (x_dim, y_dim).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Polygon vertices (as x, y tuples) of the mask contour, of shape (n_points, 2).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="resmip.dicom_utils.rt_utils_wrapper.contours.get_polygon_contours_from_slice_mask">
-<span class="sig-prename descclassname"><span class="pre">resmip.dicom_utils.rt_utils_wrapper.contours.</span></span><span class="sig-name descname"><span class="pre">get_polygon_contours_from_slice_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slice_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#resmip.dicom_utils.rt_utils_wrapper.contours.get_polygon_contours_from_slice_mask" title="Link to this definition"></a></dt>
-<dd><p>Convert the slice mask to a collection of polygon contours.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>slice_mask</strong> (<em>np.ndarray</em>) – Mask of the slice to be converted, of shape (x_dim, y_dim).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple of polygon vertices (as x, y tuples) of
-the mask contour, of shape (n_points, 2).
-The length of the tuple is the number of polygons in the slice.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[np.ndarray, …]</p>
-</dd>
-</dl>
 </dd></dl>
 
 </section>
@@ -480,42 +454,6 @@ The length of the tuple is the number of polygons in the slice.</p>
 <section id="module-resmip.dicom_utils.rt_utils_wrapper">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-resmip.dicom_utils.rt_utils_wrapper" title="Link to this heading"></a></h2>
 <p>Wrapper submodule for rt_utils, used when converting nifti files to DICOM.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="resmip.dicom_utils.rt_utils_wrapper.get_contour_from_slice_mask">
-<span class="sig-prename descclassname"><span class="pre">resmip.dicom_utils.rt_utils_wrapper.</span></span><span class="sig-name descname"><span class="pre">get_contour_from_slice_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slice_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#resmip.dicom_utils.rt_utils_wrapper.get_contour_from_slice_mask" title="Link to this definition"></a></dt>
-<dd><p>Convert the slice mask to a polygon contour.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>slice_mask</strong> (<em>np.ndarray</em>) – Mask of the slice to be converted, of shape (x_dim, y_dim).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Polygon vertices (as x, y tuples) of the mask contour, of shape (n_points, 2).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="resmip.dicom_utils.rt_utils_wrapper.get_polygon_contours_from_slice_mask">
-<span class="sig-prename descclassname"><span class="pre">resmip.dicom_utils.rt_utils_wrapper.</span></span><span class="sig-name descname"><span class="pre">get_polygon_contours_from_slice_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slice_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#resmip.dicom_utils.rt_utils_wrapper.get_polygon_contours_from_slice_mask" title="Link to this definition"></a></dt>
-<dd><p>Convert the slice mask to a collection of polygon contours.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>slice_mask</strong> (<em>np.ndarray</em>) – Mask of the slice to be converted, of shape (x_dim, y_dim).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple of polygon vertices (as x, y tuples) of
-the mask contour, of shape (n_points, 2).
-The length of the tuple is the number of polygons in the slice.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[np.ndarray, …]</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 </section>
 
@@ -530,7 +468,7 @@ The length of the tuple is the number of polygons in the slice.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, G. Palazzo, M.G. Ubeira-Gabellini.</p>
+    <p>&#169; Copyright 2023-2026, G. Palazzo, M.G. Ubeira-Gabellini.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

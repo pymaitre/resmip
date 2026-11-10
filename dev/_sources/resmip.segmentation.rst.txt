@@ -19,6 +19,7 @@ resmip.segmentation.segmentation module
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: RTStructureSet, Segmentation, SegmentationCollection
 
 resmip.segmentation.utils module
 --------------------------------
@@ -27,6 +28,7 @@ resmip.segmentation.utils module
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: SegmentationType
 
 Module contents
 ---------------
@@ -35,3 +37,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: RTStructureSet, Segmentation, SegmentationCollection, SegmentationType

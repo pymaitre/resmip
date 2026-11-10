@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>resmip package &mdash; resmip 0.0.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=282f96c0"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="resmip.dicom_utils package" href="resmip.dicom_utils.html" />
+    <link rel="prev" title="resmip" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            resmip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<select id="version-switcher" aria-label="Documentation version" style="width: 100%; margin-top:
+0.5em;" hidden></select>
+<script>
+    (function () {
+    var switcher = document.getElementById("version-switcher");
+    var siteRoot = new URL("_static/../../", window.location.href);
+    var currentVersion = window.location.href.slice(siteRoot.href.length).split("/")[0];
+    fetch(new URL("versions.json", siteRoot))
+        .then(function (response) {
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+        return response.json();
+        })
+        .then(function (versions) {
+        versions.forEach(function (version) {
+            var option = document.createElement("option");
+            option.value = version;
+            option.textContent = version;
+            option.selected = version === currentVersion;
+            switcher.appendChild(option);
+        });
+        switcher.addEventListener("change", function () {
+            window.location.href = new URL(switcher.value + "/index.html", siteRoot).href;
+        });
+        switcher.hidden = false;
+        })
+        .catch(function () {});
+    })();
+</script>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting-started/index.html">Getting started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">resmip</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">resmip package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.html">resmip.dicom_utils package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dose.html">resmip.dose package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html">resmip.image package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html">resmip.rt_structure package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-resmip.utils">resmip.utils module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#resmip.utils.PathLike"><code class="docutils literal notranslate"><span class="pre">PathLike</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resmip.utils.format_digit_string"><code class="docutils literal notranslate"><span class="pre">format_digit_string()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-resmip">Module contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#resmip.read_image"><code class="docutils literal notranslate"><span class="pre">read_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resmip.read_structure"><code class="docutils literal notranslate"><span class="pre">read_structure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resmip.read_structure_set"><code class="docutils literal notranslate"><span class="pre">read_structure_set()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resmip.write_image"><code class="docutils literal notranslate"><span class="pre">write_image()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">resmip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">resmip</a></li>
+      <li class="breadcrumb-item active">resmip package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/resmip.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="resmip-package">
+<h1>resmip package<a class="headerlink" href="#resmip-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="resmip.dicom_utils.html">resmip.dicom_utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="resmip.dicom_utils.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html">resmip.dicom_utils.rt_utils_wrapper package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.constants">resmip.dicom_utils.rt_utils_wrapper.constants module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.contours">resmip.dicom_utils.rt_utils_wrapper.contours module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.ds_helper">resmip.dicom_utils.rt_utils_wrapper.ds_helper module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.header">resmip.dicom_utils.rt_utils_wrapper.header module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.image_helper">resmip.dicom_utils.rt_utils_wrapper.image_helper module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.roidata">resmip.dicom_utils.rt_utils_wrapper.roidata module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.rtstruct">resmip.dicom_utils.rt_utils_wrapper.rtstruct module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.sopclass">resmip.dicom_utils.rt_utils_wrapper.sopclass module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.dicom_utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.dicom_utils.html#module-resmip.dicom_utils.constants">resmip.dicom_utils.constants module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.constants.DICOM_FIELDS"><code class="docutils literal notranslate"><span class="pre">DICOM_FIELDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.constants.SERIES_DEPENDENT_FIELDS"><code class="docutils literal notranslate"><span class="pre">SERIES_DEPENDENT_FIELDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.constants.SLICE_DEPENDENT_FIELDS"><code class="docutils literal notranslate"><span class="pre">SLICE_DEPENDENT_FIELDS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.dicom_utils.html#module-resmip.dicom_utils.rtst">resmip.dicom_utils.rtst module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.DicomStructure"><code class="docutils literal notranslate"><span class="pre">DicomStructure</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.DicomStructure.image"><code class="docutils literal notranslate"><span class="pre">DicomStructure.image</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.DicomStructure.name"><code class="docutils literal notranslate"><span class="pre">DicomStructure.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.check_if_valid_structure"><code class="docutils literal notranslate"><span class="pre">check_if_valid_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.convert_single_structure"><code class="docutils literal notranslate"><span class="pre">convert_single_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.read"><code class="docutils literal notranslate"><span class="pre">read()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.write"><code class="docutils literal notranslate"><span class="pre">write()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.dicom_utils.html#module-resmip.dicom_utils.series">resmip.dicom_utils.series module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.series.get_series_dicom_files"><code class="docutils literal notranslate"><span class="pre">get_series_dicom_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.series.get_spacing_from_dicom_header"><code class="docutils literal notranslate"><span class="pre">get_spacing_from_dicom_header()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.series.read"><code class="docutils literal notranslate"><span class="pre">read()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dicom_utils.html#resmip.dicom_utils.series.write"><code class="docutils literal notranslate"><span class="pre">write()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.dicom_utils.html#module-resmip.dicom_utils">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="resmip.dose.html">resmip.dose package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="resmip.dose.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.dose.html#module-resmip.dose.dose">resmip.dose.dose module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="resmip.dose.html#resmip.dose.dose.Dose"><code class="docutils literal notranslate"><span class="pre">Dose</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dose.html#resmip.dose.dose.Dose.read_image"><code class="docutils literal notranslate"><span class="pre">Dose.read_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dose.html#resmip.dose.dose.Dose.write_image"><code class="docutils literal notranslate"><span class="pre">Dose.write_image()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.dose.html#module-resmip.dose">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="resmip.image.html">resmip.image package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="resmip.image.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.image.html#module-resmip.image.image">resmip.image.image module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image"><code class="docutils literal notranslate"><span class="pre">Image</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.astype"><code class="docutils literal notranslate"><span class="pre">Image.astype()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.coregister"><code class="docutils literal notranslate"><span class="pre">Image.coregister()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.direction"><code class="docutils literal notranslate"><span class="pre">Image.direction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.from_array"><code class="docutils literal notranslate"><span class="pre">Image.from_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.metadata"><code class="docutils literal notranslate"><span class="pre">Image.metadata</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.metadata_file_name"><code class="docutils literal notranslate"><span class="pre">Image.metadata_file_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.numpy"><code class="docutils literal notranslate"><span class="pre">Image.numpy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.origin"><code class="docutils literal notranslate"><span class="pre">Image.origin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.pad"><code class="docutils literal notranslate"><span class="pre">Image.pad()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.read_image"><code class="docutils literal notranslate"><span class="pre">Image.read_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.resample"><code class="docutils literal notranslate"><span class="pre">Image.resample()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.size"><code class="docutils literal notranslate"><span class="pre">Image.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.spacing"><code class="docutils literal notranslate"><span class="pre">Image.spacing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.write_image"><code class="docutils literal notranslate"><span class="pre">Image.write_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image.write_nondicom"><code class="docutils literal notranslate"><span class="pre">Image.write_nondicom()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.image.html#module-resmip.image">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="resmip.rt_structure.html">resmip.rt_structure package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="resmip.rt_structure.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.rt_structure.html#module-resmip.rt_structure.rt_structure">resmip.rt_structure.rt_structure module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure"><code class="docutils literal notranslate"><span class="pre">RTStructure</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.from_array"><code class="docutils literal notranslate"><span class="pre">RTStructure.from_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.name"><code class="docutils literal notranslate"><span class="pre">RTStructure.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.pad"><code class="docutils literal notranslate"><span class="pre">RTStructure.pad()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.read_image"><code class="docutils literal notranslate"><span class="pre">RTStructure.read_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.resample"><code class="docutils literal notranslate"><span class="pre">RTStructure.resample()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.write_image"><code class="docutils literal notranslate"><span class="pre">RTStructure.write_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.write_nondicom"><code class="docutils literal notranslate"><span class="pre">RTStructure.write_nondicom()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructureSet"><code class="docutils literal notranslate"><span class="pre">RTStructureSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructureSet.read_image"><code class="docutils literal notranslate"><span class="pre">RTStructureSet.read_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructureSet.write_image"><code class="docutils literal notranslate"><span class="pre">RTStructureSet.write_image()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.get_structure_name_from_filename"><code class="docutils literal notranslate"><span class="pre">get_structure_name_from_filename()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="resmip.rt_structure.html#module-resmip.rt_structure">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-resmip.utils">
+<span id="resmip-utils-module"></span><h2>resmip.utils module<a class="headerlink" href="#module-resmip.utils" title="Link to this heading"></a></h2>
+<p>Functions any data types used globally.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="resmip.utils.PathLike">
+<span class="sig-prename descclassname"><span class="pre">resmip.utils.</span></span><span class="sig-name descname"><span class="pre">PathLike</span></span><a class="headerlink" href="#resmip.utils.PathLike" title="Link to this definition"></a></dt>
+<dd><p>Types used in classes and functions for file names.</p>
+<p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="resmip.utils.format_digit_string">
+<span class="sig-prename descclassname"><span class="pre">resmip.utils.</span></span><span class="sig-name descname"><span class="pre">format_digit_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">digit_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#resmip.utils.format_digit_string" title="Link to this definition"></a></dt>
+<dd><p>Reformat a string containing a digit.</p>
+<p>Remove trailing whitespaces. If the input string does not represent
+a string, do nothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>digit_string</strong> (<em>str</em>) – python string containing the digit.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>python string containing the digit without trailing whitespaces.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-resmip">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-resmip" title="Link to this heading"></a></h2>
+<p>resmip.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="resmip.read_image">
+<span class="sig-prename descclassname"><span class="pre">resmip.</span></span><span class="sig-name descname"><span class="pre">read_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></span><a class="headerlink" href="#resmip.read_image" title="Link to this definition"></a></dt>
+<dd><p>Call Image().read_image directly from a function.</p>
+<p>Done in the most similar way we do for SimpleITK.read_image.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="resmip.read_structure">
+<span class="sig-prename descclassname"><span class="pre">resmip.</span></span><span class="sig-name descname"><span class="pre">read_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.read_structure" title="Link to this definition"></a></dt>
+<dd><p>Call RTStructure().read_image directly from a function.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="resmip.read_structure_set">
+<span class="sig-prename descclassname"><span class="pre">resmip.</span></span><span class="sig-name descname"><span class="pre">read_structure_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructureSet" title="resmip.rt_structure.rt_structure.RTStructureSet"><span class="pre">RTStructureSet</span></a></span></span><a class="headerlink" href="#resmip.read_structure_set" title="Link to this definition"></a></dt>
+<dd><p>Call Image().read_image directly from a function.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="resmip.write_image">
+<span class="sig-prename descclassname"><span class="pre">resmip.</span></span><span class="sig-name descname"><span class="pre">write_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#resmip.write_image" title="Link to this definition"></a></dt>
+<dd><p>Call image.write_image directly from a function.</p>
+<p>Done in the most similar way we do for SimpleITK.write_image.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="resmip" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="resmip.dicom_utils.html" class="btn btn-neutral float-right" title="resmip.dicom_utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, G. Palazzo, M.G. Ubeira-Gabellini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

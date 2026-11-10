@@ -1,0 +1,251 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dicom rtstruct &mdash; resmip 0.0.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=282f96c0"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Dicom RT Doses" href="dicom_rtdose.html" />
+    <link rel="prev" title="Dicom Series (CT/MR/PET)" href="dicom_series.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            resmip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<select id="version-switcher" aria-label="Documentation version" style="width: 100%; margin-top:
+0.5em;" hidden></select>
+<script>
+    (function () {
+    var switcher = document.getElementById("version-switcher");
+    var siteRoot = new URL("../_static/../../", window.location.href);
+    var currentVersion = window.location.href.slice(siteRoot.href.length).split("/")[0];
+    fetch(new URL("versions.json", siteRoot))
+        .then(function (response) {
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+        return response.json();
+        })
+        .then(function (versions) {
+        versions.forEach(function (version) {
+            var option = document.createElement("option");
+            option.value = version;
+            option.textContent = version;
+            option.selected = version === currentVersion;
+            switcher.appendChild(option);
+        });
+        switcher.addEventListener("change", function () {
+            window.location.href = new URL(switcher.value + "/index.html", siteRoot).href;
+        });
+        switcher.hidden = false;
+        })
+        .catch(function () {});
+    })();
+</script>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/index.html">Getting started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dicom_series.html">Dicom Series (CT/MR/PET)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Dicom RT Structure Sets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#import-a-dicom-rt-structure-set">Import a Dicom RT Structure Set</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#read-only-desired-structures">Read only desired Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#save-a-dicom-rt-structure-set">Save a Dicom RT Structure Set</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#customize-dicom-output">Customize DICOM output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dicom_rtdose.html">Dicom RT Doses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_processing.html">Image processing</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">resmip</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">resmip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Dicom rtstruct</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/dicom_rtstruct.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dicom-rt-structure-sets">
+<h1>Dicom RT Structure Sets<a class="headerlink" href="#dicom-rt-structure-sets" title="Link to this heading"></a></h1>
+<section id="import-a-dicom-rt-structure-set">
+<h2>Import a Dicom RT Structure Set<a class="headerlink" href="#import-a-dicom-rt-structure-set" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The DICOM images and structures used in this tutorial can be found in
+<code class="docutils literal notranslate"><span class="pre">tests/Dicom/IBSI1_CT_phantom</span></code> (<code class="docutils literal notranslate"><span class="pre">CT_00000</span></code> and <code class="docutils literal notranslate"><span class="pre">RTst_00000/DCM_RS_00060.dcm</span></code>).</p>
+</div>
+<p>Dicom RT Structure Sets can be imported with <cite>resmip</cite> after having imported the referenced series:</p>
+<p>First of all, we define the path of the ditectory containing the Dicom CT and RT Structure Set:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dicom_ct_directory</span> <span class="o">=</span> <span class="s2">&quot;path/to/dicom/directory&quot;</span>
+<span class="n">dicom_rtst_path</span> <span class="o">=</span> <span class="s2">&quot;path/to/dicom/rtstruct_file&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">resmip.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">resmip.rt_structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">RTStructureSet</span>
+
+
+<span class="n">dicom_image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">()</span><span class="o">.</span><span class="n">read_image</span><span class="p">(</span><span class="n">dicom_ct_directory</span><span class="p">)</span>
+<span class="n">dicom_rtst</span> <span class="o">=</span> <span class="n">RTStructureSet</span><span class="p">()</span><span class="o">.</span><span class="n">read_image</span><span class="p">(</span><span class="n">dicom_rtst_path</span><span class="p">,</span> <span class="n">reference_image</span> <span class="o">=</span> <span class="n">dicom_image</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The resulting object is a dictionary containing all RT Structures found, indexed by their name.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">dicom_rtst</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dict_keys([&#39;GTV-1&#39;])
+</pre></div>
+</div>
+<section id="read-only-desired-structures">
+<h3>Read only desired Structures<a class="headerlink" href="#read-only-desired-structures" title="Link to this heading"></a></h3>
+<p>In order to speed-up the conversion of dicom RT Structures to nifti, a structure name (or list of structure names)
+can be passed to <code class="docutils literal notranslate"><span class="pre">read_image()</span></code>. The conversion is single-threaded by default, but it can be done in parallel.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dicom_rtst</span> <span class="o">=</span> <span class="n">RTStructureSet</span><span class="p">()</span><span class="o">.</span><span class="n">read_image</span><span class="p">(</span><span class="n">dicom_rtst_path</span><span class="p">,</span> <span class="n">structure_names</span> <span class="o">=</span> <span class="s2">&quot;GTV-1&quot;</span><span class="p">,</span> <span class="n">reference_image</span> <span class="o">=</span> <span class="n">dicom_image</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dicom_rtst</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dict_keys([&#39;GTV-1&#39;])
+</pre></div>
+</div>
+<p>Regular expressions are supported too.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dicom_rtst</span> <span class="o">=</span> <span class="n">RTStructureSet</span><span class="p">()</span><span class="o">.</span><span class="n">read_image</span><span class="p">(</span><span class="n">dicom_rtst_path</span><span class="p">,</span> <span class="n">structure_names</span> <span class="o">=</span> <span class="s2">&quot;GTV-\d+&quot;</span><span class="p">,</span> <span class="n">regex</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">reference_image</span> <span class="o">=</span> <span class="n">dicom_image</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dicom_rtst</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dict_keys([&#39;GTV-1&#39;])
+</pre></div>
+</div>
+</section>
+</section>
+<section id="save-a-dicom-rt-structure-set">
+<h2>Save a Dicom RT Structure Set<a class="headerlink" href="#save-a-dicom-rt-structure-set" title="Link to this heading"></a></h2>
+<p>RT Structure Sets can be saved to Dicom using the <code class="docutils literal notranslate"><span class="pre">write_image</span></code> method of <code class="docutils literal notranslate"><span class="pre">RTStructureSet</span></code>.
+First of all, a reference dicom image is required. When dealing with nifti images, the image needs to be converted to dicom first.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dicom_ct_directory</span> <span class="o">=</span> <span class="s2">&quot;path/to/dicom/directory&quot;</span>
+<span class="n">dicom_rtst_path</span> <span class="o">=</span> <span class="s2">&quot;path/to/dicom/rtstruct_file&quot;</span>
+<span class="n">dicom_ct_destination_directory</span> <span class="o">=</span> <span class="s2">&quot;path/to/new/dicom/directory&quot;</span>
+<span class="n">dicom_rtst_destination_file</span> <span class="o">=</span> <span class="s2">&quot;path/to/new/dicom/rtstruct_file.dcm&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">resmip.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">resmip.rt_structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">RTStructureSet</span>
+
+
+<span class="n">dicom_image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">()</span><span class="o">.</span><span class="n">read_image</span><span class="p">(</span><span class="n">dicom_ct_directory</span><span class="p">)</span>
+<span class="n">dicom_rtst</span> <span class="o">=</span> <span class="n">RTStructureSet</span><span class="p">()</span><span class="o">.</span><span class="n">read_image</span><span class="p">(</span><span class="n">dicom_rtst_path</span><span class="p">,</span> <span class="n">reference_image</span> <span class="o">=</span> <span class="n">dicom_image</span><span class="p">)</span>
+
+<span class="c1"># Save image to dicom</span>
+<span class="n">dicom_image</span><span class="o">.</span><span class="n">write_image</span><span class="p">(</span><span class="n">dicom_ct_destination_directory</span><span class="p">)</span>
+<span class="c1"># Save RT Structure Set</span>
+<span class="n">dicom_rtst</span><span class="o">.</span><span class="n">write_image</span><span class="p">(</span><span class="n">dicom_rtst_destination_file</span><span class="p">,</span> <span class="n">reference_image_path</span> <span class="o">=</span> <span class="n">dicom_ct_destination_directory</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="customize-dicom-output">
+<h3>Customize DICOM output<a class="headerlink" href="#customize-dicom-output" title="Link to this heading"></a></h3>
+<section id="set-seriesdescription">
+<h4>Set <code class="docutils literal notranslate"><span class="pre">SeriesDescription</span></code><a class="headerlink" href="#set-seriesdescription" title="Link to this heading"></a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">SeriesDescription</span></code> for the saved DICOM RT Structure Set can be customized with
+the <code class="docutils literal notranslate"><span class="pre">series_description</span></code> keyword:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Save RT Structure Set with SeriesDescription</span>
+<span class="n">dicom_rtst</span><span class="o">.</span><span class="n">write_image</span><span class="p">(</span><span class="n">dicom_rtst_destination_file</span><span class="p">,</span> <span class="n">reference_image_path</span> <span class="o">=</span> <span class="n">dicom_ct_destination_directory</span><span class="p">,</span> <span class="n">series_description</span> <span class="o">=</span> <span class="s2">&quot;CustomSeriesDescription&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dicom_series.html" class="btn btn-neutral float-left" title="Dicom Series (CT/MR/PET)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dicom_rtdose.html" class="btn btn-neutral float-right" title="Dicom RT Doses" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, G. Palazzo, M.G. Ubeira-Gabellini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="assets/resmip.png" alt="ResMIP Logo" width="320"><br>
-  <align="center"><em> A python-based Reseach library for Medical Image Processing (MIP) </em>
+  <img src="https://raw.githubusercontent.com/pymaitre/resmip/main/assets/resmip.png" alt="ResMIP Logo" width="320"><br>
+  <em> A python-based Research library for Medical Image Processing (MIP) </em>
 </p>
 
 ---

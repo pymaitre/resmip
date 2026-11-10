@@ -1,0 +1,916 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>resmip.rt_structure package &mdash; resmip 0.0.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=282f96c0"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="resmip.segmentation package" href="resmip.segmentation.html" />
+    <link rel="prev" title="resmip.image package" href="resmip.image.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            resmip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<select id="version-switcher" aria-label="Documentation version" style="width: 100%; margin-top:
+0.5em;" hidden></select>
+<script>
+    (function () {
+    var switcher = document.getElementById("version-switcher");
+    var siteRoot = new URL("_static/../../", window.location.href);
+    var currentVersion = window.location.href.slice(siteRoot.href.length).split("/")[0];
+    fetch(new URL("versions.json", siteRoot))
+        .then(function (response) {
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+        return response.json();
+        })
+        .then(function (versions) {
+        versions.forEach(function (version) {
+            var option = document.createElement("option");
+            option.value = version;
+            option.textContent = version;
+            option.selected = version === currentVersion;
+            switcher.appendChild(option);
+        });
+        switcher.addEventListener("change", function () {
+            window.location.href = new URL(switcher.value + "/index.html", siteRoot).href;
+        });
+        switcher.hidden = false;
+        })
+        .catch(function () {});
+    })();
+</script>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting-started/index.html">Getting started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">resmip</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="resmip.html">resmip package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="resmip.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.html">resmip.dicom_utils package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.dose.html">resmip.dose package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html">resmip.image package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">resmip.rt_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.segmentation.html">resmip.segmentation package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.html#module-resmip.utils">resmip.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.html#module-resmip">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">resmip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">resmip</a></li>
+          <li class="breadcrumb-item"><a href="resmip.html">resmip package</a></li>
+      <li class="breadcrumb-item active">resmip.rt_structure package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/resmip.rt_structure.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="resmip-rt-structure-package">
+<h1>resmip.rt_structure package<a class="headerlink" href="#resmip-rt-structure-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-resmip.rt_structure.rt_structure">
+<span id="resmip-rt-structure-rt-structure-module"></span><h2>resmip.rt_structure.rt_structure module<a class="headerlink" href="#module-resmip.rt_structure.rt_structure" title="Link to this heading"></a></h2>
+<p>RT Structure class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">resmip.rt_structure.rt_structure.</span></span><span class="sig-name descname"><span class="pre">RTStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
+<p>RT Structure (wrapper of resmip.Image).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.astype">
+<span class="sig-name descname"><span class="pre">astype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DTypeLike</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.astype" title="Link to this definition"></a></dt>
+<dd><p>Convert pixel array type to the specified value, by casting a new structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dtype</strong> (<em>ImageDTypeLike</em>) – The dtype to use for the numpy array.
+If None, the default dtype of the image is used
+as defined the global <code class="docutils literal notranslate"><span class="pre">FORMAT_TO_TYPESTR</span></code> dictionary.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new structure with specified data type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.coregister">
+<span class="sig-name descname"><span class="pre">coregister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.coregister" title="Link to this definition"></a></dt>
+<dd><p>Coregiser the structure on top of another (reference) image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – Coregistration of structures is not supported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.from_array">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.from_array" title="Link to this definition"></a></dt>
+<dd><p>Create a new structure from a numpy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> (<em>np.ndarray</em>) – 3D array containing voxel values for the structure (z, y, x).</p></li>
+<li><p><strong>spacing</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em>) – Voxel spacing for the structure in mm (x, y, z).</p></li>
+<li><p><strong>origin</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em>) – Coordinates of the top left voxel in mm (x, y, z).</p></li>
+<li><p><strong>direction</strong> (<em>tuple</em><em>[</em><em>float</em><em>]</em>) – Direction cosine matrix.</p></li>
+<li><p><strong>metadata</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>) – Metadata containing information from the DICOM header.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the structure.</p></li>
+<li><p><strong>**kwargs</strong> – extra arguments used in <code class="docutils literal notranslate"><span class="pre">resmip.Image.__init__</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New structure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.modality">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modality</span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.modality" title="Link to this definition"></a></dt>
+<dd><p>DICOM modality of the RT Structure.</p>
+<p>Only “RTSTRUCT” is supported.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.name" title="Link to this definition"></a></dt>
+<dd><p>Name of the RT Structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.pad">
+<span class="sig-name descname"><span class="pre">pad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.pad" title="Link to this definition"></a></dt>
+<dd><p>Pad the structure on top of another image.</p>
+<p>Uses the same notation as <code class="docutils literal notranslate"><span class="pre">numpy.pad</span></code>.
+The struct is shifted aligning its top-left voxel with the reference image.
+The two images must have the same voxel spacing.
+The shifted structure is cropped if it extends out of the reference image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a>) – Image used as reference for padding.</p></li>
+<li><p><strong>**kwargs</strong> – same arguments used in <code class="docutils literal notranslate"><span class="pre">np.pad</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New structure with same shape and spacing of the reference.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.read">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.read" title="Link to this definition"></a></dt>
+<dd><p>Read RT Structure from file.</p>
+<p>The image format is automatically determined from filename’s suffix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename ends with “.dcm”,
+the reader assumes to read a Dicom rtstruct. Otherwise, it assumes a metatadata
+file with the following format exists: f”.{filename.stem}.json”.</p></li>
+<li><p><strong>read_metadata</strong> (<em>bool</em>) – If true, read the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>structure_name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the RT Structure (case-sensitive).
+Required for dicom files. Optional for other files (if set to None, use filename).</p></li>
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a><em> | </em><em>None</em>) – 3D image used as reference for dicom Structures
+(not used for other formats).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>RT Structure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.read_image">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.read_image" title="Link to this definition"></a></dt>
+<dd><p>Read RT Structure from file.</p>
+<p>The image format is automatically determined from filename’s suffix.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">RTStructure.read_image</span></code> is deprecated and will be removed in a future release.
+Use <code class="docutils literal notranslate"><span class="pre">RTStructure.read</span></code> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename ends with “.dcm”,
+the reader assumes to read a Dicom rtstruct. Otherwise, it assumes a metatadata
+file with the following format exists: f”.{filename.stem}.json”.</p></li>
+<li><p><strong>read_metadata</strong> (<em>bool</em>) – If true, read the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>structure_name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the RT Structure (case-sensitive).
+Required for dicom files. Optional for other files (if set to None, use filename).</p></li>
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a><em> | </em><em>None</em>) – 3D image used as reference for dicom Structures
+(not used for other formats).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>RT Structure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Transform</span></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.register" title="Link to this definition"></a></dt>
+<dd><p>Estimate a registration transform from the structure.</p>
+<p>A structure is not registered itself: the transform is estimated on the
+images it was drawn on, then applied to the structure with
+<code class="docutils literal notranslate"><span class="pre">resample_onto</span></code>. Kept identical to <code class="docutils literal notranslate"><span class="pre">Segmentation.register</span></code> so that
+migrating code behaves the same.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.reorient">
+<span class="sig-name descname"><span class="pre">reorient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reflection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.reorient" title="Link to this definition"></a></dt>
+<dd><p>Rotate the structure to match a target direction cosine matrix.</p>
+<p>Computes the rotation matrix that maps the current image direction
+to <code class="docutils literal notranslate"><span class="pre">new_direction</span></code> and applies it via <code class="docutils literal notranslate"><span class="pre">rotate</span></code>. Only pure
+rotations (det = +1) are supported; improper rotations (det = -1,
+e.g. reflections) are optionally supported. Transformations with
+-1 &lt; det &lt; 1 raise <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_direction</strong> (<em>np.ndarray</em><em> | </em><em>tuple</em><em>[</em><em>float</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – Target
+direction as a 9-element flattened row-major rotation matrix.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, defaults to the identity
+direction (standard axial orientation).</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant forwarded
+to <code class="docutils literal notranslate"><span class="pre">rotate</span></code>.
+Only nearest neighbors should be used for RT structures.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Fill value for voxels outside the
+original image extent, forwarded to <code class="docutils literal notranslate"><span class="pre">rotate</span></code>.</p></li>
+<li><p><strong>allow_reflection</strong> (<em>bool</em>) – Allow reflections for rotations with
+negative determinant. If set to false, improper rotations
+raise an exception.</p></li>
+<li><p><strong>flip_axis</strong> (<em>int</em>) – Internal reflection axis for improper rotations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reoriented structure matching <code class="docutils literal notranslate"><span class="pre">new_direction</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.resample">
+<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.resample" title="Link to this definition"></a></dt>
+<dd><p>Wrapper of resmip.Image.resample, using the appropriate interpolator.</p>
+<p>Resample the image with a new voxel spacing (in mm).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_spacing</strong> (<em>Iterable</em>) – New voxel spacing of the resampled image (x, y, z) in mm.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – Interpolation method used for image resampling.
+Only nearest neighbors should be used for RT structures.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Default value for pixel intensity.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resampled structure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.resample_onto">
+<span class="sig-name descname"><span class="pre">resample_onto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Transform</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.resample_onto" title="Link to this definition"></a></dt>
+<dd><p>Resample the structure onto another image’s grid by applying a transform.</p>
+<p>Behaves like <code class="docutils literal notranslate"><span class="pre">Image.resample_onto</span></code> – the returned structure adopts the
+grid (size, spacing, origin, direction) of <code class="docutils literal notranslate"><span class="pre">reference_image</span></code>, and the
+transform follows the SimpleITK reverse-mapping convention
+(<code class="docutils literal notranslate"><span class="pre">output(p)</span> <span class="pre">=</span> <span class="pre">self(transform(p))</span></code>); when <code class="docutils literal notranslate"><span class="pre">transform</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> an
+identity transform is used, reducing the operation to pure grid
+resampling. This is the operation used to propagate a structure onto a
+reference frame, e.g. carrying it through a registration result.</p>
+<p>Nearest-neighbour interpolation is used by default to preserve the
+discrete label values of the mask. Passing any other interpolator emits a
+warning, as interpolation may introduce voxel values absent from the input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a>) – Image whose grid defines the output sampling
+geometry.</p></li>
+<li><p><strong>transform</strong> (<em>sitk.Transform</em><em> | </em><em>None</em>) – Transform mapping reference-space
+points into self-space. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, an identity transform is used.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant. Defaults to
+<code class="docutils literal notranslate"><span class="pre">sitk.sitkNearestNeighbor</span></code>; other values are discouraged for
+RT structures and trigger a warning.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Value assigned to output voxels whose
+sampling coordinate falls outside the extent of <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>New structure sampled onto <code class="docutils literal notranslate"><span class="pre">reference_image</span></code>’s grid,</dt><dd><p>preserving this structure’s name.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.rotate" title="Link to this definition"></a></dt>
+<dd><p>Apply a 3D rotation to the structure and return the transformed copy.</p>
+<p>Rotations are applied in the intrinsic order Y -&gt; X -&gt; Z, centred on
+the middle voxel of the image in physical coordinates. The output
+image has the same size and spacing as the input. Direction and
+origin are updated to reflect the rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle_x</strong> (<em>float</em>) – Rotation angle around the X axis in radians.</p></li>
+<li><p><strong>angle_y</strong> (<em>float</em>) – Rotation angle around the Y axis in radians.</p></li>
+<li><p><strong>angle_z</strong> (<em>float</em>) – Rotation angle around the Z axis in radians.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant used during
+resampling.
+Only nearest neighbors should be used for RT structures.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Value used for voxels outside the
+original image extent after rotation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Rotated structure with updated direction and origin, and the</dt><dd><p>same size, spacing, and metadata as the original.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_existing_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.write" title="Link to this definition"></a></dt>
+<dd><p>Save RT Structure file.</p>
+<p>The image format is automatically determined from filename’s suffix.
+If parent directories of filename do not exist, they are created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename is a directory,
+use a the structure’s name. For dicom files use the UID.</p></li>
+<li><p><strong>write_metadata</strong> (<em>bool</em>) – If true, write the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>use_existing_ids</strong> (<em>bool</em>) – If true, generate unique uids. Currently not used.</p></li>
+<li><p><strong>file_format</strong> (<em>str</em><em> | </em><em>None</em>) – Format of the rt structure saved. If None,
+infer it from filename.</p></li>
+<li><p><strong>reference_image_path</strong> (<em>PathLike</em><em> | </em><em>None</em>) – Path of the reference dicom image.
+Ignored when saving in formats other than dicom.</p></li>
+<li><p><strong>series_description</strong> (<em>str</em>) – Series Description for the saved DICOM
+RT Structure Set. Non used for other formats.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.rt_structure.RTStructure.write_image">
+<span class="sig-name descname"><span class="pre">write_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#resmip.rt_structure.rt_structure.RTStructure.write_image" title="Link to this definition"></a></dt>
+<dd><p>Save RT Structure file.</p>
+<p>The image format is automatically determined from filename’s suffix.
+If parent directories of filename do not exist, they are created.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">RTStructure.write_image</span></code> is deprecated and will be removed in a future release.
+Use <code class="docutils literal notranslate"><span class="pre">RTStructure.write</span></code> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename is a directory,
+use a the structure’s name. For dicom files use the UID.</p></li>
+<li><p><strong>write_metadata</strong> (<em>bool</em>) – If true, write the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>file_format</strong> (<em>str</em><em> | </em><em>None</em>) – Format of the rt structure saved. If None,
+infer it from filename.</p></li>
+<li><p><strong>reference_image_path</strong> (<em>PathLike</em><em> | </em><em>None</em>) – Path of the reference dicom image.
+Ignored when saving in formats other than dicom.</p></li>
+<li><p><strong>series_description</strong> (<em>str</em>) – Series Description for the saved DICOM
+RT Structure Set. Non used for other formats.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-resmip.rt_structure.utils">
+<span id="resmip-rt-structure-utils-module"></span><h2>resmip.rt_structure.utils module<a class="headerlink" href="#module-resmip.rt_structure.utils" title="Link to this heading"></a></h2>
+<p>Utility functions for RTStructures and RTStructureSets.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="resmip.rt_structure.utils.get_structure_name_from_filename">
+<span class="sig-prename descclassname"><span class="pre">resmip.rt_structure.utils.</span></span><span class="sig-name descname"><span class="pre">get_structure_name_from_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#resmip.rt_structure.utils.get_structure_name_from_filename" title="Link to this definition"></a></dt>
+<dd><p>Get the structure name from the filename.</p>
+<p>If the file is compressed, e.g.: structure.nii.gz, remove “.nii”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>Path</em>) – Name of the file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Name of the RT Structure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-resmip.rt_structure">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-resmip.rt_structure" title="Link to this heading"></a></h2>
+<p>Module for processing RTStructure and RTStructureSet objects.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">resmip.rt_structure.</span></span><span class="sig-name descname"><span class="pre">RTStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#resmip.rt_structure.RTStructure" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
+<p>RT Structure (wrapper of resmip.Image).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.astype">
+<span class="sig-name descname"><span class="pre">astype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DTypeLike</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.astype" title="Link to this definition"></a></dt>
+<dd><p>Convert pixel array type to the specified value, by casting a new structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dtype</strong> (<em>ImageDTypeLike</em>) – The dtype to use for the numpy array.
+If None, the default dtype of the image is used
+as defined the global <code class="docutils literal notranslate"><span class="pre">FORMAT_TO_TYPESTR</span></code> dictionary.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new structure with specified data type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.RTStructure" title="resmip.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.coregister">
+<span class="sig-name descname"><span class="pre">coregister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.coregister" title="Link to this definition"></a></dt>
+<dd><p>Coregiser the structure on top of another (reference) image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – Coregistration of structures is not supported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.from_array">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.from_array" title="Link to this definition"></a></dt>
+<dd><p>Create a new structure from a numpy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> (<em>np.ndarray</em>) – 3D array containing voxel values for the structure (z, y, x).</p></li>
+<li><p><strong>spacing</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em>) – Voxel spacing for the structure in mm (x, y, z).</p></li>
+<li><p><strong>origin</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em>) – Coordinates of the top left voxel in mm (x, y, z).</p></li>
+<li><p><strong>direction</strong> (<em>tuple</em><em>[</em><em>float</em><em>]</em>) – Direction cosine matrix.</p></li>
+<li><p><strong>metadata</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>) – Metadata containing information from the DICOM header.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the structure.</p></li>
+<li><p><strong>**kwargs</strong> – extra arguments used in <code class="docutils literal notranslate"><span class="pre">resmip.Image.__init__</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New structure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.RTStructure" title="resmip.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.modality">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modality</span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.modality" title="Link to this definition"></a></dt>
+<dd><p>DICOM modality of the RT Structure.</p>
+<p>Only “RTSTRUCT” is supported.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#resmip.rt_structure.RTStructure.name" title="Link to this definition"></a></dt>
+<dd><p>Name of the RT Structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.pad">
+<span class="sig-name descname"><span class="pre">pad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.pad" title="Link to this definition"></a></dt>
+<dd><p>Pad the structure on top of another image.</p>
+<p>Uses the same notation as <code class="docutils literal notranslate"><span class="pre">numpy.pad</span></code>.
+The struct is shifted aligning its top-left voxel with the reference image.
+The two images must have the same voxel spacing.
+The shifted structure is cropped if it extends out of the reference image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a>) – Image used as reference for padding.</p></li>
+<li><p><strong>**kwargs</strong> – same arguments used in <code class="docutils literal notranslate"><span class="pre">np.pad</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New structure with same shape and spacing of the reference.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.RTStructure" title="resmip.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.read">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.read" title="Link to this definition"></a></dt>
+<dd><p>Read RT Structure from file.</p>
+<p>The image format is automatically determined from filename’s suffix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename ends with “.dcm”,
+the reader assumes to read a Dicom rtstruct. Otherwise, it assumes a metatadata
+file with the following format exists: f”.{filename.stem}.json”.</p></li>
+<li><p><strong>read_metadata</strong> (<em>bool</em>) – If true, read the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>structure_name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the RT Structure (case-sensitive).
+Required for dicom files. Optional for other files (if set to None, use filename).</p></li>
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a><em> | </em><em>None</em>) – 3D image used as reference for dicom Structures
+(not used for other formats).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>RT Structure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.RTStructure" title="resmip.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.read_image">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.read_image" title="Link to this definition"></a></dt>
+<dd><p>Read RT Structure from file.</p>
+<p>The image format is automatically determined from filename’s suffix.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">RTStructure.read_image</span></code> is deprecated and will be removed in a future release.
+Use <code class="docutils literal notranslate"><span class="pre">RTStructure.read</span></code> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename ends with “.dcm”,
+the reader assumes to read a Dicom rtstruct. Otherwise, it assumes a metatadata
+file with the following format exists: f”.{filename.stem}.json”.</p></li>
+<li><p><strong>read_metadata</strong> (<em>bool</em>) – If true, read the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>structure_name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the RT Structure (case-sensitive).
+Required for dicom files. Optional for other files (if set to None, use filename).</p></li>
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a><em> | </em><em>None</em>) – 3D image used as reference for dicom Structures
+(not used for other formats).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>RT Structure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.RTStructure" title="resmip.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Transform</span></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.register" title="Link to this definition"></a></dt>
+<dd><p>Estimate a registration transform from the structure.</p>
+<p>A structure is not registered itself: the transform is estimated on the
+images it was drawn on, then applied to the structure with
+<code class="docutils literal notranslate"><span class="pre">resample_onto</span></code>. Kept identical to <code class="docutils literal notranslate"><span class="pre">Segmentation.register</span></code> so that
+migrating code behaves the same.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.reorient">
+<span class="sig-name descname"><span class="pre">reorient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reflection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.reorient" title="Link to this definition"></a></dt>
+<dd><p>Rotate the structure to match a target direction cosine matrix.</p>
+<p>Computes the rotation matrix that maps the current image direction
+to <code class="docutils literal notranslate"><span class="pre">new_direction</span></code> and applies it via <code class="docutils literal notranslate"><span class="pre">rotate</span></code>. Only pure
+rotations (det = +1) are supported; improper rotations (det = -1,
+e.g. reflections) are optionally supported. Transformations with
+-1 &lt; det &lt; 1 raise <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_direction</strong> (<em>np.ndarray</em><em> | </em><em>tuple</em><em>[</em><em>float</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – Target
+direction as a 9-element flattened row-major rotation matrix.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, defaults to the identity
+direction (standard axial orientation).</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant forwarded
+to <code class="docutils literal notranslate"><span class="pre">rotate</span></code>.
+Only nearest neighbors should be used for RT structures.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Fill value for voxels outside the
+original image extent, forwarded to <code class="docutils literal notranslate"><span class="pre">rotate</span></code>.</p></li>
+<li><p><strong>allow_reflection</strong> (<em>bool</em>) – Allow reflections for rotations with
+negative determinant. If set to false, improper rotations
+raise an exception.</p></li>
+<li><p><strong>flip_axis</strong> (<em>int</em>) – Internal reflection axis for improper rotations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reoriented structure matching <code class="docutils literal notranslate"><span class="pre">new_direction</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.RTStructure" title="resmip.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.resample">
+<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.resample" title="Link to this definition"></a></dt>
+<dd><p>Wrapper of resmip.Image.resample, using the appropriate interpolator.</p>
+<p>Resample the image with a new voxel spacing (in mm).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_spacing</strong> (<em>Iterable</em>) – New voxel spacing of the resampled image (x, y, z) in mm.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – Interpolation method used for image resampling.
+Only nearest neighbors should be used for RT structures.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Default value for pixel intensity.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resampled structure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.RTStructure" title="resmip.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.resample_onto">
+<span class="sig-name descname"><span class="pre">resample_onto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Transform</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.resample_onto" title="Link to this definition"></a></dt>
+<dd><p>Resample the structure onto another image’s grid by applying a transform.</p>
+<p>Behaves like <code class="docutils literal notranslate"><span class="pre">Image.resample_onto</span></code> – the returned structure adopts the
+grid (size, spacing, origin, direction) of <code class="docutils literal notranslate"><span class="pre">reference_image</span></code>, and the
+transform follows the SimpleITK reverse-mapping convention
+(<code class="docutils literal notranslate"><span class="pre">output(p)</span> <span class="pre">=</span> <span class="pre">self(transform(p))</span></code>); when <code class="docutils literal notranslate"><span class="pre">transform</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> an
+identity transform is used, reducing the operation to pure grid
+resampling. This is the operation used to propagate a structure onto a
+reference frame, e.g. carrying it through a registration result.</p>
+<p>Nearest-neighbour interpolation is used by default to preserve the
+discrete label values of the mask. Passing any other interpolator emits a
+warning, as interpolation may introduce voxel values absent from the input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a>) – Image whose grid defines the output sampling
+geometry.</p></li>
+<li><p><strong>transform</strong> (<em>sitk.Transform</em><em> | </em><em>None</em>) – Transform mapping reference-space
+points into self-space. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, an identity transform is used.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant. Defaults to
+<code class="docutils literal notranslate"><span class="pre">sitk.sitkNearestNeighbor</span></code>; other values are discouraged for
+RT structures and trigger a warning.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Value assigned to output voxels whose
+sampling coordinate falls outside the extent of <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>New structure sampled onto <code class="docutils literal notranslate"><span class="pre">reference_image</span></code>’s grid,</dt><dd><p>preserving this structure’s name.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.RTStructure" title="resmip.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.rt_structure.rt_structure.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.rotate" title="Link to this definition"></a></dt>
+<dd><p>Apply a 3D rotation to the structure and return the transformed copy.</p>
+<p>Rotations are applied in the intrinsic order Y -&gt; X -&gt; Z, centred on
+the middle voxel of the image in physical coordinates. The output
+image has the same size and spacing as the input. Direction and
+origin are updated to reflect the rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle_x</strong> (<em>float</em>) – Rotation angle around the X axis in radians.</p></li>
+<li><p><strong>angle_y</strong> (<em>float</em>) – Rotation angle around the Y axis in radians.</p></li>
+<li><p><strong>angle_z</strong> (<em>float</em>) – Rotation angle around the Z axis in radians.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant used during
+resampling.
+Only nearest neighbors should be used for RT structures.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Value used for voxels outside the
+original image extent after rotation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Rotated structure with updated direction and origin, and the</dt><dd><p>same size, spacing, and metadata as the original.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.rt_structure.RTStructure" title="resmip.rt_structure.RTStructure">RTStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_existing_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.write" title="Link to this definition"></a></dt>
+<dd><p>Save RT Structure file.</p>
+<p>The image format is automatically determined from filename’s suffix.
+If parent directories of filename do not exist, they are created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename is a directory,
+use a the structure’s name. For dicom files use the UID.</p></li>
+<li><p><strong>write_metadata</strong> (<em>bool</em>) – If true, write the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>use_existing_ids</strong> (<em>bool</em>) – If true, generate unique uids. Currently not used.</p></li>
+<li><p><strong>file_format</strong> (<em>str</em><em> | </em><em>None</em>) – Format of the rt structure saved. If None,
+infer it from filename.</p></li>
+<li><p><strong>reference_image_path</strong> (<em>PathLike</em><em> | </em><em>None</em>) – Path of the reference dicom image.
+Ignored when saving in formats other than dicom.</p></li>
+<li><p><strong>series_description</strong> (<em>str</em>) – Series Description for the saved DICOM
+RT Structure Set. Non used for other formats.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.rt_structure.RTStructure.write_image">
+<span class="sig-name descname"><span class="pre">write_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series_description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#resmip.rt_structure.RTStructure.write_image" title="Link to this definition"></a></dt>
+<dd><p>Save RT Structure file.</p>
+<p>The image format is automatically determined from filename’s suffix.
+If parent directories of filename do not exist, they are created.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">RTStructure.write_image</span></code> is deprecated and will be removed in a future release.
+Use <code class="docutils literal notranslate"><span class="pre">RTStructure.write</span></code> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename is a directory,
+use a the structure’s name. For dicom files use the UID.</p></li>
+<li><p><strong>write_metadata</strong> (<em>bool</em>) – If true, write the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>file_format</strong> (<em>str</em><em> | </em><em>None</em>) – Format of the rt structure saved. If None,
+infer it from filename.</p></li>
+<li><p><strong>reference_image_path</strong> (<em>PathLike</em><em> | </em><em>None</em>) – Path of the reference dicom image.
+Ignored when saving in formats other than dicom.</p></li>
+<li><p><strong>series_description</strong> (<em>str</em>) – Series Description for the saved DICOM
+RT Structure Set. Non used for other formats.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="resmip.image.html" class="btn btn-neutral float-left" title="resmip.image package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="resmip.segmentation.html" class="btn btn-neutral float-right" title="resmip.segmentation package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, G. Palazzo, M.G. Ubeira-Gabellini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

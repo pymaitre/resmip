@@ -1,0 +1,814 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>resmip.dose package &mdash; resmip 0.0.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=282f96c0"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="resmip.image package" href="resmip.image.html" />
+    <link rel="prev" title="resmip.dicom_utils.rt_utils_wrapper package" href="resmip.dicom_utils.rt_utils_wrapper.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            resmip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<select id="version-switcher" aria-label="Documentation version" style="width: 100%; margin-top:
+0.5em;" hidden></select>
+<script>
+    (function () {
+    var switcher = document.getElementById("version-switcher");
+    var siteRoot = new URL("_static/../../", window.location.href);
+    var currentVersion = window.location.href.slice(siteRoot.href.length).split("/")[0];
+    fetch(new URL("versions.json", siteRoot))
+        .then(function (response) {
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+        return response.json();
+        })
+        .then(function (versions) {
+        versions.forEach(function (version) {
+            var option = document.createElement("option");
+            option.value = version;
+            option.textContent = version;
+            option.selected = version === currentVersion;
+            switcher.appendChild(option);
+        });
+        switcher.addEventListener("change", function () {
+            window.location.href = new URL(switcher.value + "/index.html", siteRoot).href;
+        });
+        switcher.hidden = false;
+        })
+        .catch(function () {});
+    })();
+</script>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting-started/index.html">Getting started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">resmip</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="resmip.html">resmip package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="resmip.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="resmip.dicom_utils.html">resmip.dicom_utils package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">resmip.dose package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.image.html">resmip.image package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.rt_structure.html">resmip.rt_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="resmip.segmentation.html">resmip.segmentation package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.html#module-resmip.utils">resmip.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="resmip.html#module-resmip">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">resmip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">resmip</a></li>
+          <li class="breadcrumb-item"><a href="resmip.html">resmip package</a></li>
+      <li class="breadcrumb-item active">resmip.dose package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/resmip.dose.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="resmip-dose-package">
+<h1>resmip.dose package<a class="headerlink" href="#resmip-dose-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-resmip.dose.dose">
+<span id="resmip-dose-dose-module"></span><h2>resmip.dose.dose module<a class="headerlink" href="#module-resmip.dose.dose" title="Link to this heading"></a></h2>
+<p>RT Dose.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">resmip.dose.dose.</span></span><span class="sig-name descname"><span class="pre">Dose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#resmip.dose.dose.Dose" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
+<p>RT Dose (wrapper of resmip.Image).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.astype">
+<span class="sig-name descname"><span class="pre">astype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DTypeLike</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.astype" title="Link to this definition"></a></dt>
+<dd><p>Convert pixel array type to the specified value, by casting a new dose.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dtype</strong> (<em>ImageDTypeLike</em>) – The dtype to use for the numpy array.
+If None, the default dtype of the image is used
+as defined the global <code class="docutils literal notranslate"><span class="pre">FORMAT_TO_TYPESTR</span></code> dictionary.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new dose with specified data type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.coregister">
+<span class="sig-name descname"><span class="pre">coregister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.coregister" title="Link to this definition"></a></dt>
+<dd><p>Coregiser the dose on top of another (reference) image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – Coregistration of doses is not supported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.modality">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modality</span></span><a class="headerlink" href="#resmip.dose.dose.Dose.modality" title="Link to this definition"></a></dt>
+<dd><p>DICOM modality of the Dose.</p>
+<p>Only “RTDOSE” is supported.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.pad">
+<span class="sig-name descname"><span class="pre">pad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.pad" title="Link to this definition"></a></dt>
+<dd><p>Pad the dose on top of another image.</p>
+<p>Uses the same notation as <code class="docutils literal notranslate"><span class="pre">numpy.pad</span></code>.
+The dose is shifted aligning its top-left voxel with the reference image.
+The two images must have the same voxel spacing.
+The shifted dose is cropped if it extends out of the reference image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a>) – Image used as reference for padding.</p></li>
+<li><p><strong>**kwargs</strong> – same arguments used in <code class="docutils literal notranslate"><span class="pre">np.pad</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New dose with same shape and spacing of the reference.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.read">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.read" title="Link to this definition"></a></dt>
+<dd><p>Read rt dose from file.</p>
+<p>Doses could have different origin and/or
+spacing compared to the referenced series.
+This function, shifts the dose accordingly.
+Dose values are scaled by “DoseGridScaling”, if present.
+<a class="reference external" href="https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e">https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename ends with “.dcm”,
+the reader assumes to read a Dicom rtdose. Otherwise, it assumes a metatadata
+file with the following format exists: f”.{filename.stem}.json”.</p></li>
+<li><p><strong>read_metadata</strong> (<em>bool</em>) – If true, read the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a><em> | </em><em>None</em>) – 3D image used as reference for dicom Doses, in case
+origin and/or spacing differ. When set to None, a warning is raised and no
+shift / resampling is applied.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>RT Dose.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.read_image">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.read_image" title="Link to this definition"></a></dt>
+<dd><p>Read rt dose from file.</p>
+<p>Doses could have different origin and/or
+spacing compared to the referenced series.
+This function, shifts the dose accordingly.
+Dose values are scaled by “DoseGridScaling”, if present.
+<a class="reference external" href="https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e">https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e</a></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">Dose.read_image</span></code> is deprecated and will be removed in a future release.
+Use <code class="docutils literal notranslate"><span class="pre">Dose.read</span></code> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename ends with “.dcm”,
+the reader assumes to read a Dicom rtdose. Otherwise, it assumes a metatadata
+file with the following format exists: f”.{filename.stem}.json”.</p></li>
+<li><p><strong>read_metadata</strong> (<em>bool</em>) – If true, read the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a><em> | </em><em>None</em>) – 3D image used as reference for dicom Doses, in case
+origin and/or spacing differ. When set to None, a warning is raised and no
+shift / resampling is applied.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>RT Dose.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Transform</span></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.register" title="Link to this definition"></a></dt>
+<dd><p>Estimate a registration transform from the dose.</p>
+<p>A dose is not registered itself: the transform is estimated on the
+images it was computed on, then applied to the dose with
+<code class="docutils literal notranslate"><span class="pre">resample_onto</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.reorient">
+<span class="sig-name descname"><span class="pre">reorient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">23</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reflection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.reorient" title="Link to this definition"></a></dt>
+<dd><p>Rotate the dose to match a target direction cosine matrix.</p>
+<p>Computes the rotation matrix that maps the current image direction
+to <code class="docutils literal notranslate"><span class="pre">new_direction</span></code> and applies it via <code class="docutils literal notranslate"><span class="pre">rotate</span></code>. Only pure
+rotations (det = +1) are supported; improper rotations (det = -1,
+e.g. reflections) are optionally supported. Transformations with
+-1 &lt; det &lt; 1 raise <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_direction</strong> (<em>np.ndarray</em><em> | </em><em>tuple</em><em>[</em><em>float</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – Target
+direction as a 9-element flattened row-major rotation matrix.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, defaults to the identity
+direction (standard axial orientation).</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant forwarded
+to <code class="docutils literal notranslate"><span class="pre">rotate</span></code>.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Fill value for voxels outside the
+original image extent, forwarded to <code class="docutils literal notranslate"><span class="pre">rotate</span></code>.</p></li>
+<li><p><strong>allow_reflection</strong> (<em>bool</em>) – Allow reflections for rotations with
+negative determinant. If set to false, improper rotations
+raise an exception.</p></li>
+<li><p><strong>flip_axis</strong> (<em>int</em>) – Internal reflection axis for improper rotations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reoriented dose matching <code class="docutils literal notranslate"><span class="pre">new_direction</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.resample">
+<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.resample" title="Link to this definition"></a></dt>
+<dd><p>Resample the dose with a new voxel spacing (in mm).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_spacing</strong> (<em>Iterable</em>) – New voxel spacing of the resampled dose (x, y, z) in mm.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – Interpolation method used for image resampling.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Default value for pixel intensity.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resampled image.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.resample_onto">
+<span class="sig-name descname"><span class="pre">resample_onto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Transform</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.resample_onto" title="Link to this definition"></a></dt>
+<dd><p>Resample the dose onto another image’s grid by applying a transform.</p>
+<p>Behaves like <code class="docutils literal notranslate"><span class="pre">Image.resample_onto</span></code> – the returned dose adopts the grid
+(size, spacing, origin, direction) of <code class="docutils literal notranslate"><span class="pre">reference_image</span></code>, and the
+transform follows the SimpleITK reverse-mapping convention
+(<code class="docutils literal notranslate"><span class="pre">output(p)</span> <span class="pre">=</span> <span class="pre">self(transform(p))</span></code>); when <code class="docutils literal notranslate"><span class="pre">transform</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> an
+identity transform is used, reducing the operation to pure grid
+resampling. This is the operation used to bring a dose distribution into a
+reference frame, e.g. warping a dose through a registration result for
+dose accumulation.</p>
+<p>Linear interpolation is used by default, as dose is a continuous quantity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a>) – Image whose grid defines the output sampling
+geometry.</p></li>
+<li><p><strong>transform</strong> (<em>sitk.Transform</em><em> | </em><em>None</em>) – Transform mapping reference-space
+points into self-space. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, an identity transform is used.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant. Defaults to
+<code class="docutils literal notranslate"><span class="pre">sitk.sitkLinear</span></code>.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Value assigned to output voxels whose
+sampling coordinate falls outside the extent of <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New dose sampled onto <code class="docutils literal notranslate"><span class="pre">reference_image</span></code>’s grid.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">23</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.rotate" title="Link to this definition"></a></dt>
+<dd><p>Apply a 3D rotation to the dose and return the transformed copy.</p>
+<p>Rotations are applied in the intrinsic order Y -&gt; X -&gt; Z, centred on
+the middle voxel of the image in physical coordinates. The output
+image has the same size and spacing as the input. Direction and
+origin are updated to reflect the rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle_x</strong> (<em>float</em>) – Rotation angle around the X axis in radians.</p></li>
+<li><p><strong>angle_y</strong> (<em>float</em>) – Rotation angle around the Y axis in radians.</p></li>
+<li><p><strong>angle_z</strong> (<em>float</em>) – Rotation angle around the Z axis in radians.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant used during
+resampling.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Value used for voxels outside the
+original image extent after rotation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Rotated dose with updated direction and origin, and the</dt><dd><p>same size, spacing, and metadata as the original.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_existing_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.write" title="Link to this definition"></a></dt>
+<dd><p>Save RT Dose file.</p>
+<p>The image format is automatically determined from filename’s suffix.
+If parent directories of filename do not exist, they are created.</p>
+<p>Currently only non-DICOM file formats are supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file to be saved.</p></li>
+<li><p><strong>write_metadata</strong> (<em>bool</em>) – If true, write the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>use_existing_ids</strong> (<em>bool</em>) – If true, generate unique uids. Currently not used.</p></li>
+<li><p><strong>file_format</strong> (<em>str</em><em> | </em><em>None</em>) – Format of the rt dose saved. If None,
+infer it from filename.</p></li>
+<li><p><strong>reference_image_path</strong> (<em>PathLike</em><em> | </em><em>None</em>) – Path of the reference dicom image.
+Ignored when saving in formats other than dicom.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.dose.Dose.write_image">
+<span class="sig-name descname"><span class="pre">write_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#resmip.dose.dose.Dose.write_image" title="Link to this definition"></a></dt>
+<dd><p>Save RT Dose file.</p>
+<p>The image format is automatically determined from filename’s suffix.
+If parent directories of filename do not exist, they are created.</p>
+<p>Currently only non-DICOM file formats are supported.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">Dose.write_image</span></code> is deprecated and will be removed in a future release.
+Use <code class="docutils literal notranslate"><span class="pre">Dose.write</span></code> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file to be saved.</p></li>
+<li><p><strong>write_metadata</strong> (<em>bool</em>) – If true, write the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>file_format</strong> (<em>str</em><em> | </em><em>None</em>) – Format of the rt dose saved. If None,
+infer it from filename.</p></li>
+<li><p><strong>reference_image_path</strong> (<em>PathLike</em><em> | </em><em>None</em>) – Path of the reference dicom image.
+Ignored when saving in formats other than dicom.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-resmip.dose">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-resmip.dose" title="Link to this heading"></a></h2>
+<p>Module for processing RTDose objects.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="resmip.dose.Dose">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">resmip.dose.</span></span><span class="sig-name descname"><span class="pre">Dose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#resmip.dose.Dose" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
+<p>RT Dose (wrapper of resmip.Image).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.astype">
+<span class="sig-name descname"><span class="pre">astype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DTypeLike</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.Dose.astype" title="Link to this definition"></a></dt>
+<dd><p>Convert pixel array type to the specified value, by casting a new dose.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dtype</strong> (<em>ImageDTypeLike</em>) – The dtype to use for the numpy array.
+If None, the default dtype of the image is used
+as defined the global <code class="docutils literal notranslate"><span class="pre">FORMAT_TO_TYPESTR</span></code> dictionary.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new dose with specified data type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.Dose" title="resmip.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.coregister">
+<span class="sig-name descname"><span class="pre">coregister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.Dose.coregister" title="Link to this definition"></a></dt>
+<dd><p>Coregiser the dose on top of another (reference) image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – Coregistration of doses is not supported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="resmip.dose.Dose.modality">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modality</span></span><a class="headerlink" href="#resmip.dose.Dose.modality" title="Link to this definition"></a></dt>
+<dd><p>DICOM modality of the Dose.</p>
+<p>Only “RTDOSE” is supported.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.pad">
+<span class="sig-name descname"><span class="pre">pad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.Dose.pad" title="Link to this definition"></a></dt>
+<dd><p>Pad the dose on top of another image.</p>
+<p>Uses the same notation as <code class="docutils literal notranslate"><span class="pre">numpy.pad</span></code>.
+The dose is shifted aligning its top-left voxel with the reference image.
+The two images must have the same voxel spacing.
+The shifted dose is cropped if it extends out of the reference image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a>) – Image used as reference for padding.</p></li>
+<li><p><strong>**kwargs</strong> – same arguments used in <code class="docutils literal notranslate"><span class="pre">np.pad</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New dose with same shape and spacing of the reference.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.Dose" title="resmip.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.read">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.Dose.read" title="Link to this definition"></a></dt>
+<dd><p>Read rt dose from file.</p>
+<p>Doses could have different origin and/or
+spacing compared to the referenced series.
+This function, shifts the dose accordingly.
+Dose values are scaled by “DoseGridScaling”, if present.
+<a class="reference external" href="https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e">https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename ends with “.dcm”,
+the reader assumes to read a Dicom rtdose. Otherwise, it assumes a metatadata
+file with the following format exists: f”.{filename.stem}.json”.</p></li>
+<li><p><strong>read_metadata</strong> (<em>bool</em>) – If true, read the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a><em> | </em><em>None</em>) – 3D image used as reference for dicom Doses, in case
+origin and/or spacing differ. When set to None, a warning is raised and no
+shift / resampling is applied.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>RT Dose.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.Dose" title="resmip.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.read_image">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.Dose.read_image" title="Link to this definition"></a></dt>
+<dd><p>Read rt dose from file.</p>
+<p>Doses could have different origin and/or
+spacing compared to the referenced series.
+This function, shifts the dose accordingly.
+Dose values are scaled by “DoseGridScaling”, if present.
+<a class="reference external" href="https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e">https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e</a></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">Dose.read_image</span></code> is deprecated and will be removed in a future release.
+Use <code class="docutils literal notranslate"><span class="pre">Dose.read</span></code> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file. If filename ends with “.dcm”,
+the reader assumes to read a Dicom rtdose. Otherwise, it assumes a metatadata
+file with the following format exists: f”.{filename.stem}.json”.</p></li>
+<li><p><strong>read_metadata</strong> (<em>bool</em>) – If true, read the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a><em> | </em><em>None</em>) – 3D image used as reference for dicom Doses, in case
+origin and/or spacing differ. When set to None, a warning is raised and no
+shift / resampling is applied.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>RT Dose.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.Dose" title="resmip.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Transform</span></span></span><a class="headerlink" href="#resmip.dose.Dose.register" title="Link to this definition"></a></dt>
+<dd><p>Estimate a registration transform from the dose.</p>
+<p>A dose is not registered itself: the transform is estimated on the
+images it was computed on, then applied to the dose with
+<code class="docutils literal notranslate"><span class="pre">resample_onto</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.reorient">
+<span class="sig-name descname"><span class="pre">reorient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">23</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reflection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></span><a class="headerlink" href="#resmip.dose.Dose.reorient" title="Link to this definition"></a></dt>
+<dd><p>Rotate the dose to match a target direction cosine matrix.</p>
+<p>Computes the rotation matrix that maps the current image direction
+to <code class="docutils literal notranslate"><span class="pre">new_direction</span></code> and applies it via <code class="docutils literal notranslate"><span class="pre">rotate</span></code>. Only pure
+rotations (det = +1) are supported; improper rotations (det = -1,
+e.g. reflections) are optionally supported. Transformations with
+-1 &lt; det &lt; 1 raise <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_direction</strong> (<em>np.ndarray</em><em> | </em><em>tuple</em><em>[</em><em>float</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – Target
+direction as a 9-element flattened row-major rotation matrix.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, defaults to the identity
+direction (standard axial orientation).</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant forwarded
+to <code class="docutils literal notranslate"><span class="pre">rotate</span></code>.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Fill value for voxels outside the
+original image extent, forwarded to <code class="docutils literal notranslate"><span class="pre">rotate</span></code>.</p></li>
+<li><p><strong>allow_reflection</strong> (<em>bool</em>) – Allow reflections for rotations with
+negative determinant. If set to false, improper rotations
+raise an exception.</p></li>
+<li><p><strong>flip_axis</strong> (<em>int</em>) – Internal reflection axis for improper rotations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reoriented dose matching <code class="docutils literal notranslate"><span class="pre">new_direction</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.Dose" title="resmip.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.resample">
+<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.Dose.resample" title="Link to this definition"></a></dt>
+<dd><p>Resample the dose with a new voxel spacing (in mm).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_spacing</strong> (<em>Iterable</em>) – New voxel spacing of the resampled dose (x, y, z) in mm.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – Interpolation method used for image resampling.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Default value for pixel intensity.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resampled image.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.Dose" title="resmip.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.resample_onto">
+<span class="sig-name descname"><span class="pre">resample_onto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="resmip.image.html#resmip.image.image.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Transform</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.Dose.resample_onto" title="Link to this definition"></a></dt>
+<dd><p>Resample the dose onto another image’s grid by applying a transform.</p>
+<p>Behaves like <code class="docutils literal notranslate"><span class="pre">Image.resample_onto</span></code> – the returned dose adopts the grid
+(size, spacing, origin, direction) of <code class="docutils literal notranslate"><span class="pre">reference_image</span></code>, and the
+transform follows the SimpleITK reverse-mapping convention
+(<code class="docutils literal notranslate"><span class="pre">output(p)</span> <span class="pre">=</span> <span class="pre">self(transform(p))</span></code>); when <code class="docutils literal notranslate"><span class="pre">transform</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> an
+identity transform is used, reducing the operation to pure grid
+resampling. This is the operation used to bring a dose distribution into a
+reference frame, e.g. warping a dose through a registration result for
+dose accumulation.</p>
+<p>Linear interpolation is used by default, as dose is a continuous quantity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="resmip.html#resmip.Image" title="resmip.Image"><em>Image</em></a>) – Image whose grid defines the output sampling
+geometry.</p></li>
+<li><p><strong>transform</strong> (<em>sitk.Transform</em><em> | </em><em>None</em>) – Transform mapping reference-space
+points into self-space. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, an identity transform is used.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant. Defaults to
+<code class="docutils literal notranslate"><span class="pre">sitk.sitkLinear</span></code>.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Value assigned to output voxels whose
+sampling coordinate falls outside the extent of <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New dose sampled onto <code class="docutils literal notranslate"><span class="pre">reference_image</span></code>’s grid.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.Dose" title="resmip.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">23</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pixel_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.dose.dose.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.dose.Dose.rotate" title="Link to this definition"></a></dt>
+<dd><p>Apply a 3D rotation to the dose and return the transformed copy.</p>
+<p>Rotations are applied in the intrinsic order Y -&gt; X -&gt; Z, centred on
+the middle voxel of the image in physical coordinates. The output
+image has the same size and spacing as the input. Direction and
+origin are updated to reflect the rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle_x</strong> (<em>float</em>) – Rotation angle around the X axis in radians.</p></li>
+<li><p><strong>angle_y</strong> (<em>float</em>) – Rotation angle around the Y axis in radians.</p></li>
+<li><p><strong>angle_z</strong> (<em>float</em>) – Rotation angle around the Z axis in radians.</p></li>
+<li><p><strong>interpolator</strong> (<em>int</em>) – SimpleITK interpolator constant used during
+resampling.</p></li>
+<li><p><strong>default_pixel_value</strong> (<em>float</em>) – Value used for voxels outside the
+original image extent after rotation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Rotated dose with updated direction and origin, and the</dt><dd><p>same size, spacing, and metadata as the original.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#resmip.dose.Dose" title="resmip.dose.Dose">Dose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_existing_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#resmip.dose.Dose.write" title="Link to this definition"></a></dt>
+<dd><p>Save RT Dose file.</p>
+<p>The image format is automatically determined from filename’s suffix.
+If parent directories of filename do not exist, they are created.</p>
+<p>Currently only non-DICOM file formats are supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file to be saved.</p></li>
+<li><p><strong>write_metadata</strong> (<em>bool</em>) – If true, write the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>use_existing_ids</strong> (<em>bool</em>) – If true, generate unique uids. Currently not used.</p></li>
+<li><p><strong>file_format</strong> (<em>str</em><em> | </em><em>None</em>) – Format of the rt dose saved. If None,
+infer it from filename.</p></li>
+<li><p><strong>reference_image_path</strong> (<em>PathLike</em><em> | </em><em>None</em>) – Path of the reference dicom image.
+Ignored when saving in formats other than dicom.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="resmip.dose.Dose.write_image">
+<span class="sig-name descname"><span class="pre">write_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#resmip.dose.Dose.write_image" title="Link to this definition"></a></dt>
+<dd><p>Save RT Dose file.</p>
+<p>The image format is automatically determined from filename’s suffix.
+If parent directories of filename do not exist, they are created.</p>
+<p>Currently only non-DICOM file formats are supported.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">Dose.write_image</span></code> is deprecated and will be removed in a future release.
+Use <code class="docutils literal notranslate"><span class="pre">Dose.write</span></code> instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – Name of the file to be saved.</p></li>
+<li><p><strong>write_metadata</strong> (<em>bool</em>) – If true, write the json file with metadata
+(not applicable for dicom files). Currently not used.</p></li>
+<li><p><strong>file_format</strong> (<em>str</em><em> | </em><em>None</em>) – Format of the rt dose saved. If None,
+infer it from filename.</p></li>
+<li><p><strong>reference_image_path</strong> (<em>PathLike</em><em> | </em><em>None</em>) – Path of the reference dicom image.
+Ignored when saving in formats other than dicom.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="resmip.dicom_utils.rt_utils_wrapper.html" class="btn btn-neutral float-left" title="resmip.dicom_utils.rt_utils_wrapper package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="resmip.image.html" class="btn btn-neutral float-right" title="resmip.image package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, G. Palazzo, M.G. Ubeira-Gabellini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

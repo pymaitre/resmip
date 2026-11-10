@@ -1,0 +1,1834 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Index &mdash; resmip 0.0.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=282f96c0"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            resmip
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+<select id="version-switcher" aria-label="Documentation version" style="width: 100%; margin-top:
+0.5em;" hidden></select>
+<script>
+    (function () {
+    var switcher = document.getElementById("version-switcher");
+    var siteRoot = new URL("_static/../../", window.location.href);
+    var currentVersion = window.location.href.slice(siteRoot.href.length).split("/")[0];
+    fetch(new URL("versions.json", siteRoot))
+        .then(function (response) {
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+        return response.json();
+        })
+        .then(function (versions) {
+        versions.forEach(function (version) {
+            var option = document.createElement("option");
+            option.value = version;
+            option.textContent = version;
+            option.selected = version === currentVersion;
+            switcher.appendChild(option);
+        });
+        switcher.addEventListener("change", function () {
+            window.location.href = new URL(switcher.value + "/index.html", siteRoot).href;
+        });
+        switcher.hidden = false;
+        })
+        .catch(function () {});
+    })();
+</script>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting-started/index.html">Getting started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">resmip</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">resmip</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Index</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ 
+</div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.header.add_leading_zero_to_header_value">add_leading_zero_to_header_value() (in module resmip.dicom_utils.rt_utils_wrapper.header)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.header.add_leading_zero_to_header_value">(in module resmip.segmentation.dicom.rt_utils_wrapper.header)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.ds_helper.add_patient_information">add_patient_information() (in module resmip.dicom_utils.rt_utils_wrapper.ds_helper)</a>
+</li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.ds_helper.add_refd_frame_of_ref_sequence">add_refd_frame_of_ref_sequence() (in module resmip.dicom_utils.rt_utils_wrapper.ds_helper)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.ds_helper.add_refd_frame_of_ref_sequence">(in module resmip.segmentation.dicom.rt_utils_wrapper.ds_helper)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.ds_helper.add_required_elements_to_ds">add_required_elements_to_ds() (in module resmip.dicom_utils.rt_utils_wrapper.ds_helper)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.ds_helper.add_required_elements_to_ds">(in module resmip.segmentation.dicom.rt_utils_wrapper.ds_helper)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.rtstruct.RTStruct.add_roi">add_roi() (resmip.dicom_utils.rt_utils_wrapper.rtstruct.RTStruct method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.rtstruct.RTStruct.add_roi">(resmip.segmentation.dicom.rt_utils_wrapper.rtstruct.RTStruct method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.segmentation.dicom.html#resmip.segmentation.dicom.seg_dataset.SegDataset.add_segment">add_segment() (resmip.segmentation.dicom.seg_dataset.SegDataset method)</a>
+</li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.ds_helper.add_sequence_lists_to_ds">add_sequence_lists_to_ds() (in module resmip.dicom_utils.rt_utils_wrapper.ds_helper)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.ds_helper.add_sequence_lists_to_ds">(in module resmip.segmentation.dicom.rt_utils_wrapper.ds_helper)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.header.add_study_and_series_information">add_study_and_series_information() (in module resmip.dicom_utils.rt_utils_wrapper.header)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.header.add_study_and_series_information">(in module resmip.segmentation.dicom.rt_utils_wrapper.header)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.AffineRegistration">AffineRegistration (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.AffineRegistration">(class in resmip.image)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.coregistration.AffineRegistration">(class in resmip.image.coregistration)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.append">append() (resmip.segmentation.segmentation.SegmentationCollection method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.append">(resmip.segmentation.SegmentationCollection method)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.append">(resmip.SegmentationCollection method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.Image.associate_to">associate_to() (resmip.Image method)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.associate_to">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.associate_to">(resmip.image.image.Image method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Dose.astype">astype() (resmip.Dose method)</a>
+
+      <ul>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.astype">(resmip.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.astype">(resmip.dose.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.astype">(resmip.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.astype">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.astype">(resmip.image.image.Image method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.astype">(resmip.rt_structure.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.astype">(resmip.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.astype">(resmip.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.astype">(resmip.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.astype">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.astype">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.constants.ROIGenerationAlgorithm.automatic">automatic (resmip.dicom_utils.rt_utils_wrapper.constants.ROIGenerationAlgorithm attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.constants.ROIGenerationAlgorithm.automatic">(resmip.segmentation.dicom.rt_utils_wrapper.constants.ROIGenerationAlgorithm attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationType.binary">binary (resmip.segmentation.SegmentationType attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.utils.SegmentationType.binary">(resmip.segmentation.utils.SegmentationType attribute)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationType.binary">(resmip.SegmentationType attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.check_if_valid_structure">check_if_valid_structure() (in module resmip.dicom_utils.rtst)</a>
+</li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.color">color (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.color">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.convert_single_structure">convert_single_structure() (in module resmip.dicom_utils.rtst)</a>
+</li>
+      <li><a href="resmip.html#resmip.Dose.coregister">coregister() (resmip.Dose method)</a>
+
+      <ul>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.coregister">(resmip.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.coregister">(resmip.dose.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.coregister">(resmip.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.coregister">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.coregister">(resmip.image.image.Image method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.coregister">(resmip.rt_structure.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.coregister">(resmip.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.coregister">(resmip.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.coregister">(resmip.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.coregister">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.coregister">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.CoregistrationMetric">CoregistrationMetric (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.CoregistrationMetric">(class in resmip.image)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.coregistration.CoregistrationMetric">(class in resmip.image.coregistration)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.CoregistrationMetric.correlation">correlation (resmip.CoregistrationMetric attribute)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.coregistration.CoregistrationMetric.correlation">(resmip.image.coregistration.CoregistrationMetric attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.CoregistrationMetric.correlation">(resmip.image.CoregistrationMetric attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.contours.create_contour">create_contour() (in module resmip.dicom_utils.rt_utils_wrapper.contours)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.contours.create_contour">(in module resmip.segmentation.dicom.rt_utils_wrapper.contours)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.ds_helper.create_contour_image_sequence">create_contour_image_sequence() (in module resmip.dicom_utils.rt_utils_wrapper.ds_helper)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.ds_helper.create_contour_image_sequence">(in module resmip.segmentation.dicom.rt_utils_wrapper.ds_helper)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.ds_helper.create_frame_of_ref_study_sequence">create_frame_of_ref_study_sequence() (in module resmip.dicom_utils.rt_utils_wrapper.ds_helper)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.ds_helper.create_frame_of_ref_study_sequence">(in module resmip.segmentation.dicom.rt_utils_wrapper.ds_helper)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.rtstruct.RTStruct.create_new">create_new() (resmip.dicom_utils.rt_utils_wrapper.rtstruct.RTStruct class method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.rtstruct.RTStruct.create_new">(resmip.segmentation.dicom.rt_utils_wrapper.rtstruct.RTStruct class method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.rtstruct.create_rtstruct_dataset">create_rtstruct_dataset() (in module resmip.dicom_utils.rt_utils_wrapper.rtstruct)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.rtstruct.create_rtstruct_dataset">(in module resmip.segmentation.dicom.rt_utils_wrapper.rtstruct)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.DicomModality.ct">ct (resmip.DicomModality attribute)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.DicomModality.ct">(resmip.image.DicomModality attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.metadata.DicomModality.ct">(resmip.image.metadata.DicomModality attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.description">description (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.description">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.sopclass.SOPClassUID.DETACHED_STUDY_MANAGEMENT">DETACHED_STUDY_MANAGEMENT (resmip.dicom_utils.rt_utils_wrapper.sopclass.SOPClassUID attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.sopclass.SOPClassUID.DETACHED_STUDY_MANAGEMENT">(resmip.segmentation.dicom.rt_utils_wrapper.sopclass.SOPClassUID attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.segmentation.dicom.html#resmip.segmentation.dicom.annotation.DicomAnnotation">DicomAnnotation (class in resmip.segmentation.dicom.annotation)</a>
+</li>
+      <li><a href="resmip.html#resmip.DicomModality">DicomModality (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.DicomModality">(class in resmip.image)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.metadata.DicomModality">(class in resmip.image.metadata)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.DicomStructure">DicomStructure (class in resmip.dicom_utils.rtst)</a>
+</li>
+      <li><a href="resmip.html#resmip.Image.direction">direction (resmip.Image property)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.direction">(resmip.image.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.direction">(resmip.image.image.Image property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.direction">(resmip.segmentation.segmentation.SegmentationCollection property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.direction">(resmip.segmentation.SegmentationCollection property)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.direction">(resmip.SegmentationCollection property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.Dose">Dose (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.dose.html#resmip.dose.Dose">(class in resmip.dose)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose">(class in resmip.dose.dose)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Image.dtype">dtype (resmip.Image property)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.dtype">(resmip.image.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.dtype">(resmip.image.image.Image property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.extend">extend() (resmip.segmentation.segmentation.SegmentationCollection method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.extend">(resmip.segmentation.SegmentationCollection method)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.extend">(resmip.SegmentationCollection method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.utils.format_dicom_code_string">format_dicom_code_string() (in module resmip.utils)</a>
+</li>
+      <li><a href="resmip.html#resmip.utils.format_digit_string">format_digit_string() (in module resmip.utils)</a>
+</li>
+      <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationType.fractional">fractional (resmip.segmentation.SegmentationType attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.utils.SegmentationType.fractional">(resmip.segmentation.utils.SegmentationType attribute)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationType.fractional">(resmip.SegmentationType attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.frame_of_reference_uid">frame_of_reference_uid (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.frame_of_reference_uid">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Image.from_array">from_array() (resmip.Image class method)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.from_array">(resmip.image.Image class method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.from_array">(resmip.image.image.Image class method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.from_array">(resmip.rt_structure.rt_structure.RTStructure class method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.from_array">(resmip.rt_structure.RTStructure class method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.from_array">(resmip.RTStructure class method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.from_array">(resmip.Segmentation class method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.from_array">(resmip.segmentation.Segmentation class method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.from_array">(resmip.segmentation.segmentation.Segmentation class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.from_rt_structure_set">from_rt_structure_set() (resmip.segmentation.segmentation.SegmentationCollection class method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.from_rt_structure_set">(resmip.segmentation.SegmentationCollection class method)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.from_rt_structure_set">(resmip.SegmentationCollection class method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.RTStructureSet.from_segmentation_collection">from_segmentation_collection() (resmip.RTStructureSet class method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.RTStructureSet.from_segmentation_collection">(resmip.segmentation.RTStructureSet class method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.RTStructureSet.from_segmentation_collection">(resmip.segmentation.segmentation.RTStructureSet class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.ds_helper.generate_base_dataset">generate_base_dataset() (in module resmip.dicom_utils.rt_utils_wrapper.ds_helper)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.ds_helper.generate_base_dataset">(in module resmip.segmentation.dicom.rt_utils_wrapper.ds_helper)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Image.generate_ids">generate_ids() (resmip.Image method)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.generate_ids">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.generate_ids">(resmip.image.image.Image method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.get_contour_from_slice_mask">get_contour_from_slice_mask() (in module resmip)</a>
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.get_contour_from_slice_mask">(in module resmip.dicom_utils)</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.get_contour_from_slice_mask">(in module resmip.dicom_utils.rt_utils_wrapper)</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.contours.get_contour_from_slice_mask">(in module resmip.dicom_utils.rt_utils_wrapper.contours)</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.get_contour_from_slice_mask">(in module resmip.segmentation.dicom.rt_utils_wrapper)</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.contours.get_contour_from_slice_mask">(in module resmip.segmentation.dicom.rt_utils_wrapper.contours)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.ds_helper.get_file_meta">get_file_meta() (in module resmip.dicom_utils.rt_utils_wrapper.ds_helper)</a>
+</li>
+      <li><a href="resmip.html#resmip.get_polygon_contours_from_slice_mask">get_polygon_contours_from_slice_mask() (in module resmip)</a>
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.get_polygon_contours_from_slice_mask">(in module resmip.dicom_utils)</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.get_polygon_contours_from_slice_mask">(in module resmip.dicom_utils.rt_utils_wrapper)</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.contours.get_polygon_contours_from_slice_mask">(in module resmip.dicom_utils.rt_utils_wrapper.contours)</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.get_polygon_contours_from_slice_mask">(in module resmip.segmentation.dicom.rt_utils_wrapper)</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.contours.get_polygon_contours_from_slice_mask">(in module resmip.segmentation.dicom.rt_utils_wrapper.contours)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.series.get_series_dicom_files">get_series_dicom_files() (in module resmip.dicom_utils.series)</a>
+</li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.image_helper.get_slice_directions">get_slice_directions() (in module resmip.dicom_utils.rt_utils_wrapper.image_helper)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.image_helper.get_slice_directions">(in module resmip.segmentation.dicom.rt_utils_wrapper.image_helper)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.image_helper.get_slice_position">get_slice_position() (in module resmip.dicom_utils.rt_utils_wrapper.image_helper)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.image_helper.get_slice_position">(in module resmip.segmentation.dicom.rt_utils_wrapper.image_helper)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.header.get_slice_positioning">get_slice_positioning() (in module resmip.dicom_utils.rt_utils_wrapper.header)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.header.get_slice_positioning">(in module resmip.segmentation.dicom.rt_utils_wrapper.header)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.series.get_spacing_from_dicom_header">get_spacing_from_dicom_header() (in module resmip.dicom_utils.series)</a>
+</li>
+      <li><a href="resmip.rt_structure.html#resmip.rt_structure.utils.get_structure_name_from_filename">get_structure_name_from_filename() (in module resmip.rt_structure.utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.Image">Image (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image">(class in resmip.image)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image">(class in resmip.image.image)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.DicomStructure.image">image (resmip.dicom_utils.rtst.DicomStructure attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.html#resmip.segmentation.dicom.annotation.DicomAnnotation.image">(resmip.segmentation.dicom.annotation.DicomAnnotation attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.image.html#resmip.image.data_types.ImageDTypeLike">ImageDTypeLike (in module resmip.image.data_types)</a>
+</li>
+      <li><a href="resmip.html#resmip.Segmentation.is_compatible">is_compatible() (resmip.Segmentation method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.is_compatible">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.is_compatible">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.image_helper.load_dcm_images_from_path">load_dcm_images_from_path() (in module resmip.dicom_utils.rt_utils_wrapper.image_helper)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.image_helper.load_dcm_images_from_path">(in module resmip.segmentation.dicom.rt_utils_wrapper.image_helper)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.image_helper.load_sorted_image_series">load_sorted_image_series() (in module resmip.dicom_utils.rt_utils_wrapper.image_helper)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.image_helper.load_sorted_image_series">(in module resmip.segmentation.dicom.rt_utils_wrapper.image_helper)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.constants.ROIGenerationAlgorithm.manual">manual (resmip.dicom_utils.rt_utils_wrapper.constants.ROIGenerationAlgorithm attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.constants.ROIGenerationAlgorithm.manual">(resmip.segmentation.dicom.rt_utils_wrapper.constants.ROIGenerationAlgorithm attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.mask">mask (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.mask">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Image.metadata">metadata (resmip.Image property)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.metadata">(resmip.image.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.metadata">(resmip.image.image.Image property)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.AffineRegistration.metric">metric (resmip.AffineRegistration attribute)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.AffineRegistration.metric">(resmip.image.AffineRegistration attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.coregistration.AffineRegistration.metric">(resmip.image.coregistration.AffineRegistration attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.coregistration.RigidRegistration.metric">(resmip.image.coregistration.RigidRegistration attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.RigidRegistration.metric">(resmip.image.RigidRegistration attribute)</a>
+</li>
+        <li><a href="resmip.html#resmip.RigidRegistration.metric">(resmip.RigidRegistration attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Dose.modality">modality (resmip.Dose property)</a>
+
+      <ul>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.modality">(resmip.dose.Dose property)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.modality">(resmip.dose.dose.Dose property)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.modality">(resmip.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.modality">(resmip.image.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.modality">(resmip.image.image.Image property)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.modality">(resmip.rt_structure.rt_structure.RTStructure property)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.modality">(resmip.rt_structure.RTStructure property)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.modality">(resmip.RTStructure property)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructureSet.modality">(resmip.RTStructureSet property)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.modality">(resmip.Segmentation property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.RTStructureSet.modality">(resmip.segmentation.RTStructureSet property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.modality">(resmip.segmentation.Segmentation property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.RTStructureSet.modality">(resmip.segmentation.segmentation.RTStructureSet property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.modality">(resmip.segmentation.segmentation.Segmentation property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.modality">(resmip.segmentation.segmentation.SegmentationCollection property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.modality">(resmip.segmentation.SegmentationCollection property)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.modality">(resmip.SegmentationCollection property)</a>
+</li>
+      </ul></li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="resmip.html#module-resmip">resmip</a>
+</li>
+        <li><a href="resmip.dicom_utils.html#module-resmip.dicom_utils">resmip.dicom_utils</a>
+</li>
+        <li><a href="resmip.dicom_utils.html#module-resmip.dicom_utils.constants">resmip.dicom_utils.constants</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper">resmip.dicom_utils.rt_utils_wrapper</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.constants">resmip.dicom_utils.rt_utils_wrapper.constants</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.contours">resmip.dicom_utils.rt_utils_wrapper.contours</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.ds_helper">resmip.dicom_utils.rt_utils_wrapper.ds_helper</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.header">resmip.dicom_utils.rt_utils_wrapper.header</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.image_helper">resmip.dicom_utils.rt_utils_wrapper.image_helper</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.roidata">resmip.dicom_utils.rt_utils_wrapper.roidata</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.rtstruct">resmip.dicom_utils.rt_utils_wrapper.rtstruct</a>
+</li>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.sopclass">resmip.dicom_utils.rt_utils_wrapper.sopclass</a>
+</li>
+        <li><a href="resmip.dicom_utils.html#module-resmip.dicom_utils.rtst">resmip.dicom_utils.rtst</a>
+</li>
+        <li><a href="resmip.dicom_utils.html#module-resmip.dicom_utils.series">resmip.dicom_utils.series</a>
+</li>
+        <li><a href="resmip.dicom_utils.html#module-resmip.dicom_utils.utils">resmip.dicom_utils.utils</a>
+</li>
+        <li><a href="resmip.dose.html#module-resmip.dose">resmip.dose</a>
+</li>
+        <li><a href="resmip.dose.html#module-resmip.dose.dose">resmip.dose.dose</a>
+</li>
+        <li><a href="resmip.image.html#module-resmip.image">resmip.image</a>
+</li>
+        <li><a href="resmip.image.html#module-resmip.image.coregistration">resmip.image.coregistration</a>
+</li>
+        <li><a href="resmip.image.html#module-resmip.image.data_types">resmip.image.data_types</a>
+</li>
+        <li><a href="resmip.image.html#module-resmip.image.dicom_fields">resmip.image.dicom_fields</a>
+</li>
+        <li><a href="resmip.image.html#module-resmip.image.image">resmip.image.image</a>
+</li>
+        <li><a href="resmip.image.html#module-resmip.image.metadata">resmip.image.metadata</a>
+</li>
+        <li><a href="resmip.image.html#module-resmip.image.transforms">resmip.image.transforms</a>
+</li>
+        <li><a href="resmip.rt_structure.html#module-resmip.rt_structure">resmip.rt_structure</a>
+</li>
+        <li><a href="resmip.rt_structure.html#module-resmip.rt_structure.rt_structure">resmip.rt_structure.rt_structure</a>
+</li>
+        <li><a href="resmip.rt_structure.html#module-resmip.rt_structure.utils">resmip.rt_structure.utils</a>
+</li>
+        <li><a href="resmip.segmentation.html#module-resmip.segmentation">resmip.segmentation</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom">resmip.segmentation.dicom</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom.annotation">resmip.segmentation.dicom.annotation</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper">resmip.segmentation.dicom.rt_utils_wrapper</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.constants">resmip.segmentation.dicom.rt_utils_wrapper.constants</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.contours">resmip.segmentation.dicom.rt_utils_wrapper.contours</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.ds_helper">resmip.segmentation.dicom.rt_utils_wrapper.ds_helper</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.header">resmip.segmentation.dicom.rt_utils_wrapper.header</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.image_helper">resmip.segmentation.dicom.rt_utils_wrapper.image_helper</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.roidata">resmip.segmentation.dicom.rt_utils_wrapper.roidata</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.rtstruct">resmip.segmentation.dicom.rt_utils_wrapper.rtstruct</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.sopclass">resmip.segmentation.dicom.rt_utils_wrapper.sopclass</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom.rtstruct">resmip.segmentation.dicom.rtstruct</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom.seg">resmip.segmentation.dicom.seg</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom.seg_dataset">resmip.segmentation.dicom.seg_dataset</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom.utils">resmip.segmentation.dicom.utils</a>
+</li>
+        <li><a href="resmip.segmentation.html#module-resmip.segmentation.segmentation">resmip.segmentation.segmentation</a>
+</li>
+        <li><a href="resmip.segmentation.html#module-resmip.segmentation.utils">resmip.segmentation.utils</a>
+</li>
+        <li><a href="resmip.html#module-resmip.utils">resmip.utils</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.DicomModality.mr">mr (resmip.DicomModality attribute)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.DicomModality.mr">(resmip.image.DicomModality attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.metadata.DicomModality.mr">(resmip.image.metadata.DicomModality attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.CoregistrationMetric.mutual_information">mutual_information (resmip.CoregistrationMetric attribute)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.coregistration.CoregistrationMetric.mutual_information">(resmip.image.coregistration.CoregistrationMetric attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.CoregistrationMetric.mutual_information">(resmip.image.CoregistrationMetric attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.name">name (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData attribute)</a>
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.DicomStructure.name">(resmip.dicom_utils.rtst.DicomStructure attribute)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.name">(resmip.rt_structure.rt_structure.RTStructure property)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.name">(resmip.rt_structure.RTStructure property)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.name">(resmip.RTStructure property)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.name">(resmip.Segmentation property)</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.html#resmip.segmentation.dicom.annotation.DicomAnnotation.name">(resmip.segmentation.dicom.annotation.DicomAnnotation attribute)</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.name">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData attribute)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.name">(resmip.segmentation.Segmentation property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.name">(resmip.segmentation.segmentation.Segmentation property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.constants.ROIGenerationAlgorithm.null">null (resmip.dicom_utils.rt_utils_wrapper.constants.ROIGenerationAlgorithm attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.constants.ROIGenerationAlgorithm.null">(resmip.segmentation.dicom.rt_utils_wrapper.constants.ROIGenerationAlgorithm attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.number">number (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.number">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Image.numpy">numpy() (resmip.Image method)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.numpy">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.numpy">(resmip.image.image.Image method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.Image.origin">origin (resmip.Image property)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.origin">(resmip.image.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.origin">(resmip.image.image.Image property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.Dose.pad">pad() (resmip.Dose method)</a>
+
+      <ul>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.pad">(resmip.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.pad">(resmip.dose.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.pad">(resmip.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.pad">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.pad">(resmip.image.image.Image method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.pad">(resmip.rt_structure.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.pad">(resmip.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.pad">(resmip.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.pad">(resmip.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.pad">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.pad">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.utils.PathLike">PathLike (in module resmip.utils)</a>
+</li>
+      <li><a href="resmip.html#resmip.Image.patient_id">patient_id (resmip.Image property)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.patient_id">(resmip.image.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.patient_id">(resmip.image.image.Image property)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.image.html#resmip.image.dicom_fields.PATIENT_RELATED_FIELDS">PATIENT_RELATED_FIELDS (in module resmip.image.dicom_fields)</a>
+</li>
+      <li><a href="resmip.html#resmip.DicomModality.pt">pt (resmip.DicomModality attribute)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.DicomModality.pt">(resmip.image.DicomModality attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.metadata.DicomModality.pt">(resmip.image.metadata.DicomModality attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.read">read() (in module resmip.dicom_utils.rtst)</a>
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.series.read">(in module resmip.dicom_utils.series)</a>
+</li>
+        <li><a href="resmip.html#resmip.Dose.read">(resmip.Dose class method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.read">(resmip.dose.Dose class method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.read">(resmip.dose.dose.Dose class method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.read">(resmip.Image class method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.read">(resmip.image.Image class method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.read">(resmip.image.image.Image class method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.read">(resmip.rt_structure.rt_structure.RTStructure class method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.read">(resmip.rt_structure.RTStructure class method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.read">(resmip.RTStructure class method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructureSet.read">(resmip.RTStructureSet class method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.read">(resmip.Segmentation class method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.RTStructureSet.read">(resmip.segmentation.RTStructureSet class method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.read">(resmip.segmentation.Segmentation class method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.RTStructureSet.read">(resmip.segmentation.segmentation.RTStructureSet class method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.read">(resmip.segmentation.segmentation.Segmentation class method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.read">(resmip.segmentation.segmentation.SegmentationCollection class method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.read">(resmip.segmentation.SegmentationCollection class method)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.read">(resmip.SegmentationCollection class method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.read_image">read_image() (in module resmip)</a>
+
+      <ul>
+        <li><a href="resmip.html#resmip.Dose.read_image">(resmip.Dose class method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.read_image">(resmip.dose.Dose class method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.read_image">(resmip.dose.dose.Dose class method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.read_image">(resmip.Image class method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.read_image">(resmip.image.Image class method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.read_image">(resmip.image.image.Image class method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.read_image">(resmip.rt_structure.rt_structure.RTStructure class method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.read_image">(resmip.rt_structure.RTStructure class method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.read_image">(resmip.RTStructure class method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.read_structure">read_structure() (in module resmip)</a>
+</li>
+      <li><a href="resmip.html#resmip.read_structure_set">read_structure_set() (in module resmip)</a>
+</li>
+      <li><a href="resmip.html#resmip.Dose.register">register() (resmip.Dose method)</a>
+
+      <ul>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.register">(resmip.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.register">(resmip.dose.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.register">(resmip.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.register">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.register">(resmip.image.image.Image method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.register">(resmip.rt_structure.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.register">(resmip.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.register">(resmip.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.register">(resmip.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.register">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.register">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.RegistrationMethod">RegistrationMethod (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.RegistrationMethod">(class in resmip.image)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.coregistration.RegistrationMethod">(class in resmip.image.coregistration)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.rename">rename() (resmip.segmentation.segmentation.SegmentationCollection method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.rename">(resmip.segmentation.SegmentationCollection method)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.rename">(resmip.SegmentationCollection method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Dose.reorient">reorient() (resmip.Dose method)</a>
+
+      <ul>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.reorient">(resmip.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.reorient">(resmip.dose.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.reorient">(resmip.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.reorient">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.reorient">(resmip.image.image.Image method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.reorient">(resmip.rt_structure.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.reorient">(resmip.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.reorient">(resmip.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.reorient">(resmip.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.reorient">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.reorient">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Dose.resample">resample() (resmip.Dose method)</a>
+
+      <ul>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.resample">(resmip.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.resample">(resmip.dose.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.resample">(resmip.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.resample">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.resample">(resmip.image.image.Image method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.resample">(resmip.rt_structure.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.resample">(resmip.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.resample">(resmip.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.resample">(resmip.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.resample">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.resample">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Dose.resample_onto">resample_onto() (resmip.Dose method)</a>
+
+      <ul>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.resample_onto">(resmip.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.resample_onto">(resmip.dose.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.resample_onto">(resmip.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.resample_onto">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.resample_onto">(resmip.image.image.Image method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.resample_onto">(resmip.rt_structure.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.resample_onto">(resmip.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.resample_onto">(resmip.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.resample_onto">(resmip.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.resample_onto">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.resample_onto">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+      </ul></li>
+      <li>
+    resmip
+
+      <ul>
+        <li><a href="resmip.html#module-resmip">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#module-resmip.dicom_utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.constants
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#module-resmip.dicom_utils.constants">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.rt_utils_wrapper
+
+      <ul>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.rt_utils_wrapper.constants
+
+      <ul>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.constants">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.rt_utils_wrapper.contours
+
+      <ul>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.contours">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.rt_utils_wrapper.ds_helper
+
+      <ul>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.ds_helper">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.rt_utils_wrapper.header
+
+      <ul>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.header">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.rt_utils_wrapper.image_helper
+
+      <ul>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.image_helper">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.rt_utils_wrapper.roidata
+
+      <ul>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.roidata">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.rt_utils_wrapper.rtstruct
+
+      <ul>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.rtstruct">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.rt_utils_wrapper.sopclass
+
+      <ul>
+        <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#module-resmip.dicom_utils.rt_utils_wrapper.sopclass">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    resmip.dicom_utils.rtst
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#module-resmip.dicom_utils.rtst">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.series
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#module-resmip.dicom_utils.series">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dicom_utils.utils
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#module-resmip.dicom_utils.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dose
+
+      <ul>
+        <li><a href="resmip.dose.html#module-resmip.dose">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.dose.dose
+
+      <ul>
+        <li><a href="resmip.dose.html#module-resmip.dose.dose">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.image
+
+      <ul>
+        <li><a href="resmip.image.html#module-resmip.image">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.image.coregistration
+
+      <ul>
+        <li><a href="resmip.image.html#module-resmip.image.coregistration">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.image.data_types
+
+      <ul>
+        <li><a href="resmip.image.html#module-resmip.image.data_types">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.image.dicom_fields
+
+      <ul>
+        <li><a href="resmip.image.html#module-resmip.image.dicom_fields">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.image.image
+
+      <ul>
+        <li><a href="resmip.image.html#module-resmip.image.image">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.image.metadata
+
+      <ul>
+        <li><a href="resmip.image.html#module-resmip.image.metadata">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.image.transforms
+
+      <ul>
+        <li><a href="resmip.image.html#module-resmip.image.transforms">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.rt_structure
+
+      <ul>
+        <li><a href="resmip.rt_structure.html#module-resmip.rt_structure">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.rt_structure.rt_structure
+
+      <ul>
+        <li><a href="resmip.rt_structure.html#module-resmip.rt_structure.rt_structure">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.rt_structure.utils
+
+      <ul>
+        <li><a href="resmip.rt_structure.html#module-resmip.rt_structure.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation
+
+      <ul>
+        <li><a href="resmip.segmentation.html#module-resmip.segmentation">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.annotation
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom.annotation">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.rt_utils_wrapper
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.rt_utils_wrapper.constants
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.constants">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.rt_utils_wrapper.contours
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.contours">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.rt_utils_wrapper.ds_helper
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.ds_helper">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.rt_utils_wrapper.header
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.header">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.rt_utils_wrapper.image_helper
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.image_helper">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.rt_utils_wrapper.roidata
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.roidata">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.rt_utils_wrapper.rtstruct
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.rtstruct">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.rt_utils_wrapper.sopclass
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#module-resmip.segmentation.dicom.rt_utils_wrapper.sopclass">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.rtstruct
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom.rtstruct">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.seg
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom.seg">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.seg_dataset
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom.seg_dataset">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.dicom.utils
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.html#module-resmip.segmentation.dicom.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.segmentation
+
+      <ul>
+        <li><a href="resmip.segmentation.html#module-resmip.segmentation.segmentation">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.segmentation.utils
+
+      <ul>
+        <li><a href="resmip.segmentation.html#module-resmip.segmentation.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    resmip.utils
+
+      <ul>
+        <li><a href="resmip.html#module-resmip.utils">module</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.RigidRegistration">RigidRegistration (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.RigidRegistration">(class in resmip.image)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.coregistration.RigidRegistration">(class in resmip.image.coregistration)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.roi_contour_sequence">roi_contour_sequence() (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.roi_contour_sequence">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.roi_generation_algorithm">roi_generation_algorithm (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.roi_generation_algorithm">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData">ROIData (class in resmip.dicom_utils.rt_utils_wrapper.roidata)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData">(class in resmip.segmentation.dicom.rt_utils_wrapper.roidata)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.constants.ROIGenerationAlgorithm">ROIGenerationAlgorithm (class in resmip.dicom_utils.rt_utils_wrapper.constants)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.constants.ROIGenerationAlgorithm">(class in resmip.segmentation.dicom.rt_utils_wrapper.constants)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Dose.rotate">rotate() (resmip.Dose method)</a>
+
+      <ul>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.rotate">(resmip.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.rotate">(resmip.dose.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.rotate">(resmip.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.rotate">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.rotate">(resmip.image.image.Image method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.rotate">(resmip.rt_structure.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.rotate">(resmip.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.rotate">(resmip.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.rotate">(resmip.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.rotate">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.rotate">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.rt_roi_observation">rt_roi_observation() (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.rt_roi_observation">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.DicomModality.rtdose">rtdose (resmip.DicomModality attribute)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.DicomModality.rtdose">(resmip.image.DicomModality attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.metadata.DicomModality.rtdose">(resmip.image.metadata.DicomModality attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.rtstruct.RTStruct">RTStruct (class in resmip.dicom_utils.rt_utils_wrapper.rtstruct)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.rtstruct.RTStruct">(class in resmip.segmentation.dicom.rt_utils_wrapper.rtstruct)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.sopclass.SOPClassUID.RTSTRUCT">RTSTRUCT (resmip.dicom_utils.rt_utils_wrapper.sopclass.SOPClassUID attribute)</a>
+</li>
+      <li><a href="resmip.html#resmip.DicomModality.rtstruct">rtstruct (resmip.DicomModality attribute)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.DicomModality.rtstruct">(resmip.image.DicomModality attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.metadata.DicomModality.rtstruct">(resmip.image.metadata.DicomModality attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.sopclass.SOPClassUID.RTSTRUCT_IMPLEMENTATION_CLASS">RTSTRUCT_IMPLEMENTATION_CLASS (resmip.dicom_utils.rt_utils_wrapper.sopclass.SOPClassUID attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.sopclass.SOPClassUID.RTSTRUCT_IMPLEMENTATION_CLASS">(resmip.segmentation.dicom.rt_utils_wrapper.sopclass.SOPClassUID attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.RTStructure">RTStructure (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure">(class in resmip.rt_structure)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure">(class in resmip.rt_structure.rt_structure)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.RTStructureSet">RTStructureSet (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.RTStructureSet">(class in resmip.segmentation)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.RTStructureSet">(class in resmip.segmentation.segmentation)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.rtstruct.RTStruct.save">save() (resmip.dicom_utils.rt_utils_wrapper.rtstruct.RTStruct method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.rtstruct.RTStruct.save">(resmip.segmentation.dicom.rt_utils_wrapper.rtstruct.RTStruct method)</a>
+</li>
+        <li><a href="resmip.segmentation.dicom.html#resmip.segmentation.dicom.seg_dataset.SegDataset.save">(resmip.segmentation.dicom.seg_dataset.SegDataset method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.DicomModality.seg">seg (resmip.DicomModality attribute)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.DicomModality.seg">(resmip.image.DicomModality attribute)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.metadata.DicomModality.seg">(resmip.image.metadata.DicomModality attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.segmentation.dicom.html#resmip.segmentation.dicom.seg_dataset.SegDataset">SegDataset (class in resmip.segmentation.dicom.seg_dataset)</a>
+</li>
+      <li><a href="resmip.html#resmip.Segmentation">Segmentation (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation">(class in resmip.segmentation)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation">(class in resmip.segmentation.segmentation)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Segmentation.segmentation_type">segmentation_type (resmip.Segmentation property)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.segmentation_type">(resmip.segmentation.Segmentation property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.segmentation_type">(resmip.segmentation.segmentation.Segmentation property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.segmentation_type">(resmip.segmentation.segmentation.SegmentationCollection property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.segmentation_type">(resmip.segmentation.SegmentationCollection property)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.segmentation_type">(resmip.SegmentationCollection property)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.SegmentationCollection">SegmentationCollection (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection">(class in resmip.segmentation)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection">(class in resmip.segmentation.segmentation)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.SegmentationType">SegmentationType (class in resmip)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationType">(class in resmip.segmentation)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.utils.SegmentationType">(class in resmip.segmentation.utils)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.constants.ROIGenerationAlgorithm.semiautomatic">semiautomatic (resmip.dicom_utils.rt_utils_wrapper.constants.ROIGenerationAlgorithm attribute)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.constants.ROIGenerationAlgorithm.semiautomatic">(resmip.segmentation.dicom.rt_utils_wrapper.constants.ROIGenerationAlgorithm attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Image.series_instance_uid">series_instance_uid (resmip.Image property)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.series_instance_uid">(resmip.image.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.series_instance_uid">(resmip.image.image.Image property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.image.html#resmip.image.metadata.SERIES_MODALITIES">SERIES_MODALITIES (in module resmip.image.metadata)</a>
+</li>
+      <li><a href="resmip.html#resmip.Image.size">size (resmip.Image property)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.size">(resmip.image.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.size">(resmip.image.image.Image property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.size">(resmip.segmentation.segmentation.SegmentationCollection property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.size">(resmip.segmentation.SegmentationCollection property)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.size">(resmip.SegmentationCollection property)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.sopclass.SOPClassUID">SOPClassUID (class in resmip.dicom_utils.rt_utils_wrapper.sopclass)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.sopclass.SOPClassUID">(class in resmip.segmentation.dicom.rt_utils_wrapper.sopclass)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Image.spacing">spacing (resmip.Image property)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.spacing">(resmip.image.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.spacing">(resmip.image.image.Image property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.spacing">(resmip.segmentation.segmentation.SegmentationCollection property)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.spacing">(resmip.segmentation.SegmentationCollection property)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.spacing">(resmip.SegmentationCollection property)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.string_tag_for_keyword">string_tag_for_keyword() (in module resmip.dicom_utils)</a>
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.constants.string_tag_for_keyword">(in module resmip.dicom_utils.constants)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.structure_set_roi">structure_set_roi() (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.structure_set_roi">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.html#resmip.Image.study_instance_uid">study_instance_uid (resmip.Image property)</a>
+
+      <ul>
+        <li><a href="resmip.image.html#resmip.image.Image.study_instance_uid">(resmip.image.Image property)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.study_instance_uid">(resmip.image.image.Image property)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.image.html#resmip.image.dicom_fields.STUDY_RELATED_FIELDS">STUDY_RELATED_FIELDS (in module resmip.image.dicom_fields)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.Segmentation.to_binary">to_binary() (resmip.Segmentation method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.to_binary">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.to_binary">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.validate">validate() (resmip.segmentation.segmentation.SegmentationCollection method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.validate">(resmip.segmentation.SegmentationCollection method)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.validate">(resmip.SegmentationCollection method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.rtstruct.RTStruct.validate_mask">validate_mask() (resmip.dicom_utils.rt_utils_wrapper.rtstruct.RTStruct method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.rtstruct.RTStruct.validate_mask">(resmip.segmentation.dicom.rt_utils_wrapper.rtstruct.RTStruct method)</a>
+</li>
+      </ul></li>
+      <li><a href="resmip.dicom_utils.rt_utils_wrapper.html#resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData.validate_mask_array">validate_mask_array() (resmip.dicom_utils.rt_utils_wrapper.roidata.ROIData method)</a>
+
+      <ul>
+        <li><a href="resmip.segmentation.dicom.rt_utils_wrapper.html#resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData.validate_mask_array">(resmip.segmentation.dicom.rt_utils_wrapper.roidata.ROIData method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.rtst.write">write() (in module resmip.dicom_utils.rtst)</a>
+
+      <ul>
+        <li><a href="resmip.dicom_utils.html#resmip.dicom_utils.series.write">(in module resmip.dicom_utils.series)</a>
+</li>
+        <li><a href="resmip.html#resmip.Dose.write">(resmip.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.write">(resmip.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.write">(resmip.dose.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.write">(resmip.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.write">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.write">(resmip.image.image.Image method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.write">(resmip.rt_structure.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.write">(resmip.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.write">(resmip.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructureSet.write">(resmip.RTStructureSet method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Segmentation.write">(resmip.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.RTStructureSet.write">(resmip.segmentation.RTStructureSet method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.Segmentation.write">(resmip.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.RTStructureSet.write">(resmip.segmentation.segmentation.RTStructureSet method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.Segmentation.write">(resmip.segmentation.segmentation.Segmentation method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.segmentation.SegmentationCollection.write">(resmip.segmentation.segmentation.SegmentationCollection method)</a>
+</li>
+        <li><a href="resmip.segmentation.html#resmip.segmentation.SegmentationCollection.write">(resmip.segmentation.SegmentationCollection method)</a>
+</li>
+        <li><a href="resmip.html#resmip.SegmentationCollection.write">(resmip.SegmentationCollection method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resmip.html#resmip.write_image">write_image() (in module resmip)</a>
+
+      <ul>
+        <li><a href="resmip.html#resmip.Dose.write_image">(resmip.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.Dose.write_image">(resmip.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.dose.html#resmip.dose.dose.Dose.write_image">(resmip.dose.dose.Dose method)</a>
+</li>
+        <li><a href="resmip.html#resmip.Image.write_image">(resmip.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.Image.write_image">(resmip.image.Image method)</a>
+</li>
+        <li><a href="resmip.image.html#resmip.image.image.Image.write_image">(resmip.image.image.Image method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.rt_structure.RTStructure.write_image">(resmip.rt_structure.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.rt_structure.html#resmip.rt_structure.RTStructure.write_image">(resmip.rt_structure.RTStructure method)</a>
+</li>
+        <li><a href="resmip.html#resmip.RTStructure.write_image">(resmip.RTStructure method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, G. Palazzo, M.G. Ubeira-Gabellini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

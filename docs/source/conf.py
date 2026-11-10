@@ -15,11 +15,13 @@ sys.path.insert(0, os.path.abspath("..\\src"))
 https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 """
 
+import importlib.metadata
+
 project = "resmip"
 copyright = "2023, G. Palazzo, M.G. Ubeira-Gabellini"
 author = "G. Palazzo, M.G. Ubeira-Gabellini"
 # The full version, including alpha/beta/rc tags
-release = "0.0.5"
+release = importlib.metadata.version(project)
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

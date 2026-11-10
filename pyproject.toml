@@ -15,6 +15,7 @@ dependencies = [
 ]
 
 [project.urls]
+documentation = "https://pymaitre.github.io/resmip/latest/"
 repository = "https://github.com/pymaitre/resmip"
 
 [tool.poetry]

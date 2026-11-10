@@ -11,6 +11,7 @@ resmip.image.coregistration module
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: AffineRegistration, CoregistrationMetric, RegistrationMethod, RigidRegistration
 
 resmip.image.data\_types module
 -------------------------------
@@ -35,6 +36,7 @@ resmip.image.image module
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: Image
 
 resmip.image.metadata module
 ----------------------------
@@ -43,6 +45,7 @@ resmip.image.metadata module
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: DicomModality
 
 resmip.image.transforms module
 ------------------------------
@@ -59,3 +62,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: AffineRegistration, CoregistrationMetric, DicomModality, Image, RegistrationMethod, RigidRegistration

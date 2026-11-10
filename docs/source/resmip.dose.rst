@@ -11,6 +11,7 @@ resmip.dose.dose module
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: Dose
 
 Module contents
 ---------------
@@ -19,3 +20,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: Dose

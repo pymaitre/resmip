@@ -51,3 +51,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: get_contour_from_slice_mask, get_polygon_contours_from_slice_mask

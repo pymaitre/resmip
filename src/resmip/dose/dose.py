@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import logging
 import warnings
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 import numpy as np
 import pydicom

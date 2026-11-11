@@ -1,14 +1,12 @@
 """Data types used for images."""
 
-from typing import Union
-
 import numpy as np
 import numpy.typing as npt
 import SimpleITK as sitk
 
 __all__ = ["ImageDTypeLike"]
 
-ImageDTypeLike = Union[str, int, npt.DTypeLike]
+ImageDTypeLike = str | int | npt.DTypeLike
 """Data types used for images."""
 
 

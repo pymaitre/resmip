@@ -450,7 +450,7 @@ def test_write_liver_dicom_segmentation_set(
     assert seg1.name == "Liver1"
     assert ds.SegmentationType == segmentation_type.value
     assert np.count_nonzero(seg1.numpy()) == 107098
-    assert sum((s.size[2] for s in coll.values())) == ds.NumberOfFrames
+    assert sum(s.size[2] for s in coll.values()) == ds.NumberOfFrames
     assert seg1.size[:2] == ds.pixel_array.shape[:0:-1]
     assert seg2.size[:2] == ds.pixel_array.shape[:0:-1]
     assert seg1.size[2] + seg2.size[2] == ds.pixel_array.shape[0]

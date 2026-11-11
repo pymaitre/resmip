@@ -53,7 +53,7 @@ max-locals = 18
 target-version = "py311"
 
 [tool.ruff.lint]
-extend-select = ["D"]
+extend-select = ["D", "UP"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

@@ -2,11 +2,10 @@
 
 import os
 import re
-from typing import Union
 
 __all__ = ["format_dicom_code_string", "format_digit_string", "PathLike"]
 
-PathLike = Union[str, os.PathLike]
+PathLike = str | os.PathLike
 """Types used in classes and functions for file names."""
 
 

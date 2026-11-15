@@ -454,8 +454,9 @@ as defined the global <code class="docutils literal notranslate"><span class="pr
 <span class="sig-name descname"><span class="pre">pad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#resmip.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.Dose" title="resmip.dose.dose.Dose"><span class="pre">Dose</span></a></span></span><a class="headerlink" href="#resmip.Dose.pad" title="Link to this definition"></a></dt>
 <dd><p>Pad the dose on top of another image.</p>
 <p>Uses the same notation as <code class="docutils literal notranslate"><span class="pre">numpy.pad</span></code>.
-The dose is shifted aligning its top-left voxel with the reference image.
-The two images must have the same voxel spacing.
+The content keeps its physical position: it is shifted by whole voxels onto the
+reference grid, so the dose must share the reference’s spacing and direction, and
+its origin must lie on the reference lattice.
 The shifted dose is cropped if it extends out of the reference image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -479,7 +480,11 @@ The shifted dose is cropped if it extends out of the reference image.</p>
 <dd><p>Read rt dose from file.</p>
 <p>Doses could have different origin and/or
 spacing compared to the referenced series.
-This function, shifts the dose accordingly.
+When a reference image is given, the dose is resampled onto its grid with
+linear interpolation, and voxels outside the dose extent are set to 0.
+Linear interpolation is used because it never produces values outside the
+range of neighbouring dose samples: higher-order kernels overshoot on steep
+penumbrae, creating negative doses and hot spots above the computed maximum.
 Dose values are scaled by “DoseGridScaling”, if present.
 <a class="reference external" href="https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e">https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e</a></p>
 <dl class="field-list simple">
@@ -490,9 +495,9 @@ the reader assumes to read a Dicom rtdose. Otherwise, it assumes a metatadata
 file with the following format exists: f”.{filename.stem}.json”.</p></li>
 <li><p><strong>read_metadata</strong> (<em>bool</em>) – If true, read the json file with metadata
 (not applicable for dicom files). Currently not used.</p></li>
-<li><p><strong>reference_image</strong> (<a class="reference internal" href="#resmip.Image" title="resmip.Image"><em>Image</em></a><em> | </em><em>None</em>) – 3D image used as reference for dicom Doses, in case
-origin and/or spacing differ. When set to None, a warning is raised and no
-shift / resampling is applied.</p></li>
+<li><p><strong>reference_image</strong> (<a class="reference internal" href="#resmip.Image" title="resmip.Image"><em>Image</em></a><em> | </em><em>None</em>) – 3D image whose grid the dose is resampled onto,
+in case origin, spacing and/or direction differ. When set to None, a warning
+is raised and no resampling is applied.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -909,8 +914,9 @@ without copying them. If a dtype is specified, a copy is returned anyway.</p></l
 <span class="sig-name descname"><span class="pre">pad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#resmip.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></span><a class="headerlink" href="#resmip.Image.pad" title="Link to this definition"></a></dt>
 <dd><p>Pad the image on top of another image.</p>
 <p>Uses the same notation as <code class="docutils literal notranslate"><span class="pre">numpy.pad</span></code>.
-The image is shifted aligning its top-left voxel with the reference image.
-The two images must have the same voxel spacing.
+The content keeps its physical position: it is shifted by whole voxels onto the
+reference grid, so the image must share the reference’s spacing and direction, and
+its origin must lie on the reference lattice.
 The shifted image is cropped if it extends out of the reference image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1339,8 +1345,9 @@ as defined the global <code class="docutils literal notranslate"><span class="pr
 <span class="sig-name descname"><span class="pre">pad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#resmip.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.RTStructure" title="resmip.rt_structure.rt_structure.RTStructure"><span class="pre">RTStructure</span></a></span></span><a class="headerlink" href="#resmip.RTStructure.pad" title="Link to this definition"></a></dt>
 <dd><p>Pad the structure on top of another image.</p>
 <p>Uses the same notation as <code class="docutils literal notranslate"><span class="pre">numpy.pad</span></code>.
-The struct is shifted aligning its top-left voxel with the reference image.
-The two images must have the same voxel spacing.
+The content keeps its physical position: it is shifted by whole voxels onto the
+reference grid, so the structure must share the reference’s spacing and direction,
+and its origin must lie on the reference lattice.
 The shifted structure is cropped if it extends out of the reference image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1857,10 +1864,11 @@ as warnings.</p>
 <dt class="sig sig-object py" id="resmip.Segmentation.pad">
 <span class="sig-name descname"><span class="pre">pad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#resmip.Image" title="resmip.image.image.Image"><span class="pre">Image</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#resmip.Segmentation" title="resmip.segmentation.segmentation.Segmentation"><span class="pre">Segmentation</span></a></span></span><a class="headerlink" href="#resmip.Segmentation.pad" title="Link to this definition"></a></dt>
 <dd><p>Pad the segmentation to match the spatial extent of a reference image.</p>
-<p>The segmentation is shifted so that its first voxel aligns with the
-first voxel of the reference image. Both images must have the same
-voxel spacing. Regions of the segmentation that extend beyond the
-reference image extent are cropped.</p>
+<p>The content keeps its physical position: it is shifted by whole voxels
+onto the reference grid, so the segmentation must share the reference’s
+spacing and direction, and its origin must lie on the reference lattice.
+Regions of the segmentation that extend beyond the reference image
+extent are cropped.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

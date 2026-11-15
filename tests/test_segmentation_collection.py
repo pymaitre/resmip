@@ -556,3 +556,40 @@ def test_read_recovers_slice_spacing_for_non_axial_orientation(tmp_path):
     collection = SegmentationCollection.read(filename=seg_path)
 
     assert collection["first segment"].spacing[2] == pytest.approx(2.0, abs=1e-4)
+
+
+def write_with_in_plane_rotation(source_path: Path, output_path: Path) -> Path:
+    """Copy a DICOM SEG, rotating its image axes by 90 degrees within the axial plane.
+
+    The slices stay axial and the frame positions are untouched, so only the direction
+    matrix changes. The rotated matrix is not symmetric, so a transposed matrix differs from
+    the correct one, which the identity orientation of the fixtures cannot reveal.
+    """
+    dataset = dcmread(source_path)
+    shared_groups = dataset.SharedFunctionalGroupsSequence[0]
+    shared_groups.PlaneOrientationSequence[0].ImageOrientationPatient = [
+        0.0,
+        1.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0,
+    ]
+    dataset.save_as(output_path)
+    return output_path
+
+
+def test_read_sets_direction_columns_from_image_orientation_cosines(tmp_path):
+    """Each image axis points along its DICOM cosine: x along the row, y along the column.
+
+    SimpleITK's row-major direction matrix holds the physical direction of index axis j in
+    column j, so the row cosine (0, 1, 0), column cosine (-1, 0, 0) and normal (0, 0, 1)
+    are its columns.
+    """
+    seg_path = write_with_in_plane_rotation(overlap_highdicom_dicom_seg(), tmp_path / "seg.dcm")
+
+    collection = SegmentationCollection.read(filename=seg_path)
+
+    assert collection["first segment"].direction == pytest.approx(
+        (0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0), abs=1e-6
+    )

@@ -133,7 +133,7 @@ class Dose(Image):
             scaling = 1
         if reference_image is None:
             logger.warning("No reference image has been provided for the RT Dose.")
-            return new_dose
+            return new_dose * scaling
         new_dose = new_dose.resample_onto(
             reference_image, interpolator=sitk.sitkLinear, default_pixel_value=0.0
         )

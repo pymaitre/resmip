@@ -137,7 +137,7 @@ class Dose(Image):
         new_dose = new_dose.resample_onto(
             reference_image, interpolator=sitk.sitkLinear, default_pixel_value=0.0
         )
-        return cls(new_dose) * scaling
+        return new_dose * scaling
 
     @classmethod
     def read_image(

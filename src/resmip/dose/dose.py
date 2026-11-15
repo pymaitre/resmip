@@ -92,7 +92,11 @@ class Dose(Image):
 
         Doses could have different origin and/or
         spacing compared to the referenced series.
-        This function, shifts the dose accordingly.
+        When a reference image is given, the dose is resampled onto its grid with
+        linear interpolation, and voxels outside the dose extent are set to 0.
+        Linear interpolation is used because it never produces values outside the
+        range of neighbouring dose samples: higher-order kernels overshoot on steep
+        penumbrae, creating negative doses and hot spots above the computed maximum.
         Dose values are scaled by "DoseGridScaling", if present.
         https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e
 
@@ -102,9 +106,9 @@ class Dose(Image):
                 file with the following format exists: f".{filename.stem}.json".
             read_metadata (bool): If true, read the json file with metadata
                 (not applicable for dicom files). Currently not used.
-            reference_image (Image | None): 3D image used as reference for dicom Doses, in case
-                origin and/or spacing differ. When set to None, a warning is raised and no
-                shift / resampling is applied.
+            reference_image (Image | None): 3D image whose grid the dose is resampled onto,
+                in case origin, spacing and/or direction differ. When set to None, a warning
+                is raised and no resampling is applied.
 
         Returns:
             Dose: RT Dose.
@@ -130,7 +134,9 @@ class Dose(Image):
         if reference_image is None:
             logger.warning("No reference image has been provided for the RT Dose.")
             return new_dose
-        new_dose = new_dose.resample_onto(reference_image)
+        new_dose = new_dose.resample_onto(
+            reference_image, interpolator=sitk.sitkLinear, default_pixel_value=0.0
+        )
         return cls(new_dose) * scaling
 
     @classmethod

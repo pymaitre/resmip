@@ -595,10 +595,11 @@ class Segmentation(Image):
     def pad(self, reference_image: Image, **kwargs) -> Segmentation:
         """Pad the segmentation to match the spatial extent of a reference image.
 
-        The segmentation is shifted so that its first voxel aligns with the
-        first voxel of the reference image. Both images must have the same
-        voxel spacing. Regions of the segmentation that extend beyond the
-        reference image extent are cropped.
+        The content keeps its physical position: it is shifted by whole voxels
+        onto the reference grid, so the segmentation must share the reference's
+        spacing and direction, and its origin must lie on the reference lattice.
+        Regions of the segmentation that extend beyond the reference image
+        extent are cropped.
 
         Args:
             reference_image (Image): Image defining the target spatial extent.

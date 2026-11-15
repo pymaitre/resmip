@@ -420,8 +420,9 @@ class Dose(Image):
         """Pad the dose on top of another image.
 
         Uses the same notation as ``numpy.pad``.
-        The dose is shifted aligning its top-left voxel with the reference image.
-        The two images must have the same voxel spacing.
+        The content keeps its physical position: it is shifted by whole voxels onto the
+        reference grid, so the dose must share the reference's spacing and direction, and
+        its origin must lie on the reference lattice.
         The shifted dose is cropped if it extends out of the reference image.
 
         Args:

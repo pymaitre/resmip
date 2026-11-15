@@ -948,11 +948,6 @@ class Image(sitk.Image):
 
         Returns:
             Image: New image with same shape and spacing of the reference.
-
-        Raises:
-            ValueError: If the spacing or the direction differs from the reference's beyond
-                tolerance, or if the origin is off the reference lattice by more than
-                ``_PAD_GRID_RESIDUAL_TOLERANCE`` voxels along any axis.
         """
         if not np.allclose(
             self.spacing,

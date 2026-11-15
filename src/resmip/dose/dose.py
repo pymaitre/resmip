@@ -92,7 +92,11 @@ class Dose(Image):
 
         Doses could have different origin and/or
         spacing compared to the referenced series.
-        This function, shifts the dose accordingly.
+        When a reference image is given, the dose is resampled onto its grid with
+        linear interpolation, and voxels outside the dose extent are set to 0.
+        Linear interpolation is used because it never produces values outside the
+        range of neighbouring dose samples: higher-order kernels overshoot on steep
+        penumbrae, creating negative doses and hot spots above the computed maximum.
         Dose values are scaled by "DoseGridScaling", if present.
         https://dicom.innolitics.com/ciods/rt-dose/rt-dose/3004000e
 
@@ -102,9 +106,9 @@ class Dose(Image):
                 file with the following format exists: f".{filename.stem}.json".
             read_metadata (bool): If true, read the json file with metadata
                 (not applicable for dicom files). Currently not used.
-            reference_image (Image | None): 3D image used as reference for dicom Doses, in case
-                origin and/or spacing differ. When set to None, a warning is raised and no
-                shift / resampling is applied.
+            reference_image (Image | None): 3D image whose grid the dose is resampled onto,
+                in case origin, spacing and/or direction differ. When set to None, a warning
+                is raised and no resampling is applied.
 
         Returns:
             Dose: RT Dose.
@@ -112,7 +116,7 @@ class Dose(Image):
         image = super().read(filename=filename, read_metadata=read_metadata)
         new_dose = cls(image)
         try:
-            dicom_header = pydicom.dcmread(filename)
+            dicom_header = pydicom.dcmread(filename, stop_before_pixels=True)
             try:
                 dose_scaling = dicom_header["DoseGridScaling"]
             except KeyError as e:
@@ -129,10 +133,11 @@ class Dose(Image):
             scaling = 1
         if reference_image is None:
             logger.warning("No reference image has been provided for the RT Dose.")
-            return new_dose
-        new_dose = new_dose.resample(new_spacing=reference_image.spacing)
-        new_dose = new_dose.pad(reference_image=reference_image)
-        return cls(new_dose) * scaling
+            return new_dose * scaling
+        new_dose = new_dose.resample_onto(
+            reference_image, interpolator=sitk.sitkLinear, default_pixel_value=0.0
+        )
+        return new_dose * scaling
 
     @classmethod
     def read_image(
@@ -415,8 +420,9 @@ class Dose(Image):
         """Pad the dose on top of another image.
 
         Uses the same notation as ``numpy.pad``.
-        The dose is shifted aligning its top-left voxel with the reference image.
-        The two images must have the same voxel spacing.
+        The content keeps its physical position: it is shifted by whole voxels onto the
+        reference grid, so the dose must share the reference's spacing and direction, and
+        its origin must lie on the reference lattice.
         The shifted dose is cropped if it extends out of the reference image.
 
         Args:

@@ -527,8 +527,9 @@ class RTStructure(Image):
         """Pad the structure on top of another image.
 
         Uses the same notation as ``numpy.pad``.
-        The struct is shifted aligning its top-left voxel with the reference image.
-        The two images must have the same voxel spacing.
+        The content keeps its physical position: it is shifted by whole voxels onto the
+        reference grid, so the structure must share the reference's spacing and direction,
+        and its origin must lie on the reference lattice.
         The shifted structure is cropped if it extends out of the reference image.
 
         Args:

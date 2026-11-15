@@ -533,6 +533,131 @@ def test_image_pad(left_shift, right_shift):
     assert padded_image.numpy()[tuple(new_coordinate.tolist())] == 1
 
 
+IDENTITY_DIRECTION = (1, 0, 0, 0, 1, 0, 0, 0, 1)
+"""Identity direction cosines, flattened row by row."""
+
+FEATURE_INDEX = (1, 1, 1)
+"""Index of the single non-zero voxel in the images built by ``_feature_image_on_reference``."""
+
+
+def _reference_image(direction=IDENTITY_DIRECTION) -> Image:
+    """Return an empty 10x10x10 reference image on a 1 mm grid."""
+    return Image.from_array(
+        np.zeros((10, 10, 10)), spacing=(1, 1, 1), origin=(0, 0, 0), direction=direction
+    )
+
+
+def _feature_image_on_reference(
+    reference_image: Image,
+    reference_continuous_index,
+    spacing=(1, 1, 1),
+    direction=None,
+) -> Image:
+    """Return a 3x3x3 image with one non-zero voxel at ``FEATURE_INDEX``.
+
+    The origin is placed at ``reference_continuous_index`` of the reference grid, so the
+    expected placement is known in index space whatever the direction.
+    """
+    feature_array = np.zeros((3, 3, 3))
+    feature_array[FEATURE_INDEX] = 1
+    return Image.from_array(
+        feature_array,
+        spacing=spacing,
+        origin=reference_image.TransformContinuousIndexToPhysicalPoint(reference_continuous_index),
+        direction=reference_image.direction if direction is None else direction,
+    )
+
+
+def _z_rotation_direction(sine: float) -> tuple:
+    """Return the direction cosines of a rotation about z whose sine is ``sine``."""
+    cosine = np.sqrt(1 - sine**2)
+    return (cosine, -sine, 0, sine, cosine, 0, 0, 0, 1)
+
+
+def _value_at_physical_point(image: Image, physical_point) -> float:
+    """Return the voxel value of ``image`` nearest to ``physical_point``."""
+    return image.GetPixel(image.TransformPhysicalPointToIndex(physical_point))
+
+
+@pytest.mark.parametrize(
+    "direction",
+    [(-1, 0, 0, 0, 1, 0, 0, 0, 1), (-1, 0, 0, 0, -1, 0, 0, 0, 1)],
+    ids=["x_flipped", "x_y_flipped"],
+)
+def test_pad_keeps_feature_physical_position_with_non_identity_direction(direction):
+    """A shared non-identity direction must not move or crop the content."""
+    reference_image = _reference_image(direction)
+    feature_image = _feature_image_on_reference(reference_image, (3, 3, 3))
+    feature_point = feature_image.TransformIndexToPhysicalPoint(FEATURE_INDEX)
+
+    padded_image = feature_image.pad(reference_image)
+
+    assert _value_at_physical_point(padded_image, feature_point) == 1
+
+
+def test_pad_rounds_origin_offset_within_tolerance_to_nearest_voxel():
+    """An offset just below a whole voxel must be rounded, not truncated."""
+    reference_image = _reference_image()
+    feature_image = _feature_image_on_reference(reference_image, (2 - 1e-7, 2, 2))
+    feature_point = feature_image.TransformIndexToPhysicalPoint(FEATURE_INDEX)
+
+    padded_image = feature_image.pad(reference_image)
+
+    assert _value_at_physical_point(padded_image, feature_point) == 1
+
+
+def test_pad_raises_when_origin_off_reference_grid():
+    """A fractional voxel offset cannot be represented by padding and must raise."""
+    reference_image = _reference_image()
+    feature_image = _feature_image_on_reference(reference_image, (2.3, 2, 2))
+
+    with pytest.raises(ValueError):
+        feature_image.pad(reference_image)
+
+
+def test_pad_accepts_spacing_within_tolerance():
+    """Spacings equal up to floating-point noise must be accepted."""
+    reference_image = _reference_image()
+    feature_image = _feature_image_on_reference(
+        reference_image, (2, 2, 2), spacing=(1 + 1e-9, 1, 1)
+    )
+
+    padded_image = feature_image.pad(reference_image)
+
+    assert padded_image.size == reference_image.size
+
+
+def test_pad_accepts_direction_within_tolerance():
+    """Directions equal up to floating-point noise must be accepted.
+
+    The two sines straddle a rounding boundary at four decimals, which the exact comparison of
+    rounded cosines rejects.
+    """
+    reference_image = _reference_image(_z_rotation_direction(5.01e-5))
+    feature_image = _feature_image_on_reference(
+        reference_image, (2, 2, 2), direction=_z_rotation_direction(4.99e-5)
+    )
+
+    padded_image = feature_image.pad(reference_image)
+
+    assert padded_image.size == reference_image.size
+
+
+def test_pad_raises_when_direction_differs_beyond_tolerance():
+    """Directions that differ by more than the tolerance must raise.
+
+    Both sines round to zero at four decimals, which the exact comparison of rounded cosines
+    accepts.
+    """
+    reference_image = _reference_image(_z_rotation_direction(1e-5))
+    feature_image = _feature_image_on_reference(
+        reference_image, (2, 2, 2), direction=_z_rotation_direction(4e-5)
+    )
+
+    with pytest.raises(ValueError):
+        feature_image.pad(reference_image)
+
+
 @pytest.mark.parametrize(
     "dtype",
     [

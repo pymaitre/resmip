@@ -53,6 +53,30 @@ subclass of a method is rejected rather than silently treated as its parent:
 ``RegistrationMethod`` is not an extension point.
 """
 
+_PAD_GRID_RESIDUAL_TOLERANCE = 1e-3
+"""Largest distance, in reference voxels, between the image origin and the reference lattice.
+
+``pad`` can only shift content by whole voxels, so the origin must lie on the reference
+lattice. Geometry recovered from DICOM passes through 16-character Decimal String elements,
+so an origin that is on the lattice in intent is off by floating-point noise in practice.
+"""
+
+_PAD_SPACING_RELATIVE_TOLERANCE = 1e-6
+"""Largest relative difference between the image spacing and the reference spacing in ``pad``.
+
+The through-plane spacing is derived from slice positions rather than stored. A relative
+difference of 1e-6 accumulates to at most about 5e-4 voxel across a 512-voxel axis, within
+``_PAD_GRID_RESIDUAL_TOLERANCE``.
+"""
+
+_PAD_DIRECTION_ABSOLUTE_TOLERANCE = 1e-6
+"""Largest absolute difference between corresponding direction cosines in ``pad``.
+
+The third direction cosine is derived rather than stored. A cosine difference of 1e-6
+misplaces a voxel by at most about 5e-4 voxel across a 512-voxel axis, within
+``_PAD_GRID_RESIDUAL_TOLERANCE``.
+"""
+
 
 def _metadata_file_name(filename: PathLike) -> Path:
     """Generate the filename for the metadata.
@@ -913,8 +937,9 @@ class Image(sitk.Image):
         """Pad the image on top of another image.
 
         Uses the same notation as ``numpy.pad``.
-        The image is shifted aligning its top-left voxel with the reference image.
-        The two images must have the same voxel spacing.
+        The content keeps its physical position: it is shifted by whole voxels onto the
+        reference grid, so the image must share the reference's spacing and direction, and
+        its origin must lie on the reference lattice.
         The shifted image is cropped if it extends out of the reference image.
 
         Args:
@@ -923,24 +948,46 @@ class Image(sitk.Image):
 
         Returns:
             Image: New image with same shape and spacing of the reference.
+
+        Raises:
+            ValueError: If the spacing or the direction differs from the reference's beyond
+                tolerance, or if the origin is off the reference lattice by more than
+                ``_PAD_GRID_RESIDUAL_TOLERANCE`` voxels along any axis.
         """
-        if self.spacing != reference_image.spacing:
+        if not np.allclose(
+            self.spacing,
+            reference_image.spacing,
+            rtol=_PAD_SPACING_RELATIVE_TOLERANCE,
+            atol=0,
+        ):
             raise ValueError(
-                f"Both images must have the same voxel spacing. The image has {self.spacing},"
+                f"Both images must have the same voxel spacing within relative tolerance "
+                f"{_PAD_SPACING_RELATIVE_TOLERANCE}. The image has {self.spacing}, "
                 f"the reference image has {reference_image.spacing}."
             )
-        if np.any(np.round(self.direction, 4) != np.round(reference_image.direction, 4)):
+        if not np.allclose(
+            self.direction,
+            reference_image.direction,
+            rtol=0,
+            atol=_PAD_DIRECTION_ABSOLUTE_TOLERANCE,
+        ):
             raise ValueError(
-                f"Both images must have the same direction. The image has {self.direction},"
+                f"Both images must have the same direction within absolute tolerance "
+                f"{_PAD_DIRECTION_ABSOLUTE_TOLERANCE}. The image has {self.direction}, "
                 f"the reference image has {reference_image.direction}."
             )
-        xyz_lower_padding = np.array(
-            [
-                int(x)
-                for x in (np.array(self.origin) - np.array(reference_image.origin))
-                / reference_image.spacing
-            ]
+        xyz_continuous_index = np.array(
+            reference_image.TransformPhysicalPointToContinuousIndex(self.origin)
         )
+        xyz_lower_padding = np.round(xyz_continuous_index).astype(int)
+        xyz_grid_residual = np.abs(xyz_continuous_index - xyz_lower_padding)
+        if np.any(xyz_grid_residual > _PAD_GRID_RESIDUAL_TOLERANCE):
+            raise ValueError(
+                f"The image origin must lie on the reference grid within "
+                f"{_PAD_GRID_RESIDUAL_TOLERANCE} voxels. It is at reference index "
+                f"{tuple(xyz_continuous_index.tolist())}, off by "
+                f"{tuple(xyz_grid_residual.tolist())} voxels along (x, y, z)."
+            )
         xyz_upper_padding = (
             np.array(reference_image.GetSize()) - np.array(self.GetSize()) - xyz_lower_padding
         )

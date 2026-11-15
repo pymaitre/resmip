@@ -98,6 +98,16 @@ def test_read_dose_without_reference(caplog):
     assert isinstance(dose, Dose)
 
 
+def test_scale_dose_values_by_dose_grid_scaling_when_no_reference_image():
+    """Doses read without a reference image are still scaled to physical units."""
+    header = pydicom.dcmread(REFERENCE_DICOM_DOSE_PATH)
+    expected_dose_zyx = header.pixel_array * float(header.DoseGridScaling)
+
+    dose = Dose.read(REFERENCE_DICOM_DOSE_PATH)
+
+    assert np.allclose(dose.numpy(copy=False), expected_dose_zyx, rtol=1e-9, atol=0)
+
+
 def test_read_dose_with_reference():
     """Read DICOM RT Dose with reference image."""
     image = Image.read(REFERENCE_DICOM_IMAGE_PATH)

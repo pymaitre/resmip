@@ -2,11 +2,12 @@
 
 # pylint: disable=unidiomatic-typecheck
 
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
-from pydicom import Dataset, dcmread
+from pydicom import Dataset, Sequence, dcmread
 
 from resmip.image import DicomModality
 from resmip.segmentation import (
@@ -460,3 +461,98 @@ def test_write_liver_dicom_segmentation_set(
 
     written_seg1 = Segmentation.read(output_path, structure_name="Liver1")
     assert np.all(written_seg1.numpy(copy=False) == seg1.numpy(copy=False))
+
+
+def write_without_frames(
+    source_path: Path, omitted_frame_indices: list[int], output_path: Path
+) -> Path:
+    """Copy a DICOM SEG without some of its frames, as a writer omitting empty frames would.
+
+    Pixel Data is re-encoded from the kept frames only, so that every remaining frame stays
+    aligned with its item in the Per-Frame Functional Groups Sequence.
+    """
+    dataset = dcmread(source_path)
+    kept_frame_indices = [
+        index for index in range(int(dataset.NumberOfFrames)) if index not in omitted_frame_indices
+    ]
+    kept_frames = dataset.pixel_array[kept_frame_indices]
+    dataset.PerFrameFunctionalGroupsSequence = Sequence(
+        [dataset.PerFrameFunctionalGroupsSequence[index] for index in kept_frame_indices]
+    )
+    dataset.NumberOfFrames = len(kept_frame_indices)
+    if dataset.BitsAllocated == 1:
+        dataset.PixelData = np.packbits(kept_frames, bitorder="little").tobytes()
+    else:
+        dataset.PixelData = kept_frames.astype(np.uint8).tobytes()
+    dataset.save_as(output_path)
+    return output_path
+
+
+def write_with_sagittal_geometry(
+    source_path: Path, slice_spacing: float, output_path: Path
+) -> Path:
+    """Copy a DICOM SEG, moving its frames onto sagittal planes ``slice_spacing`` mm apart.
+
+    The slice spacing differs from ``SliceThickness`` and ``SpacingBetweenSlices`` is removed,
+    so the frame positions projected on the slice normal are the only source of the
+    through-plane spacing. Differences along patient z are zero for every frame.
+    """
+    dataset = dcmread(source_path)
+    row_cosine = np.array([0.0, 1.0, 0.0])
+    column_cosine = np.array([0.0, 0.0, -1.0])
+    slice_normal = np.cross(row_cosine, column_cosine)
+    shared_groups = dataset.SharedFunctionalGroupsSequence[0]
+    shared_groups.PlaneOrientationSequence[0].ImageOrientationPatient = [
+        *row_cosine,
+        *column_cosine,
+    ]
+    pixel_measures = shared_groups.PixelMeasuresSequence[0]
+    if "SpacingBetweenSlices" in pixel_measures:
+        del pixel_measures.SpacingBetweenSlices
+    for frame_groups in dataset.PerFrameFunctionalGroupsSequence:
+        slice_index = frame_groups.FrameContentSequence[0].DimensionIndexValues[1] - 1
+        frame_groups.PlanePositionSequence[0].ImagePositionPatient = list(
+            slice_index * slice_spacing * slice_normal
+        )
+    dataset.save_as(output_path)
+    return output_path
+
+
+def test_read_fills_omitted_middle_frame_with_zeros(tmp_path):
+    """An omitted frame between two stored frames is read back as an all-zero slice."""
+    expected = Segmentation.read(filename=liver_dicom_seg(), structure_name="Liver").numpy()
+    expected[1] = 0
+    seg_path = write_without_frames(liver_dicom_seg(), [1], tmp_path / "seg.dcm")
+
+    seg = Segmentation.read(filename=seg_path, structure_name="Liver")
+
+    assert np.array_equal(seg.numpy(copy=False), expected)
+
+
+def test_read_places_all_segments_on_common_grid_when_frame_sets_differ(tmp_path):
+    """Segments stored on different slices come back with the same size, spacing and origin."""
+    seg_path = write_without_frames(overlap_highdicom_dicom_seg(), [0, 7], tmp_path / "seg.dcm")
+
+    collection = SegmentationCollection.read(filename=seg_path)
+
+    assert collection["first segment"].is_compatible(collection["second segment"])
+
+
+def test_read_spans_union_of_stored_slices_when_frame_sets_differ(tmp_path):
+    """The common grid covers every slice stored for any segment, not only shared ones."""
+    seg_path = write_without_frames(overlap_highdicom_dicom_seg(), [0, 7], tmp_path / "seg.dcm")
+
+    collection = SegmentationCollection.read(filename=seg_path)
+
+    assert collection["first segment"].size == (16, 16, 4)
+
+
+def test_read_recovers_slice_spacing_for_non_axial_orientation(tmp_path):
+    """Through-plane spacing is measured along the slice normal, not along patient z."""
+    seg_path = write_with_sagittal_geometry(
+        overlap_highdicom_dicom_seg(), slice_spacing=2.0, output_path=tmp_path / "seg.dcm"
+    )
+
+    collection = SegmentationCollection.read(filename=seg_path)
+
+    assert collection["first segment"].spacing[2] == pytest.approx(2.0, abs=1e-4)

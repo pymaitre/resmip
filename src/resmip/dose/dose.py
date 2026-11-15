@@ -116,7 +116,7 @@ class Dose(Image):
         image = super().read(filename=filename, read_metadata=read_metadata)
         new_dose = cls(image)
         try:
-            dicom_header = pydicom.dcmread(filename)
+            dicom_header = pydicom.dcmread(filename, stop_before_pixels=True)
             try:
                 dose_scaling = dicom_header["DoseGridScaling"]
             except KeyError as e:

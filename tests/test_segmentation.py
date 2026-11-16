@@ -332,6 +332,36 @@ def test_written_new_dicom_segmentation_is_dicom_conformant(
         )
 
 
+def test_written_cropped_dicom_segmentation_is_dicom_conformant(
+    mock_dicom_segmentation: Segmentation, dicom_validator, tmp_path
+):
+    """A SEG cropped to its content and without empty frames follows the DICOM standard."""
+    output_path = tmp_path / "seg.dcm"
+    mock_dicom_segmentation.write(
+        output_path,
+        reference_image_path=dicom_ct_path(),
+        omit_empty_frames=True,
+        crop_to_content=True,
+    )
+
+    result = next(iter(dicom_validator.validate(output_path).values()))
+
+    assert result.errors == 6, result.module_errors
+    assert len(result.module_errors["Multi-frame Functional Groups"]) == 6
+    for dicom_tag in [
+        DicomTag(0x00289110, parents=[0x52009229]),
+        DicomTag(0x00209116, parents=[0x52009229]),
+        DicomTag(0x00209111, parents=[0x52009230]),
+        DicomTag(0x0062000A, parents=[0x52009230]),
+        DicomTag(0x00209113, parents=[0x52009230]),
+        DicomTag(0x00089124, parents=[0x52009230]),
+    ]:
+        assert (
+            result.module_errors["Multi-frame Functional Groups"][dicom_tag].code
+            == ErrorCode.TagUnexpected
+        )
+
+
 def test_written_dicom_seg_uses_explicit_vr_little_endian(
     mock_dicom_segmentation: Segmentation, tmp_path
 ):

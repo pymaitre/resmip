@@ -54,7 +54,8 @@ def get_spacing_from_dicom_header(
 ) -> tuple[float, float, float]:
     """Read correctly-rounded voxel spacing from the DICOM header.
 
-    If the series has only one slice, the z spacing is set to 1 mm.
+    If the series has only one slice, the z spacing is set to 1 mm. PixelSpacing stores the
+    row spacing (y) before the column spacing (x), so it is reversed into (x, y).
 
     Args:
         dicom_series_reader (sitk.ImageSeriesReader): ITK DICOM reader for series.
@@ -66,12 +67,13 @@ def get_spacing_from_dicom_header(
     xy_spacing = None
     z_values = []
     for i in range(slices_number):
-        slice_xy_spacing = [
+        row_spacing, column_spacing = (
             float(spacing)
             for spacing in dicom_series_reader.GetMetaData(
                 i, string_tag_for_keyword("PixelSpacing")
             ).split("\\")
-        ]
+        )
+        slice_xy_spacing = [column_spacing, row_spacing]
 
         slice_z = [
             float(z)

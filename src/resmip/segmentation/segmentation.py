@@ -226,8 +226,10 @@ class Segmentation(Image):
                 Required for DICOM files. For non-DICOM files,
                 if ``None`` the name is inferred from the filename.
             reference_image (Image | None): Reference image used to define
-                the spatial grid when reading DICOM RTSTRUCT files.
-                Required for RTSTRUCT; ignored for all other formats.
+                the spatial grid when reading DICOM files. Required for
+                RTSTRUCT. Optional for SEG: the segmentation is padded onto the
+                reference grid, which restores slices a writer omitted because
+                they were empty. Ignored for all other formats.
 
         Raises:
             ValueError: If reading an RTSTRUCT and ``structure_name`` or
@@ -262,7 +264,8 @@ class Segmentation(Image):
             structure_name (str | None): Name of the segment or ROI to
                 extract.
             reference_image (Image | None): Reference image defining the
-                spatial grid. Required for RTSTRUCT.
+                spatial grid. Required for RTSTRUCT. For SEG, the segmentation
+                is padded onto it when given.
 
         Raises:
             ValueError: If reading an RTSTRUCT and ``structure_name`` or
@@ -283,9 +286,12 @@ class Segmentation(Image):
                 filename=filename, structure_names=[structure_name], regex=False
             )
             try:
-                return next(iter(seg_coll.values()))
+                segmentation = next(iter(seg_coll.values()))
             except StopIteration:
                 raise KeyError("No matching structure found.")  # pylint: disable=raise-missing-from
+            if reference_image is None:
+                return segmentation
+            return segmentation.pad(reference_image)
         if dataset_modality == "RTSTRUCT":
             if reference_image is None:
                 raise ValueError("Must specify a reference image for dicom RT Structures.")

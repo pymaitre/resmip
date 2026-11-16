@@ -673,14 +673,15 @@ def test_round_trip_with_omitted_frames_preserves_mask(tmp_path):
 def test_read_omitted_frames_preserves_mask_with_reference_image(missing_slice_index, tmp_path):
     """Reading back SEG written without empty frames restores full mask when providing reference."""
     segmentation = liver_with_empty_middle_slice(missing_slice_index)
+    liver_dicom_ct_path = liver_dicom_seg().parent / "liver_ct"
     output_path = tmp_path / "seg.dcm"
     segmentation.write(
         output_path,
-        reference_image_path=liver_dicom_seg().parent / "liver_ct",
+        reference_image_path=liver_dicom_ct_path,
         omit_empty_frames=True,
     )
 
-    reference_image = Image.read(liver_dicom_seg())
+    reference_image = Image.read(liver_dicom_ct_path)
     written = Segmentation.read(
         filename=output_path, structure_name="Liver", reference_image=reference_image
     )

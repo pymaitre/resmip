@@ -12,7 +12,10 @@ from pydicom.uid import ExplicitVRLittleEndian, generate_uid
 from resmip._version import __version__
 from resmip.dicom_utils.rt_utils_wrapper.image_helper import load_sorted_image_series
 from resmip.dicom_utils.series import get_series_dicom_files
-from resmip.dicom_utils.utils import _set_content_datetime
+from resmip.dicom_utils.utils import (
+    _image_orientation_from_direction,
+    _set_content_datetime,
+)
 from resmip.segmentation.utils import SegmentationType
 
 from .utils import (
@@ -224,7 +227,7 @@ class SegDataset:
         shared_fg = Dataset()
 
         plane_orient = Dataset()
-        plane_orient.ImageOrientationPatient = list(image_direction[:6])
+        plane_orient.ImageOrientationPatient = _image_orientation_from_direction(image_direction)
         shared_fg.PlaneOrientationSequence = Sequence([plane_orient])
 
         pixel_measures = Dataset()

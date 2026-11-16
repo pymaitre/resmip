@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
@@ -30,125 +31,193 @@ __all__ = []
 logger = logging.getLogger(__name__)
 
 
-def _compute_direction(dataset: pydicom.Dataset) -> list[int | float]:
-    """Compute the 9-element image direction from a DICOM SEG dataset.
+_FRAME_GRID_RESIDUAL_TOLERANCE = 1e-3
+"""Largest distance, in voxels, between a frame position and the grid shared by all frames.
 
-    Reads the row and column cosines from ``ImageOrientationPatient`` in the
-    Shared Functional Groups Sequence and derives the normal vector as their
-    cross product, returning a flattened row-major direction cosine matrix
-    compatible with SimpleITK's ``SetDirection``.
+Frame positions pass through 16-character Decimal String elements, so a frame on the grid in
+intent is off by floating-point noise in practice. A larger distance means the frames do not
+lie on one regularly spaced grid, which a single SimpleITK image cannot represent.
+"""
 
-    Args:
-        dataset (pydicom.Dataset): Dataset containing the whole DICOM SEG file.
+_SLICE_SPACING_DECIMALS = 4
+"""Decimal places, in mm, kept in a slice spacing derived from frame positions.
 
-    Returns:
-        list[int | float]: 9-element list [row_x, row_y, row_z,
-            col_x, col_y, col_z, normal_x, normal_y, normal_z].
+A spacing derived from frame positions is a difference of Decimal String values and carries
+floating-point noise. Rounding to 0.1 µm restores the intended value, as the previous reader
+did, while staying far below any real slice spacing.
+"""
+
+
+@dataclass(frozen=True)
+class _FrameGrid:
+    """Voxel grid shared by every segment of a DICOM SEG, and the slice holding each frame.
+
+    One grid for the whole file keeps all segments spatially compatible even when each
+    segment stores frames on a different subset of slices, as writers that omit empty frames
+    produce. Slices that no segment stores are part of the grid and read back as zeros.
     """
-    orientation = (
-        dataset.SharedFunctionalGroupsSequence[0]
-        .PlaneOrientationSequence[0]
-        .ImageOrientationPatient
-    )
-    row_cosines = np.array(orientation[:3])
-    col_cosines = np.array(orientation[3:])
-    return [
-        *row_cosines,
-        *col_cosines,
-        *np.cross(row_cosines, col_cosines),
-    ]
+
+    origin: tuple[float, float, float]
+    """Physical position of the first voxel, in mm."""
+    spacing: tuple[float, float, float]
+    """Voxel spacing in mm, in (x, y, z) order."""
+    direction: tuple[float, ...]
+    """Grid direction.
+
+    Flattened row-major direction matrix whose columns are the row cosine,
+    the column cosine and the slice normal, as ``sitk.Image.SetDirection`` expects.
+    """
+    slice_count: int
+    """Number of slices spanned by all frames."""
+    frame_slice_indices: np.ndarray
+    """Slice index of each frame, in frame order."""
 
 
-def _compute_spacing(dataset: pydicom.Dataset, frames: list[int]) -> list[float]:
-    """Compute voxel spacing from a DICOM SEG dataset for the given frames.
+def _compute_slice_spacing(dataset: pydicom.Dataset, slice_coordinates: np.ndarray) -> float:
+    """Compute the distance between adjacent slices of a DICOM SEG.
 
-    In-plane (x, y) spacing is read from ``PixelSpacing`` in the Shared
-    Functional Groups Sequence. Slice spacing is derived from the difference
-    between consecutive ``ImagePositionPatient`` Z coordinates. If only a
-    single frame is provided, ``SliceThickness`` is used as the Z spacing
-    fallback.
+    ``SpacingBetweenSlices`` is used when present. Otherwise the spacing is the smallest gap
+    between distinct frame positions along the slice normal, which is the true spacing as
+    long as at least two adjacent slices are stored. With a single distinct position there is
+    no gap to measure, and ``SliceThickness`` is the only available estimate.
 
     Args:
         dataset (pydicom.Dataset): Dataset containing the whole DICOM SEG file.
-        frames (list[int]): Indices into ``PerFrameFunctionalGroupsSequence``
-            corresponding to a single segment, in acquisition order.
+        slice_coordinates (np.ndarray): Position of each frame along the slice normal, in mm.
 
     Raises:
-        ValueError: If the Z spacing between consecutive frames is not uniform.
+        ValueError: If the resulting spacing is not positive.
 
     Returns:
-        list[float]: 3-element spacing list [col_spacing, row_spacing, z_spacing]
-            in mm, compatible with SimpleITK's ``SetSpacing``.
+        float: Slice spacing in mm.
     """
-    positions = []
-    for i in frames:
-        pos = (
-            dataset.PerFrameFunctionalGroupsSequence[i]
-            .PlanePositionSequence[0]
-            .ImagePositionPatient
-        )
-        positions.append(pos)
-    positions = np.array(positions)
-    if len(frames) == 1:
-        z_spacing = float(
-            dataset.SharedFunctionalGroupsSequence[0].PixelMeasuresSequence[0].SliceThickness
-        )
+    pixel_measures = dataset.SharedFunctionalGroupsSequence[0].PixelMeasuresSequence[0]
+    if "SpacingBetweenSlices" in pixel_measures:
+        slice_spacing = float(pixel_measures.SpacingBetweenSlices)
     else:
-        offset = (positions[1:] - positions[:-1]).round(decimals=4)
-        if np.unique(offset[:, :-1]) != 0:
-            logger.warning("Some frames have a different x-y origin.")
-        if len(np.unique(offset[:, -1])) > 1:
-            logger.error("Nonuniform slice spacing.")
-            raise ValueError
-        z_spacing = np.unique(offset[:, -1])[0]
-    xy_spacing = dataset.SharedFunctionalGroupsSequence[0].PixelMeasuresSequence[0].PixelSpacing
-    return [float(x) for x in (*xy_spacing[::-1], z_spacing)]
+        distinct_coordinates = np.unique(np.round(slice_coordinates, _SLICE_SPACING_DECIMALS))
+        if len(distinct_coordinates) == 1:
+            slice_spacing = float(pixel_measures.SliceThickness)
+        else:
+            slice_spacing = round(
+                float(np.diff(distinct_coordinates).min()), _SLICE_SPACING_DECIMALS
+            )
+    if slice_spacing <= 0:
+        raise ValueError(f"DICOM SEG slice spacing must be positive, found {slice_spacing} mm.")
+    return slice_spacing
 
 
-def _convert_single_segmentation(segment: pydicom.Dataset, dataset: pydicom.Dataset):
+def _compute_frame_grid(dataset: pydicom.Dataset) -> _FrameGrid:
+    """Compute the voxel grid shared by all frames of a DICOM SEG.
+
+    Each frame is placed by projecting its ``ImagePositionPatient`` on the slice normal, the
+    cross product of the row and column cosines of ``ImageOrientationPatient``. Projecting on
+    the normal rather than reading patient z keeps sagittal, coronal and oblique slices
+    correct. The grid starts at the lowest position along the normal, so slices are ordered
+    along the normal whatever the frame order in the file.
+
+    Args:
+        dataset (pydicom.Dataset): Dataset containing the whole DICOM SEG file.
+
+    Returns:
+        _FrameGrid: Grid shared by all segments, with the slice index of each frame.
+    """
+    shared_groups = dataset.SharedFunctionalGroupsSequence[0]
+    orientation = shared_groups.PlaneOrientationSequence[0].ImageOrientationPatient
+    row_cosine = np.array(orientation[:3], dtype=float)
+    column_cosine = np.array(orientation[3:], dtype=float)
+    slice_normal = np.cross(row_cosine, column_cosine)
+    direction_matrix = np.column_stack([row_cosine, column_cosine, slice_normal])
+
+    frame_positions = np.array(
+        [
+            frame_groups.PlanePositionSequence[0].ImagePositionPatient
+            for frame_groups in dataset.PerFrameFunctionalGroupsSequence
+        ],
+        dtype=float,
+    )
+    slice_coordinates = frame_positions @ slice_normal
+    slice_spacing = _compute_slice_spacing(dataset, slice_coordinates)
+    frame_slice_indices = np.rint(
+        (slice_coordinates - slice_coordinates.min()) / slice_spacing
+    ).astype(int)
+    origin = frame_positions[np.argmin(slice_coordinates)]
+
+    row_spacing, column_spacing = (
+        float(value) for value in shared_groups.PixelMeasuresSequence[0].PixelSpacing
+    )
+    spacing_xyz = (column_spacing, row_spacing, slice_spacing)
+
+    grid_positions = origin + np.outer(frame_slice_indices * slice_spacing, slice_normal)
+    voxel_residuals = (frame_positions - grid_positions) @ direction_matrix / np.array(spacing_xyz)
+    largest_residual = float(np.abs(voxel_residuals).max())
+    if largest_residual > _FRAME_GRID_RESIDUAL_TOLERANCE:
+        raise ValueError(
+            "DICOM SEG frames do not lie on one regular grid: a frame is "
+            f"{largest_residual:.3g} voxels away from it, above the tolerance of "
+            f"{_FRAME_GRID_RESIDUAL_TOLERANCE}."
+        )
+
+    return _FrameGrid(
+        origin=tuple(float(value) for value in origin),
+        spacing=spacing_xyz,
+        direction=tuple(float(value) for value in direction_matrix.flatten()),
+        slice_count=int(frame_slice_indices.max()) + 1,
+        frame_slice_indices=frame_slice_indices,
+    )
+
+
+def _convert_single_segmentation(
+    segment: pydicom.Dataset,
+    dataset: pydicom.Dataset,
+    frame_grid: _FrameGrid,
+    pixel_array: np.ndarray,
+) -> DicomAnnotation:
     """Read a single segmentation from a DICOM SEG dataset.
 
     Identifies the frames belonging to the given segment by matching
-    ``ReferencedSegmentNumber`` in the Per-Frame Functional Groups Sequence,
-    then reconstructs a SimpleITK image with the correct spatial metadata
-    (origin, direction, spacing).
+    ``ReferencedSegmentNumber`` in the Per-Frame Functional Groups Sequence and places each
+    one on its slice of the shared grid. Slices with no frame for this segment stay zero.
 
     Args:
         segment (pydicom.Dataset): Dataset item from ``SegmentSequence``
             describing the segment to extract, including its number and label.
-        dataset (pydicom.Dataset): Dataset containing the whole DICOM SEG file,
-            including pixel data and functional group sequences.
+        dataset (pydicom.Dataset): Dataset containing the whole DICOM SEG file.
+        frame_grid (_FrameGrid): Grid shared by all segments of the file.
+        pixel_array (np.ndarray): Decoded frames of the file, in (frame, row, column) order.
 
     Raises:
         KeyError: If no frames are found for the given segment number.
+        ValueError: If two frames of the segment lie on the same slice.
 
     Returns:
         DicomAnnotation: Object containing the segment label and its mask
             as a SimpleITK Image with spatial metadata set.
     """
-    segment_frames = []
-    for i, x in enumerate(dataset["PerFrameFunctionalGroupsSequence"]):
-        if (
-            x.SegmentIdentificationSequence[0].ReferencedSegmentNumber
-            == segment["SegmentNumber"].value
-        ):
-            segment_frames.append(i)
+    segment_frames = [
+        frame_index
+        for frame_index, frame_groups in enumerate(dataset.PerFrameFunctionalGroupsSequence)
+        if frame_groups.SegmentIdentificationSequence[0].ReferencedSegmentNumber
+        == segment.SegmentNumber
+    ]
     if len(segment_frames) == 0:
         logger.error("No frames found for segmentation %s.", segment.SegmentLabel)
         raise KeyError
+    segment_slice_indices = frame_grid.frame_slice_indices[segment_frames]
+    if len(np.unique(segment_slice_indices)) != len(segment_slice_indices):
+        raise ValueError(
+            f"Segment {segment.SegmentLabel} has more than one frame on the same slice."
+        )
 
-    origin = (
-        dataset.PerFrameFunctionalGroupsSequence[segment_frames[0]]
-        .PlanePositionSequence[0]
-        .ImagePositionPatient
+    segment_array = np.zeros(
+        shape=(frame_grid.slice_count, *pixel_array.shape[1:]), dtype=pixel_array.dtype
     )
-    direction = _compute_direction(dataset=dataset)
-    spacing = _compute_spacing(dataset=dataset, frames=segment_frames)
+    segment_array[segment_slice_indices] = pixel_array[segment_frames]
 
-    segmentation = sitk.GetImageFromArray(dataset.pixel_array[segment_frames])
-    segmentation.SetOrigin(origin=origin)
-    segmentation.SetDirection(direction=direction)
-    segmentation.SetSpacing(spacing=spacing)
+    segmentation = sitk.GetImageFromArray(segment_array)
+    segmentation.SetOrigin(frame_grid.origin)
+    segmentation.SetDirection(frame_grid.direction)
+    segmentation.SetSpacing(frame_grid.spacing)
     return DicomAnnotation(name=segment.SegmentLabel, image=segmentation)
 
 
@@ -188,8 +257,10 @@ def _read(  # pylint: disable=too-many-locals
               the first frame of the file.
     """
     dataset = pydicom.dcmread(seg_path, force=True)
-    if dataset.pixel_array.ndim == 2:
+    pixel_array = dataset.pixel_array
+    if pixel_array.ndim == 2:
         raise NotImplementedError("Single-frame DICOM SEG are not supported yet.")
+    frame_grid = _compute_frame_grid(dataset)
 
     dicom_segments: pydicom.Sequence = dataset.SegmentSequence
     if _duplicate_annotation_names(
@@ -229,12 +300,24 @@ def _read(  # pylint: disable=too-many-locals
         num_threads = max(len(matched_dicom_segments), 1)
         with ThreadPool(num_threads) as p:
             segments = p.map(
-                partial(_convert_single_segmentation, dataset=dataset),
+                partial(
+                    _convert_single_segmentation,
+                    dataset=dataset,
+                    frame_grid=frame_grid,
+                    pixel_array=pixel_array,
+                ),
                 matched_dicom_segments,
             )
     else:
         for matched_segment in matched_dicom_segments:
-            segments.append(_convert_single_segmentation(dataset=dataset, segment=matched_segment))
+            segments.append(
+                _convert_single_segmentation(
+                    segment=matched_segment,
+                    dataset=dataset,
+                    frame_grid=frame_grid,
+                    pixel_array=pixel_array,
+                )
+            )
     return segments, seg_metadata
 
 

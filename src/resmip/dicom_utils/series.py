@@ -16,6 +16,7 @@ from resmip.dicom_utils.constants import (
     SLICE_DEPENDENT_FIELDS,
     string_tag_for_keyword,
 )
+from resmip.dicom_utils.utils import _image_orientation_from_direction
 from resmip.image.metadata import SERIES_MODALITIES
 from resmip.utils import PathLike, format_digit_string
 
@@ -225,15 +226,8 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
     image_metadata[string_tag_for_keyword("SliceThickness")] = str(rounded_z_spacing)
     image_metadata[string_tag_for_keyword("SpacingBetweenSlices")] = str(rounded_z_spacing)
 
-    direction = image.GetDirection()
     image_metadata[string_tag_for_keyword("ImageOrientationPatient")] = "\\".join(
-        map(
-            str,
-            (
-                *direction[0::3],
-                *direction[1::3],
-            ),
-        )
+        map(str, _image_orientation_from_direction(image.GetDirection()))
     )
     image_metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
         map(str, image.GetSpacing()[:2])

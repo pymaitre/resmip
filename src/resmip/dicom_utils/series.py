@@ -232,7 +232,7 @@ def write(image: sitk.Image, input_metadata: dict[str, str], save_path: PathLike
         map(str, _image_orientation_from_direction(image.GetDirection()))
     )
     image_metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
-        map(str, image.GetSpacing()[:2])
+        map(str, image.GetSpacing()[1::-1])
     )
 
     for i in range(image.GetDepth()):

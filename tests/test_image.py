@@ -1762,7 +1762,7 @@ def test_resample_onto_updates_pixel_spacing_to_reference(reference_grid_image: 
 
     out = image.resample_onto(reference_grid_image)
 
-    assert out.metadata[tag] == "2.0\\1.5"
+    assert out.metadata[tag] == "1.5\\2.0"
 
 
 def test_resample_onto_updates_slice_thickness_to_reference(reference_grid_image: Image):

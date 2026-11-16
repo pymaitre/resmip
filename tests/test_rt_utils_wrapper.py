@@ -126,6 +126,19 @@ def test_slice_positioning_returns_spacing_column_first(non_square_pixel_ct_path
     assert slice_positioning["spacing"][:2] == pytest.approx((0.8, 0.5))
 
 
+def test_legacy_slice_positioning_returns_spacing_column_first(non_square_pixel_ct_path):
+    """Return the in-plane spacing as (x, y) in the copy that RTStructure.write uses.
+
+    RTStructure.write validates masks through the dicom_utils copy of rt_utils_wrapper. It
+    must convert PixelSpacing like Image.read, or valid masks on non-square pixels fail.
+    """
+    dicom_slice = pydicom.dcmread(sorted(non_square_pixel_ct_path.iterdir())[0])
+
+    slice_positioning = get_slice_positioning(dicom_slice)
+
+    assert slice_positioning["spacing"][:2] == pytest.approx((0.8, 0.5))
+
+
 @pytest.mark.parametrize(
     "spacing_value_1",
     ["0.9790265", "1.9790265", ".9790265", "10.9790265"],

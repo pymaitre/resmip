@@ -25,7 +25,7 @@ def _image_orientation_from_direction(direction: Sequence[float]) -> list[float]
     Returns:
         list[float]: The six direction cosines, row cosine first, then column cosine.
     """
-    raise NotImplementedError
+    return [*direction[0::3], *direction[1::3]]
 
 
 def _set_content_datetime(ds: Dataset, dt: datetime | None = None):

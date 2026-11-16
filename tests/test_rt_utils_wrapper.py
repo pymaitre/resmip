@@ -16,6 +16,7 @@ from resmip.dicom_utils.rt_utils_wrapper.header import (
     get_slice_positioning,
 )
 from resmip.dicom_utils.rt_utils_wrapper.roidata import ROIData
+from resmip.segmentation.dicom.rt_utils_wrapper import header as segmentation_header
 
 from .utils import dicom_ct_path
 
@@ -110,6 +111,19 @@ def test_get_slice_positioning_missing_key(key):
     del dicom_slice[key]
     with pytest.raises(KeyError):
         get_slice_positioning(dicom_slice)
+
+
+def test_slice_positioning_returns_spacing_column_first(non_square_pixel_ct_path):
+    """Return the in-plane spacing as (x, y), the reverse of PixelSpacing.
+
+    PixelSpacing stores the row spacing (y) before the column spacing (x). validate_mask
+    compares this spacing with SimpleITK's (x, y, z) mask spacing.
+    """
+    dicom_slice = pydicom.dcmread(sorted(non_square_pixel_ct_path.iterdir())[0])
+
+    slice_positioning = segmentation_header.get_slice_positioning(dicom_slice)
+
+    assert slice_positioning["spacing"][:2] == pytest.approx((0.8, 0.5))
 
 
 @pytest.mark.parametrize(

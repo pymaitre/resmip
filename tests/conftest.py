@@ -4,6 +4,7 @@
 
 import logging
 
+import pydicom
 import pytest
 from dicom_validator.spec_reader.edition_reader import EditionReader
 from dicom_validator.validator.dicom_file_validator import DicomFileValidator
@@ -11,7 +12,24 @@ from dicom_validator.validator.dicom_file_validator import DicomFileValidator
 import resmip
 
 from .dicom_standard import DICOM_EDITION, DICOM_STANDARD_PATH
-from .utils import dicom_ct_path, dicom_rtst_path
+from .utils import dicom_ct_path, dicom_rtst_path, liver_dicom_seg
+
+
+@pytest.fixture
+def non_square_pixel_ct_path(tmp_path):
+    """Copy of the liver CT series with 0.5 mm between rows and 0.8 mm between columns.
+
+    PixelSpacing is row spacing first, SimpleITK spacing is x first. With square pixels the
+    two orders coincide, so only non-square pixels expose a conversion that skips the swap.
+    """
+    source_path = liver_dicom_seg().parent / "liver_ct"
+    series_path = tmp_path / "non_square_pixel_ct"
+    series_path.mkdir()
+    for slice_path in sorted(source_path.iterdir()):
+        dataset = pydicom.dcmread(slice_path)
+        dataset.PixelSpacing = [0.5, 0.8]
+        dataset.save_as(series_path / slice_path.name)
+    return series_path
 
 
 @pytest.fixture

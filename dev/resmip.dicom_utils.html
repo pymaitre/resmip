@@ -408,7 +408,8 @@ correct paths on Windows.</p>
 <dt class="sig sig-object py" id="resmip.dicom_utils.series.get_spacing_from_dicom_header">
 <span class="sig-prename descclassname"><span class="pre">resmip.dicom_utils.series.</span></span><span class="sig-name descname"><span class="pre">get_spacing_from_dicom_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dicom_series_reader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ImageSeriesReader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#resmip.dicom_utils.series.get_spacing_from_dicom_header" title="Link to this definition"></a></dt>
 <dd><p>Read correctly-rounded voxel spacing from the DICOM header.</p>
-<p>If the series has only one slice, the z spacing is set to 1 mm.</p>
+<p>If the series has only one slice, the z spacing is set to 1 mm. PixelSpacing stores the
+row spacing (y) before the column spacing (x), so it is reversed into (x, y).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

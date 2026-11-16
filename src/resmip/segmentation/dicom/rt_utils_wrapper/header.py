@@ -20,7 +20,11 @@ def add_leading_zero_to_header_value(value) -> str:
 
 
 def get_slice_positioning(dicom_slice: pydicom.Dataset) -> dict[str, tuple[float]]:
-    """Get voxel spacing, origin and direction from a DICOM slice."""
+    """Get voxel spacing, origin and direction from a DICOM slice.
+
+    The spacing is (x, y, z), the SimpleITK order that validate_mask compares it with.
+    PixelSpacing stores the row spacing (y) before the column spacing (x), so it is reversed.
+    """
     try:
         series_instance_uid = str(dicom_slice["SOPInstanceUID"].value)
     except KeyError as e:
@@ -30,7 +34,7 @@ def get_slice_positioning(dicom_slice: pydicom.Dataset) -> dict[str, tuple[float
     except KeyError as e:
         raise KeyError(f"Missing Slice Thickness in the slice {series_instance_uid}.") from e
     try:
-        slice_xy_spacing = add_leading_zero_to_header_value(dicom_slice["PixelSpacing"].value)
+        pixel_spacing = add_leading_zero_to_header_value(dicom_slice["PixelSpacing"].value)
     except KeyError as e:
         raise KeyError(f"Missing Pixel Spacing in the slice {series_instance_uid}.") from e
     try:
@@ -47,9 +51,8 @@ def get_slice_positioning(dicom_slice: pydicom.Dataset) -> dict[str, tuple[float
         raise KeyError(
             f"Missing Image Orientation (Patient) in the slice {series_instance_uid}."
         ) from e
-    slice_spacing = tuple(
-        [float(value) for value in json.loads(slice_xy_spacing)] + [float(slice_z_spacing)]
-    )
+    row_spacing, column_spacing = (float(value) for value in json.loads(pixel_spacing))
+    slice_spacing = (column_spacing, row_spacing, float(slice_z_spacing))
     return {
         "spacing": slice_spacing,
         "origin": slice_origin,

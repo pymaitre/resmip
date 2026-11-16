@@ -107,7 +107,7 @@ def _update_spacing_metadata(image: Image) -> None:
     """
     if string_tag_for_keyword("PixelSpacing") in image.metadata:
         image.metadata[string_tag_for_keyword("PixelSpacing")] = "\\".join(
-            [str(x) for x in image.spacing[:2]]
+            [str(x) for x in image.spacing[1::-1]]
         )
     if string_tag_for_keyword("SliceThickness") in image.metadata:
         image.metadata[string_tag_for_keyword("SliceThickness")] = str(image.spacing[2])

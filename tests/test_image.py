@@ -483,6 +483,20 @@ def test_image_resample(scale, mock_dicom_image: Image):
     assert np.allclose(resampled_image.numpy().mean(), mock_dicom_image.numpy().mean(), rtol=0.009)
 
 
+def test_resample_writes_pixel_spacing_metadata_as_row_column(mock_dicom_image: Image):
+    """Store the resampled in-plane spacing in PixelSpacing as row spacing first.
+
+    Image spacing is (x, y, z); PixelSpacing is [row, column], i.e. (y, x). The metadata
+    reaches the JSON sidecar of non-DICOM outputs.
+    """
+    new_spacing_xyz = (4.0, 2.0, mock_dicom_image.spacing[2])
+
+    resampled_image = mock_dicom_image.resample(new_spacing_xyz)
+
+    pixel_spacing = resampled_image.metadata[string_tag_for_keyword("PixelSpacing")].split("\\")
+    np.testing.assert_allclose([float(value) for value in pixel_spacing], [2.0, 4.0], atol=1e-6)
+
+
 def test_image_pad_different_spacing(mock_dicom_image: Image):
     """Test image padding with different voxel spacing."""
     reference_image = Image.read(dicom_ct_path())
@@ -1748,7 +1762,7 @@ def test_resample_onto_updates_pixel_spacing_to_reference(reference_grid_image: 
 
     out = image.resample_onto(reference_grid_image)
 
-    assert out.metadata[tag] == "2.0\\1.5"
+    assert out.metadata[tag] == "1.5\\2.0"
 
 
 def test_resample_onto_updates_slice_thickness_to_reference(reference_grid_image: Image):

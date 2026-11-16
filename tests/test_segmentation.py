@@ -415,3 +415,55 @@ def test_read_back_rtstruct_with_contour_exceeding_explicit_vr_length(
 
     assert read_segmentation.name == "dense"
     assert np.any(read_segmentation.numpy(copy=False))
+
+
+def block_segmentation_on(series_path: Path) -> Segmentation:
+    """Build a block segmentation on the grid of the DICOM series at series_path."""
+    reference_image = Image.read(series_path)
+    mask_array = np.zeros(reference_image.size[::-1], dtype=np.uint8)
+    mask_array[1, 10:20, 10:30] = 1
+    return Segmentation.from_array(
+        mask_array,
+        spacing=reference_image.spacing,
+        origin=reference_image.origin,
+        direction=reference_image.direction,
+        name="block",
+    )
+
+
+def test_write_seg_pixel_spacing_row_first(non_square_pixel_ct_path: Path, tmp_path):
+    """Write the SEG shared PixelSpacing as row spacing first.
+
+    The source slices hold PixelSpacing [0.5, 0.8], so a SEG on their grid must hold the
+    same value. SimpleITK spacing is (x, y), the reverse order.
+    """
+    output_path = tmp_path / "seg.dcm"
+    segmentation = block_segmentation_on(non_square_pixel_ct_path)
+
+    segmentation.write(
+        output_path, modality=DicomModality.seg, reference_image_path=non_square_pixel_ct_path
+    )
+
+    shared_groups = dcmread(output_path).SharedFunctionalGroupsSequence[0]
+    written_pixel_spacing = [
+        float(value) for value in shared_groups.PixelMeasuresSequence[0].PixelSpacing
+    ]
+    np.testing.assert_allclose(written_pixel_spacing, [0.5, 0.8], atol=1e-6)
+
+
+def test_seg_round_trip_preserves_non_square_pixel_spacing(
+    non_square_pixel_ct_path: Path, tmp_path
+):
+    """Read back a SEG with non-square pixels with the spacing it was written with.
+
+    The through-plane spacing is derived from frame positions, hence the tolerance.
+    """
+    output_path = tmp_path / "seg.dcm"
+    segmentation = block_segmentation_on(non_square_pixel_ct_path)
+    segmentation.write(
+        output_path, modality=DicomModality.seg, reference_image_path=non_square_pixel_ct_path
+    )
+
+    read_segmentation = Segmentation.read(output_path, structure_name="block")
+
+    np.testing.assert_allclose(read_segmentation.spacing, segmentation.spacing, atol=1e-6)

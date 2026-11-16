@@ -166,6 +166,40 @@ def test_spacing_single_slice_series(caplog):
     assert "Only 1 slice detected. Setting z voxel spacing to 1 mm." in caplog.text
 
 
+def test_read_spacing_matches_simpleitk_for_non_square_pixels(non_square_pixel_ct_path: Path):
+    """Read a non-square-pixel series with the same (x, y, z) spacing as SimpleITK.
+
+    PixelSpacing stores the row spacing (y) before the column spacing (x). The through-plane
+    spacing is derived from slice positions rather than stored, hence the tolerance.
+    """
+    reader = sitk.ImageSeriesReader()
+    reader.SetFileNames(reader.GetGDCMSeriesFileNames(str(non_square_pixel_ct_path)))
+    expected_spacing_xyz = reader.Execute().GetSpacing()
+
+    image = Image.read(non_square_pixel_ct_path)
+
+    np.testing.assert_allclose(image.spacing, expected_spacing_xyz, atol=1e-6)
+
+
+def test_write_preserves_pixel_spacing_of_non_square_pixel_series(
+    non_square_pixel_ct_path: Path, tmp_path: Path
+):
+    """Write every slice of a read non-square-pixel series with the source PixelSpacing.
+
+    The source slices hold PixelSpacing [0.5, 0.8], row spacing first.
+    """
+    output_path = tmp_path / "written_ct"
+    image = Image.read(non_square_pixel_ct_path)
+
+    image.write(output_path)
+
+    written_pixel_spacings = [
+        [float(value) for value in pydicom.dcmread(slice_path).PixelSpacing]
+        for slice_path in sorted(output_path.glob("*.dcm"))
+    ]
+    np.testing.assert_allclose(written_pixel_spacings, [[0.5, 0.8]] * image.size[2], atol=1e-6)
+
+
 @pytest.mark.parametrize("existing_ids", [True, False])
 def test_series_ids(existing_ids, mock_dicom_image: Image, tmp_path: Path):
     """Test if saved DICOM series have correct series/study ids."""

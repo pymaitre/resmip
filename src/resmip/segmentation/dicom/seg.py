@@ -321,11 +321,35 @@ def _read(  # pylint: disable=too-many-locals
     return segments, seg_metadata
 
 
+def _select_frames_to_keep(frames: np.ndarray, segment_count: int) -> np.ndarray:
+    """Select the frames of a DICOM SEG that hold at least one segmented pixel.
+
+    Frames are in the writer's order: slice-major, segment-minor, so frame
+    ``slice_index * segment_count + segment_index`` belongs to segment ``segment_index``.
+
+    A segment with no segmented pixel on any slice keeps its all-zero frame on slice 0. The
+    reader finds a segment's frames through ``ReferencedSegmentNumber`` and raises
+    ``KeyError`` for a segment with none, and whether a segment with zero frames conforms has
+    not been checked with ``dciodvfy``. One empty frame keeps the segment readable and the
+    file valid.
+
+    Args:
+        frames (np.ndarray): Frames in writer order, in (frame, row, column) order.
+        segment_count (int): Number of segments interleaved in ``frames``.
+
+    Returns:
+        np.ndarray: Boolean mask over the frames, ``True`` for each frame to write.
+    """
+    raise NotImplementedError
+
+
 def _write(
     segmentations: SegmentationCollection,
     save_path: Path,
     dcm_series_path: Path,
     series_description: str = "",
+    *,
+    omit_empty_frames: bool = False,
 ) -> None:
     """Write a collection of segmentations to a DICOM SEG file.
 
@@ -349,12 +373,17 @@ def _write(
             metadata.
         series_description (str): Value for the ``SeriesDescription`` tag in
             the output file. Defaults to an empty string.
+        omit_empty_frames (bool): If ``True``, write only the frames that hold at least one
+            segmented pixel. A segment with none keeps one empty frame on the first slice.
+            Defaults to ``False``.
 
     Raises:
         ValueError: If ``dcm_series_path`` is ``None``.
     """
     if dcm_series_path is None:
         raise ValueError("The path of the reference dicom series must be specified.")
+    if omit_empty_frames:
+        raise NotImplementedError
 
     image_size = segmentations.size
     seg = SegDataset(

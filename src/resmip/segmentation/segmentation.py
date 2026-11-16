@@ -340,6 +340,7 @@ class Segmentation(Image):
         modality: str | DicomModality = DicomModality.seg,
         reference_image_path: PathLike | None = None,
         series_description: str | None = None,
+        omit_empty_frames: bool = False,
     ):
         """Write the segmentation to a file.
 
@@ -362,6 +363,11 @@ class Segmentation(Image):
                 metadata. Required for DICOM output.
             series_description (str | None): Value for the ``SeriesDescription``
                 tag in the output DICOM file.
+            omit_empty_frames (bool): If ``True``, the DICOM SEG stores only the
+                frames that hold segmented pixels. Reading it back returns only the
+                slices between the first and last stored frame; use
+                ``pad(reference_image)`` to restore the full extent. Only used for
+                DICOM SEG output.
 
         Raises:
             ValueError: If ``modality`` is not a supported DICOM modality
@@ -382,6 +388,7 @@ class Segmentation(Image):
                     filename=filename,
                     reference_image_path=reference_image_path,
                     series_description=series_description,
+                    omit_empty_frames=omit_empty_frames,
                 )
             raise ValueError(
                 f"Unsupported modality for segmentations: {modality}. Supported "
@@ -942,6 +949,7 @@ class SegmentationCollection(dict[str, Segmentation]):
         write_metadata: bool = True,
         reference_image_path: PathLike | None = None,
         series_description: str = "",
+        omit_empty_frames: bool = False,
     ) -> None:
         """Write the segmentation collection to a file or directory.
 
@@ -965,12 +973,21 @@ class SegmentationCollection(dict[str, Segmentation]):
                 Ignored for non-DICOM formats.
             series_description (str): Value for the ``SeriesDescription``
                 tag in DICOM SEG output. Ignored for non-DICOM formats.
+            omit_empty_frames (bool): If ``True``, the DICOM SEG stores only the
+                frames that hold segmented pixels; a segment with none keeps one
+                empty frame. Reading it back returns only the slices between the
+                first and last stored frame; use ``pad(reference_image)`` to restore
+                the full extent. Ignored for non-DICOM formats.
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
             if not filename.is_dir():
                 return _dicom_seg_write(
-                    self, filename, reference_image_path, series_description=series_description
+                    self,
+                    filename,
+                    reference_image_path,
+                    series_description=series_description,
+                    omit_empty_frames=omit_empty_frames,
                 )
             if file_format is None:
                 raise ValueError(
@@ -1174,6 +1191,7 @@ class RTStructureSet(SegmentationCollection):
         write_metadata: bool = True,
         reference_image_path: PathLike | None = None,
         series_description: str = "",
+        omit_empty_frames: bool = False,
     ) -> None:
         """Write the RT Structure Set to a DICOM RTSTRUCT file or non-DICOM files.
 
@@ -1196,6 +1214,7 @@ class RTStructureSet(SegmentationCollection):
                 Ignored for non-DICOM formats.
             series_description (str): Value for the ``SeriesDescription``
                 tag in DICOM RTSTRUCT output. Ignored for non-DICOM formats.
+            omit_empty_frames (bool): Ignored.
 
         Raises:
             ValueError: If ``filename`` is a directory and ``file_format``

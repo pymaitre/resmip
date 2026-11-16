@@ -593,3 +593,76 @@ def test_read_sets_direction_columns_from_image_orientation_cosines(tmp_path):
     assert collection["first segment"].direction == pytest.approx(
         (0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0), abs=1e-6
     )
+
+
+def liver_with_empty_middle_slice() -> Segmentation:
+    """Liver segmentation whose middle slice holds no segmented pixel.
+
+    All three slices of the liver fixture hold pixels, so one must be cleared to leave the
+    writer an empty frame to omit. The middle slice keeps the stored extent unchanged.
+    """
+    liver = Segmentation.read(filename=liver_dicom_seg(), structure_name="Liver")
+    mask = liver.numpy()
+    mask[1] = 0
+    return Segmentation.from_array(
+        mask,
+        spacing=liver.spacing,
+        origin=liver.origin,
+        direction=liver.direction,
+        name="Liver",
+    )
+
+
+def test_write_omits_frames_without_segmented_pixels(tmp_path):
+    """A slice with no segmented pixel is not stored as a frame."""
+    segmentation = liver_with_empty_middle_slice()
+    output_path = tmp_path / "seg.dcm"
+
+    segmentation.write(
+        output_path,
+        reference_image_path=liver_dicom_seg().parent / "liver_ct",
+        omit_empty_frames=True,
+    )
+
+    assert int(dcmread(output_path).NumberOfFrames) == 2
+
+
+def test_write_keeps_one_frame_for_empty_segment(tmp_path):
+    """A segment with no segmented pixel keeps exactly one frame, so it can still be read."""
+    liver = Segmentation.read(filename=liver_dicom_seg(), structure_name="Liver")
+    empty = Segmentation.from_array(
+        np.zeros_like(liver.numpy()),
+        spacing=liver.spacing,
+        origin=liver.origin,
+        direction=liver.direction,
+        name="Empty",
+    )
+    output_path = tmp_path / "seg.dcm"
+
+    SegmentationCollection([liver, empty]).write(
+        output_path,
+        reference_image_path=liver_dicom_seg().parent / "liver_ct",
+        omit_empty_frames=True,
+    )
+
+    empty_segment_frames = [
+        frame_groups
+        for frame_groups in dcmread(output_path).PerFrameFunctionalGroupsSequence
+        if frame_groups.SegmentIdentificationSequence[0].ReferencedSegmentNumber == 2
+    ]
+    assert len(empty_segment_frames) == 1
+
+
+def test_round_trip_with_omitted_frames_preserves_mask(tmp_path):
+    """Reading back a SEG written without its empty frames restores the written mask."""
+    segmentation = liver_with_empty_middle_slice()
+    output_path = tmp_path / "seg.dcm"
+    segmentation.write(
+        output_path,
+        reference_image_path=liver_dicom_seg().parent / "liver_ct",
+        omit_empty_frames=True,
+    )
+
+    written = Segmentation.read(filename=output_path, structure_name="Liver")
+
+    assert np.array_equal(written.numpy(copy=False), segmentation.numpy(copy=False))

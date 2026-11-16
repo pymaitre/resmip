@@ -233,7 +233,7 @@ class SegDataset:
         pixel_measures = Dataset()
         pixel_measures.SliceThickness = str(image_spacing[2])
         pixel_measures.SpacingBetweenSlices = str(image_spacing[2])
-        pixel_measures.PixelSpacing = list(image_spacing[:2])
+        pixel_measures.PixelSpacing = list(image_spacing[1::-1])
         shared_fg.PixelMeasuresSequence = Sequence([pixel_measures])
 
         ds.SharedFunctionalGroupsSequence = Sequence([shared_fg])

@@ -366,7 +366,49 @@ def _compute_content_crop(frames: np.ndarray) -> tuple[slice, slice]:
         tuple[slice, slice]: Row slice and column slice, in numpy (row, column) order, that
             select the crop from each frame.
     """
-    raise NotImplementedError
+    rows_with_pixels = np.flatnonzero(frames.any(axis=(0, 2)))
+    columns_with_pixels = np.flatnonzero(frames.any(axis=(0, 1)))
+    if len(rows_with_pixels) == 0:
+        return slice(0, 1), slice(0, 1)
+    return (
+        slice(int(rows_with_pixels[0]), int(rows_with_pixels[-1]) + 1),
+        slice(int(columns_with_pixels[0]), int(columns_with_pixels[-1]) + 1),
+    )
+
+
+def _place_frames_at_crop_corner(
+    per_frame_groups: pydicom.Sequence,
+    geometry: sitk.Image,
+    segment_count: int,
+    row_crop: slice,
+    column_crop: slice,
+) -> None:
+    """Set each frame's ``ImagePositionPatient`` to the crop corner on its slice.
+
+    ``ImagePositionPatient`` locates the first stored pixel of a frame. After cropping, that
+    pixel is the crop corner, not the corner of the source slice, so the position copied from
+    the source series no longer applies. The corner is computed from the segmentation
+    geometry, which also holds for slices whose direction differs from the identity.
+
+    Each coordinate is formatted as a Decimal String of at most 16 characters (PS3.5
+    Table 6.2-1). A computed float such as ``-109.27068500000001`` exceeds that length, and
+    pydicom only warns about it when writing.
+
+    Args:
+        per_frame_groups (pydicom.Sequence): Per-Frame Functional Groups Sequence in writer
+            order: slice-major, segment-minor.
+        geometry (sitk.Image): Image whose grid all segments share.
+        segment_count (int): Number of segments interleaved in ``per_frame_groups``.
+        row_crop (slice): Rows kept in each frame, in numpy (row, column) order.
+        column_crop (slice): Columns kept in each frame.
+    """
+    for frame_index, frame_groups in enumerate(per_frame_groups):
+        corner_index_xyz = (column_crop.start, row_crop.start, frame_index // segment_count)
+        corner_position = geometry.TransformIndexToPhysicalPoint(corner_index_xyz)
+        frame_groups.PlanePositionSequence[0].ImagePositionPatient = [
+            pydicom.valuerep.format_number_as_ds(float(coordinate))
+            for coordinate in corner_position
+        ]
 
 
 def _write(
@@ -412,8 +454,6 @@ def _write(
     """
     if dcm_series_path is None:
         raise ValueError("The path of the reference dicom series must be specified.")
-    if crop_to_content:
-        raise NotImplementedError
 
     image_size = segmentations.size
     seg = SegDataset(
@@ -431,6 +471,17 @@ def _write(
         seg_array = segmentation.numpy()
         for slice_index in range(image_size[2]):
             pixel_data[number + slice_index * segments_number] = seg_array[slice_index]
+    if crop_to_content:
+        row_crop, column_crop = _compute_content_crop(pixel_data)
+        pixel_data = pixel_data[:, row_crop, column_crop]
+        seg.dataset.Rows, seg.dataset.Columns = pixel_data.shape[1:]
+        _place_frames_at_crop_corner(
+            seg.dataset.PerFrameFunctionalGroupsSequence,
+            geometry=next(iter(segmentations.values())),
+            segment_count=segments_number,
+            row_crop=row_crop,
+            column_crop=column_crop,
+        )
     if omit_empty_frames:
         kept_frames = _select_frames_to_keep(pixel_data, segments_number)
         pixel_data = pixel_data[kept_frames]

@@ -340,7 +340,12 @@ def _select_frames_to_keep(frames: np.ndarray, segment_count: int) -> np.ndarray
     Returns:
         np.ndarray: Boolean mask over the frames, ``True`` for each frame to write.
     """
-    raise NotImplementedError
+    kept_by_slice_and_segment = (
+        frames.reshape(len(frames), -1).any(axis=1).reshape(-1, segment_count)
+    )
+    segments_without_pixels = ~kept_by_slice_and_segment.any(axis=0)
+    kept_by_slice_and_segment[0, segments_without_pixels] = True
+    return kept_by_slice_and_segment.reshape(-1)
 
 
 def _write(
@@ -382,8 +387,6 @@ def _write(
     """
     if dcm_series_path is None:
         raise ValueError("The path of the reference dicom series must be specified.")
-    if omit_empty_frames:
-        raise NotImplementedError
 
     image_size = segmentations.size
     seg = SegDataset(
@@ -401,6 +404,18 @@ def _write(
         seg_array = segmentation.numpy()
         for slice_index in range(image_size[2]):
             pixel_data[number + slice_index * segments_number] = seg_array[slice_index]
+    if omit_empty_frames:
+        kept_frames = _select_frames_to_keep(pixel_data, segments_number)
+        pixel_data = pixel_data[kept_frames]
+        seg.dataset.PerFrameFunctionalGroupsSequence = pydicom.Sequence(
+            [
+                frame_groups
+                for frame_groups, keep in zip(
+                    seg.dataset.PerFrameFunctionalGroupsSequence, kept_frames, strict=True
+                )
+                if keep
+            ]
+        )
     seg.dataset.NumberOfFrames = str(pixel_data.shape[0])
     if segmentations.segmentation_type == SegmentationType.binary:
         pixel_data = np.packbits(pixel_data, bitorder="little")

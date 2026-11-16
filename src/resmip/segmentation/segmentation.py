@@ -283,15 +283,15 @@ class Segmentation(Image):
         dataset_modality = segmentation_dataset.Modality
         if dataset_modality == "SEG":
             seg_coll = SegmentationCollection.read(
-                filename=filename, structure_names=[structure_name], regex=False
+                filename=filename,
+                structure_names=[structure_name],
+                regex=False,
+                reference_image=reference_image,
             )
             try:
-                segmentation = next(iter(seg_coll.values()))
+                return next(iter(seg_coll.values()))
             except StopIteration:
                 raise KeyError("No matching structure found.")  # pylint: disable=raise-missing-from
-            if reference_image is None:
-                return segmentation
-            return segmentation.pad(reference_image)
         if dataset_modality == "RTSTRUCT":
             if reference_image is None:
                 raise ValueError("Must specify a reference image for dicom RT Structures.")

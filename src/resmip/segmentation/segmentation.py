@@ -371,9 +371,9 @@ class Segmentation(Image):
                 tag in the output DICOM file.
             omit_empty_frames (bool): If ``True``, the DICOM SEG stores only the
                 frames that hold segmented pixels. Reading it back returns only the
-                slices between the first and last stored frame; use
-                ``pad(reference_image)`` to restore the full extent. Only used for
-                DICOM SEG output.
+                slices between the first and last stored frame; pass
+                ``reference_image`` to ``read``, or call ``pad(reference_image)``,
+                to restore the full extent. Only used for DICOM SEG output.
 
         Raises:
             ValueError: If ``modality`` is not a supported DICOM modality
@@ -981,9 +981,7 @@ class SegmentationCollection(dict[str, Segmentation]):
                 tag in DICOM SEG output. Ignored for non-DICOM formats.
             omit_empty_frames (bool): If ``True``, the DICOM SEG stores only the
                 frames that hold segmented pixels; a segment with none keeps one
-                empty frame. Reading it back returns only the slices between the
-                first and last stored frame; use ``pad(reference_image)`` to restore
-                the full extent. Ignored for non-DICOM formats.
+                empty frame. Ignored for non-DICOM formats.
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)

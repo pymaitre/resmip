@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 from pydicom import Dataset, Sequence, dcmread
 
-from resmip.image import DicomModality
+from resmip.image import DicomModality, Image
 from resmip.segmentation import (
     RTStructureSet,
     Segmentation,
@@ -595,7 +595,7 @@ def test_read_sets_direction_columns_from_image_orientation_cosines(tmp_path):
     )
 
 
-def liver_with_empty_middle_slice() -> Segmentation:
+def liver_with_empty_middle_slice(missing_slice_index: int) -> Segmentation:
     """Liver segmentation whose middle slice holds no segmented pixel.
 
     All three slices of the liver fixture hold pixels, so one must be cleared to leave the
@@ -603,7 +603,7 @@ def liver_with_empty_middle_slice() -> Segmentation:
     """
     liver = Segmentation.read(filename=liver_dicom_seg(), structure_name="Liver")
     mask = liver.numpy()
-    mask[1] = 0
+    mask[missing_slice_index] = 0
     return Segmentation.from_array(
         mask,
         spacing=liver.spacing,
@@ -613,9 +613,10 @@ def liver_with_empty_middle_slice() -> Segmentation:
     )
 
 
-def test_write_omits_frames_without_segmented_pixels(tmp_path):
+@pytest.mark.parametrize("missing_slice_index", [0, 1])
+def test_write_omits_frames_without_segmented_pixels(missing_slice_index, tmp_path):
     """A slice with no segmented pixel is not stored as a frame."""
-    segmentation = liver_with_empty_middle_slice()
+    segmentation = liver_with_empty_middle_slice(missing_slice_index)
     output_path = tmp_path / "seg.dcm"
 
     segmentation.write(
@@ -654,8 +655,8 @@ def test_write_keeps_one_frame_for_empty_segment(tmp_path):
 
 
 def test_round_trip_with_omitted_frames_preserves_mask(tmp_path):
-    """Reading back a SEG written without its empty frames restores the written mask."""
-    segmentation = liver_with_empty_middle_slice()
+    """Reading back a SEG written without its middle empty frames restores the written mask."""
+    segmentation = liver_with_empty_middle_slice(missing_slice_index=1)
     output_path = tmp_path / "seg.dcm"
     segmentation.write(
         output_path,
@@ -664,5 +665,24 @@ def test_round_trip_with_omitted_frames_preserves_mask(tmp_path):
     )
 
     written = Segmentation.read(filename=output_path, structure_name="Liver")
+
+    assert np.array_equal(written.numpy(copy=False), segmentation.numpy(copy=False))
+
+
+@pytest.mark.parametrize("missing_slice_index", [0, 1, 2])
+def test_read_omitted_frames_preserves_mask_with_reference_image(missing_slice_index, tmp_path):
+    """Reading back SEG written without empty frames restores full mask when providing reference."""
+    segmentation = liver_with_empty_middle_slice(missing_slice_index)
+    output_path = tmp_path / "seg.dcm"
+    segmentation.write(
+        output_path,
+        reference_image_path=liver_dicom_seg().parent / "liver_ct",
+        omit_empty_frames=True,
+    )
+
+    reference_image = Image.read(liver_dicom_seg())
+    written = Segmentation.read(
+        filename=output_path, structure_name="Liver", reference_image=reference_image
+    )
 
     assert np.array_equal(written.numpy(copy=False), segmentation.numpy(copy=False))

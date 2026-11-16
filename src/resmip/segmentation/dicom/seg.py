@@ -348,6 +348,27 @@ def _select_frames_to_keep(frames: np.ndarray, segment_count: int) -> np.ndarray
     return kept_by_slice_and_segment.reshape(-1)
 
 
+def _compute_content_crop(frames: np.ndarray) -> tuple[slice, slice]:
+    """Compute the in-plane crop holding every segmented pixel of every frame.
+
+    ``Rows`` and ``Columns`` are attributes of the whole DICOM SEG dataset, so every frame
+    of every segment shares one in-plane size, and the reader rebuilds one grid for all
+    frames. The crop is therefore the union bounding box over all frames, not one box per
+    segment or per slice.
+
+    ``Rows`` and ``Columns`` are Type 1 and must be non-zero, so frames without any
+    segmented pixel get a 1x1 crop at index (0, 0) rather than an empty one.
+
+    Args:
+        frames (np.ndarray): Frames in (frame, row, column) order.
+
+    Returns:
+        tuple[slice, slice]: Row slice and column slice, in numpy (row, column) order, that
+            select the crop from each frame.
+    """
+    raise NotImplementedError
+
+
 def _write(
     segmentations: SegmentationCollection,
     save_path: Path,
@@ -355,6 +376,7 @@ def _write(
     series_description: str = "",
     *,
     omit_empty_frames: bool = False,
+    crop_to_content: bool = False,
 ) -> None:
     """Write a collection of segmentations to a DICOM SEG file.
 
@@ -381,12 +403,17 @@ def _write(
         omit_empty_frames (bool): If ``True``, write only the frames that hold at least one
             segmented pixel. A segment with none keeps one empty frame on the first slice.
             Defaults to ``False``.
+        crop_to_content (bool): If ``True``, crop every frame in-plane to the bounding box of
+            the segmented pixels of all segments, and place each frame at the crop corner.
+            Defaults to ``False``.
 
     Raises:
         ValueError: If ``dcm_series_path`` is ``None``.
     """
     if dcm_series_path is None:
         raise ValueError("The path of the reference dicom series must be specified.")
+    if crop_to_content:
+        raise NotImplementedError
 
     image_size = segmentations.size
     seg = SegDataset(

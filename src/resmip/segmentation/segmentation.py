@@ -337,7 +337,7 @@ class Segmentation(Image):
             new_segmentation.segmentation_type = SegmentationType.fractional
         return new_segmentation
 
-    def write(
+    def write(  # pylint: disable=too-many-arguments
         self,
         filename: PathLike,
         *,
@@ -347,6 +347,7 @@ class Segmentation(Image):
         reference_image_path: PathLike | None = None,
         series_description: str | None = None,
         omit_empty_frames: bool = False,
+        crop_to_content: bool = False,
     ):
         """Write the segmentation to a file.
 
@@ -374,6 +375,9 @@ class Segmentation(Image):
                 slices between the first and last stored frame; pass
                 ``reference_image`` to ``read``, or call ``pad(reference_image)``,
                 to restore the full extent. Only used for DICOM SEG output.
+            crop_to_content (bool): If ``True``, the DICOM SEG stores each frame
+                cropped in-plane to the bounding box of the segmented pixels.
+                Only used for DICOM SEG output.
 
         Raises:
             ValueError: If ``modality`` is not a supported DICOM modality
@@ -395,6 +399,7 @@ class Segmentation(Image):
                     reference_image_path=reference_image_path,
                     series_description=series_description,
                     omit_empty_frames=omit_empty_frames,
+                    crop_to_content=crop_to_content,
                 )
             raise ValueError(
                 f"Unsupported modality for segmentations: {modality}. Supported "
@@ -964,6 +969,7 @@ class SegmentationCollection(dict[str, Segmentation]):
         reference_image_path: PathLike | None = None,
         series_description: str = "",
         omit_empty_frames: bool = False,
+        crop_to_content: bool = False,
     ) -> None:
         """Write the segmentation collection to a file or directory.
 
@@ -990,6 +996,9 @@ class SegmentationCollection(dict[str, Segmentation]):
             omit_empty_frames (bool): If ``True``, the DICOM SEG stores only the
                 frames that hold segmented pixels; a segment with none keeps one
                 empty frame. Ignored for non-DICOM formats.
+            crop_to_content (bool): If ``True``, the DICOM SEG stores every frame
+                cropped in-plane to the bounding box of the segmented pixels of all
+                segments. Ignored for non-DICOM formats.
         """
         if isinstance(filename, PathLike.__args__):
             filename = Path(filename)
@@ -1000,6 +1009,7 @@ class SegmentationCollection(dict[str, Segmentation]):
                     reference_image_path,
                     series_description=series_description,
                     omit_empty_frames=omit_empty_frames,
+                    crop_to_content=crop_to_content,
                 )
             if file_format is None:
                 raise ValueError(
@@ -1204,6 +1214,7 @@ class RTStructureSet(SegmentationCollection):
         reference_image_path: PathLike | None = None,
         series_description: str = "",
         omit_empty_frames: bool = False,
+        crop_to_content: bool = False,
     ) -> None:
         """Write the RT Structure Set to a DICOM RTSTRUCT file or non-DICOM files.
 
@@ -1227,6 +1238,7 @@ class RTStructureSet(SegmentationCollection):
             series_description (str): Value for the ``SeriesDescription``
                 tag in DICOM RTSTRUCT output. Ignored for non-DICOM formats.
             omit_empty_frames (bool): Ignored.
+            crop_to_content (bool): Ignored.
 
         Raises:
             ValueError: If ``filename`` is a directory and ``file_format``

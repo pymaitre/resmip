@@ -705,3 +705,124 @@ def test_read_collection_pads_segments_onto_reference_image(missing_slice_index,
     collection = SegmentationCollection.read(output_path, reference_image=reference_image)
 
     assert collection["Liver"].size == reference_image.size
+
+
+def test_write_crops_rows_and_columns_to_union_bounding_box(tmp_path):
+    """Rows and Columns span the segmented pixels of every segment, not of one segment.
+
+    The liver spans rows 145-366 and columns 79-350. The second segment's single voxel at
+    row 10, column 500 lies outside that box, so only a union over segments covers it.
+    """
+    liver = Segmentation.read(filename=liver_dicom_seg(), structure_name="Liver")
+    outlier_mask = np.zeros_like(liver.numpy())
+    outlier_mask[1, 10, 500] = 1
+    outlier = Segmentation.from_array(
+        outlier_mask,
+        spacing=liver.spacing,
+        origin=liver.origin,
+        direction=liver.direction,
+        name="Outlier",
+    )
+    output_path = tmp_path / "seg.dcm"
+
+    SegmentationCollection([liver, outlier]).write(
+        output_path,
+        reference_image_path=liver_dicom_seg().parent / "liver_ct",
+        crop_to_content=True,
+    )
+
+    written = dcmread(output_path)
+    assert (written.Rows, written.Columns) == (357, 422)
+
+
+def test_write_places_frame_position_at_crop_corner(tmp_path):
+    """Each frame is positioned at the physical point of the crop corner on its slice.
+
+    The liver's bounding box starts at column 79 and row 145, which differ, so swapping the
+    in-plane axes moves the position. The tolerance covers Decimal String rounding.
+    """
+    liver = Segmentation.read(filename=liver_dicom_seg(), structure_name="Liver")
+    output_path = tmp_path / "seg.dcm"
+    expected_positions = np.array(
+        [liver.TransformIndexToPhysicalPoint((79, 145, slice_index)) for slice_index in range(3)]
+    )
+
+    liver.write(
+        output_path,
+        reference_image_path=liver_dicom_seg().parent / "liver_ct",
+        crop_to_content=True,
+    )
+    frame_positions = np.array(
+        [
+            [float(value) for value in frame_groups.PlanePositionSequence[0].ImagePositionPatient]
+            for frame_groups in dcmread(output_path).PerFrameFunctionalGroupsSequence
+        ]
+    )
+    assert frame_positions == pytest.approx(expected_positions, abs=1e-4)
+
+
+def rotated_liver_with_empty_first_slice() -> Segmentation:
+    """Liver mask on axes rotated by 90 degrees within the axial plane, with slice 0 cleared.
+
+    The rotated direction matrix is not symmetric, so a writer that transposes it, in
+    ``ImageOrientationPatient`` or in the frame positions, reads back on another grid and
+    padding rejects it. Clearing slice 0 leaves ``omit_empty_frames`` a frame to drop, so
+    cropping and omission are checked together.
+    """
+    liver = Segmentation.read(filename=liver_dicom_seg(), structure_name="Liver")
+    mask = liver.numpy()
+    mask[0] = 0
+    return Segmentation.from_array(
+        mask,
+        spacing=liver.spacing,
+        origin=liver.origin,
+        direction=(0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0),
+        name="Liver",
+    )
+
+
+@pytest.mark.parametrize("omit_empty_frames", [False, True])
+def test_round_trip_cropped_then_padded_matches_original(omit_empty_frames, tmp_path):
+    """A cropped SEG read back onto its original grid restores the written mask."""
+    segmentation = rotated_liver_with_empty_first_slice()
+    reference_image = Image.from_array(
+        np.zeros_like(segmentation.numpy()),
+        spacing=segmentation.spacing,
+        origin=segmentation.origin,
+        direction=segmentation.direction,
+    )
+    output_path = tmp_path / "seg.dcm"
+    segmentation.write(
+        output_path,
+        reference_image_path=liver_dicom_seg().parent / "liver_ct",
+        omit_empty_frames=omit_empty_frames,
+        crop_to_content=True,
+    )
+
+    written = Segmentation.read(
+        filename=output_path, structure_name="Liver", reference_image=reference_image
+    )
+
+    assert np.array_equal(written.numpy(copy=False), segmentation.numpy(copy=False))
+
+
+def test_write_crops_to_single_pixel_when_no_segment_has_pixels(tmp_path):
+    """Without any segmented pixel the crop is 1x1, since Rows and Columns must be non-zero."""
+    liver = Segmentation.read(filename=liver_dicom_seg(), structure_name="Liver")
+    empty = Segmentation.from_array(
+        np.zeros_like(liver.numpy()),
+        spacing=liver.spacing,
+        origin=liver.origin,
+        direction=liver.direction,
+        name="Empty",
+    )
+    output_path = tmp_path / "seg.dcm"
+
+    empty.write(
+        output_path,
+        reference_image_path=liver_dicom_seg().parent / "liver_ct",
+        crop_to_content=True,
+    )
+
+    written = dcmread(output_path)
+    assert (written.Rows, written.Columns) == (1, 1)

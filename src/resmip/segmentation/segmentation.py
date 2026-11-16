@@ -910,8 +910,6 @@ class SegmentationCollection(dict[str, Segmentation]):
                 the file or files.
         """
         if isinstance(filename, PathLike.__args__):
-            if reference_image is not None:
-                raise NotImplementedError
             filename = Path(filename)
             segmentations, metadata = _dicom_seg_read(
                 filename,
@@ -922,7 +920,7 @@ class SegmentationCollection(dict[str, Segmentation]):
             segmentation_type = SegmentationType(
                 metadata[string_tag_for_keyword("SegmentationType")]
             )
-            return cls(
+            collection = cls(
                 [
                     Segmentation(
                         seg.image,
@@ -934,6 +932,9 @@ class SegmentationCollection(dict[str, Segmentation]):
                     if seg.name is not None
                 ]
             )
+            if reference_image is None:
+                return collection
+            return cls([segmentation.pad(reference_image) for segmentation in collection.values()])
         return cls._read_nondicom(filename=filename, read_metadata=read_metadata)
 
     @classmethod

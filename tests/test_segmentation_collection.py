@@ -688,3 +688,20 @@ def test_read_omitted_frames_preserves_mask_with_reference_image(missing_slice_i
     )
 
     assert np.array_equal(written.numpy(copy=False), segmentation.numpy(copy=False))
+
+
+@pytest.mark.parametrize("missing_slice_index", [0, 2])
+def test_read_collection_pads_segments_onto_reference_image(missing_slice_index, tmp_path):
+    """A SEG stored without its first or last empty frame is read back on the reference grid."""
+    liver_dicom_ct_path = liver_dicom_seg().parent / "liver_ct"
+    output_path = tmp_path / "seg.dcm"
+    liver_with_empty_slice(missing_slice_index).write(
+        output_path,
+        reference_image_path=liver_dicom_ct_path,
+        omit_empty_frames=True,
+    )
+    reference_image = Image.read(liver_dicom_ct_path)
+
+    collection = SegmentationCollection.read(output_path, reference_image=reference_image)
+
+    assert collection["Liver"].size == reference_image.size

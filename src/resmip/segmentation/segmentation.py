@@ -884,6 +884,7 @@ class SegmentationCollection(dict[str, Segmentation]):
         read_metadata: bool = True,
         regex: bool = False,
         parallel: bool = True,
+        reference_image: Image | None = None,
     ) -> SegmentationCollection:
         """Read a segmentation collection from a DICOM SEG file or a list of non-DICOM files.
 
@@ -899,12 +900,18 @@ class SegmentationCollection(dict[str, Segmentation]):
                 regular expression patterns.
             parallel (bool): If ``True``, convert segments to images in
                 parallel using a thread pool.
+            reference_image (Image | None): Reference image defining the
+                spatial grid. For DICOM SEG input, every segment is padded onto
+                it, which restores omitted (empty) slices.
+                Ignored for non-DICOM input.
 
         Returns:
             SegmentationCollection: Collection of segmentations read from
                 the file or files.
         """
         if isinstance(filename, PathLike.__args__):
+            if reference_image is not None:
+                raise NotImplementedError
             filename = Path(filename)
             segmentations, metadata = _dicom_seg_read(
                 filename,

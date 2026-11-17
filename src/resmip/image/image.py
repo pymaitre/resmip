@@ -130,7 +130,8 @@ def _validate_modality(image_modality: str | DicomModality) -> DicomModality:
 
 
 def _set_modality(
-    metadata: dict[str, str], requested_modality: DicomModality | str, force: bool = False
+    metadata: dict[str, str],
+    requested_modality: DicomModality | str,
 ) -> None:
     """Write the modality requested by the caller into the metadata of a read image.
 
@@ -152,7 +153,7 @@ def _set_modality(
         raise ValueError(f"{requested_modality} is not a valid DICOM series modality.")
     modality_tag = string_tag_for_keyword("Modality")
     stated_modality = metadata.get(modality_tag, "")
-    if stated_modality not in ("", requested_modality) and not force:
+    if stated_modality not in ("", requested_modality):
         raise ValueError(
             f"Requested modality {requested_modality} differs from modality "
             f"{stated_modality} stated by the file."

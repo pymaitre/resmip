@@ -207,6 +207,8 @@ class Segmentation(Image):
         read_metadata: bool = True,
         structure_name: str | None = None,
         reference_image: Image | None = None,
+        *,
+        modality: DicomModality | str | None = None,
     ) -> Segmentation:
         """Read a single segmentation from a file.
 
@@ -230,6 +232,7 @@ class Segmentation(Image):
                 RTSTRUCT. Optional for SEG: the segmentation is padded onto the
                 reference grid, which restores slices a writer omitted because
                 they were empty. Ignored for all other formats.
+            modality (DicomModality | str | None): Leave it ``None``.
 
         Raises:
             ValueError: If reading an RTSTRUCT and ``structure_name`` or
@@ -241,6 +244,8 @@ class Segmentation(Image):
         Returns:
             Segmentation: The segmentation read from the file.
         """
+        if modality is not None:
+            raise NotImplementedError("Cannot set modality for Segmentation.")
         filename = Path(filename)
         if filename.suffix == ".dcm":
             return Segmentation._read_dicom(

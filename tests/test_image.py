@@ -1115,6 +1115,68 @@ def test_image_modalities(image_path, caplog, tmp_path):
         assert record.message == "Image modality must be defined."
 
 
+@pytest.fixture
+def nifti_without_metadata_path(mock_dicom_image: Image, tmp_path) -> Path:
+    """NIfTI file written without resmip, so it has no sidecar metadata and no modality."""
+    nifti_path = tmp_path / "image.nii.gz"
+    sitk.WriteImage(mock_dicom_image, nifti_path)
+    return nifti_path
+
+
+def test_read_sets_given_modality_when_file_has_none(nifti_without_metadata_path):
+    """A NIfTI without sidecar takes the modality given to read."""
+    image = Image.read(nifti_without_metadata_path, modality="MR")
+
+    assert image.modality == "MR"
+
+
+def test_read_accepts_modality_as_enum(nifti_without_metadata_path):
+    """The modality given to read may be a DicomModality member."""
+    image = Image.read(nifti_without_metadata_path, modality=DicomModality.pt)
+
+    assert image.modality == "PT"
+
+
+def test_save_does_not_warn_when_modality_given_to_read(
+    nifti_without_metadata_path, tmp_path, caplog
+):
+    """Reading a NIfTI without sidecar and saving it as DICOM logs no missing-modality warning."""
+    image = Image.read(nifti_without_metadata_path, modality="CT")
+
+    with caplog.at_level(logging.WARNING):
+        image.write(tmp_path / "dicom")
+
+    assert "Image modality must be defined." not in caplog.messages
+
+
+def test_read_accepts_given_modality_matching_dicom_header():
+    """A modality equal to the one in the DICOM header is accepted."""
+    image = Image.read(dicom_ct_path(), modality="CT")
+
+    assert image.modality == "CT"
+
+
+def test_read_raises_when_given_modality_conflicts_with_dicom_header():
+    """A modality different from the one in the DICOM header is rejected."""
+    with pytest.raises(ValueError, match="MR"):
+        Image.read(dicom_ct_path(), modality="MR")
+
+
+def test_read_raises_when_given_modality_conflicts_with_sidecar(mock_dicom_image: Image, tmp_path):
+    """A modality different from the one in the sidecar JSON file is rejected."""
+    nifti_path = tmp_path / "image.nii.gz"
+    mock_dicom_image.write(nifti_path, write_metadata=True)
+
+    with pytest.raises(ValueError, match="MR"):
+        Image.read(nifti_path, modality="MR")
+
+
+def test_read_raises_when_given_modality_is_not_a_series_modality(nifti_without_metadata_path):
+    """Only series modalities can be given to read."""
+    with pytest.raises(ValueError, match="RTDOSE"):
+        Image.read(nifti_without_metadata_path, modality="RTDOSE")
+
+
 def test_empty_image_required_metadata_fields():
     """Test if an empty image has all required metadata."""
     image = Image()

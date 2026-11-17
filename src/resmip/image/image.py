@@ -478,12 +478,24 @@ class Image(sitk.Image):
         return Image(sitk.Cast(self, sitk_image_dtype(dtype)), metadata=self.metadata)
 
     @classmethod
-    def read(cls, filename: PathLike, read_metadata: bool = True) -> Image:
+    def read(
+        cls,
+        filename: PathLike,
+        read_metadata: bool = True,
+        *,
+        modality: DicomModality | str | None = None,
+    ) -> Image:
         """Read an image from a file or directory.
 
         The image format is automatically determined from the type of path
         provided. DICOM series are read from directories; all other formats
         are read from single files.
+
+        Formats such as NIfTI carry no modality, so an image read without a
+        sidecar JSON file has none and ``modality`` falls back to CT with a
+        warning. Passing ``modality`` supplies it at read time.
+        When a modality is already present in the json file, an error is raised
+        if a different modality is provided.
 
         Args:
             filename (PathLike): Path to the image file or directory.
@@ -495,11 +507,15 @@ class Image(sitk.Image):
             read_metadata (bool): If ``True``, read metadata from the
                 sidecar JSON file. Has no effect for DICOM series, where
                 metadata is always read from the DICOM headers.
+            modality (DicomModality | str | None): Modality of the image. If
+                ``None``, the modality stated by the file is used, if any.
 
         Returns:
             Image: Image with metadata populated from the DICOM headers
                 or sidecar JSON file.
         """
+        if modality is not None:
+            raise NotImplementedError
         filename = Path(filename)
         if filename.is_dir():
             sitk_image, series_metadata = dicom_series.read(filename)

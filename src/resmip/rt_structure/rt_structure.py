@@ -116,6 +116,8 @@ class RTStructure(Image):
         read_metadata: bool = True,
         structure_name: str | None = None,
         reference_image: Image | None = None,
+        *,
+        modality: DicomModality | str | None = None,
     ) -> RTStructure:
         """Read RT Structure from file.
 
@@ -131,10 +133,15 @@ class RTStructure(Image):
                 Required for dicom files. Optional for other files (if set to None, use filename).
             reference_image (Image | None): 3D image used as reference for dicom Structures
                 (not used for other formats).
+            modality (DicomModality | str | None): Leave it ``None``.
 
         Returns:
             RTStructure: RT Structure.
         """
+        if modality is not None and DicomModality(modality) is not DicomModality.rtstruct:
+            raise ValueError(
+                f"Cannot set modality {DicomModality(modality).value} for RTStructure."
+            )
         filename = Path(filename)
         if filename.suffix == ".dcm":
             if structure_name is None:

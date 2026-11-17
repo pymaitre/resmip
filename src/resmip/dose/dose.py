@@ -87,6 +87,8 @@ class Dose(Image):
         filename: PathLike,
         read_metadata: bool = True,
         reference_image: Image | None = None,
+        *,
+        modality: DicomModality | str | None = None,
     ) -> Dose:
         """Read rt dose from file.
 
@@ -109,10 +111,13 @@ class Dose(Image):
             reference_image (Image | None): 3D image whose grid the dose is resampled onto,
                 in case origin, spacing and/or direction differ. When set to None, a warning
                 is raised and no resampling is applied.
+            modality (DicomModality | str | None): Leave it ``None``.
 
         Returns:
             Dose: RT Dose.
         """
+        if modality is not None and DicomModality(modality) is not DicomModality.rtdose:
+            raise ValueError(f"Cannot set modality {DicomModality(modality).value} for Dose.")
         image = super().read(filename=filename, read_metadata=read_metadata)
         new_dose = cls(image)
         try:

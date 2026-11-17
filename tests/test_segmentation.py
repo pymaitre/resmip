@@ -467,3 +467,16 @@ def test_seg_round_trip_preserves_non_square_pixel_spacing(
     read_segmentation = Segmentation.read(output_path, structure_name="block")
 
     np.testing.assert_allclose(read_segmentation.spacing, segmentation.spacing, atol=1e-6)
+
+
+def test_read_accepts_seg_modality():
+    """A segmentation read with modality SEG is a SEG."""
+    segmentation = Segmentation.read(ibsi_rtst_path(), modality=DicomModality.seg)
+
+    assert segmentation.modality == "SEG"
+
+
+def test_read_raises_when_modality_is_not_seg():
+    """A segmentation cannot be read as any modality other than SEG."""
+    with pytest.raises(ValueError, match="CT"):
+        Segmentation.read(ibsi_rtst_path(), modality="CT")

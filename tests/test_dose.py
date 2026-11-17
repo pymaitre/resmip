@@ -223,3 +223,16 @@ def test_should_read_metadata_by_default(extension, tmp_path):
     dose.write(nifti_dose_path, write_metadata=True)
     loaded = Dose.read(nifti_dose_path)
     assert loaded.metadata[sentinel_key] == "resmip_test_value"
+
+
+def test_read_accepts_rtdose_modality():
+    """A dose read with modality RTDOSE is an RTDOSE."""
+    dose = Dose.read(REFERENCE_DICOM_DOSE_PATH, modality="RTDOSE")
+
+    assert dose.modality == "RTDOSE"
+
+
+def test_read_raises_when_modality_is_not_rtdose():
+    """A dose cannot be read as any modality other than RTDOSE."""
+    with pytest.raises(ValueError, match="CT"):
+        Dose.read(REFERENCE_DICOM_DOSE_PATH, modality="CT")

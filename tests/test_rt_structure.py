@@ -500,3 +500,16 @@ def test_structure_modality(structure_path, read_metadata):
         structure = RTStructure.read(structure_path, read_metadata=read_metadata)
     assert structure.name == structure_name
     assert structure.modality == "RTSTRUCT"
+
+
+def test_read_accepts_rtstruct_modality():
+    """An RT Structure read with modality RTSTRUCT is an RTSTRUCT."""
+    structure = RTStructure.read(ibsi_rtst_path(), modality="RTSTRUCT")
+
+    assert structure.modality == "RTSTRUCT"
+
+
+def test_read_raises_when_modality_is_not_rtstruct():
+    """An RT Structure cannot be read as any modality other than RTSTRUCT."""
+    with pytest.raises(ValueError, match="CT"):
+        RTStructure.read(ibsi_rtst_path(), modality="CT")

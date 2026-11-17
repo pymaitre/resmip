@@ -138,8 +138,10 @@ class RTStructure(Image):
         Returns:
             RTStructure: RT Structure.
         """
-        if modality is not None:
-            raise NotImplementedError("Cannot set modality for RTStructure.")
+        if modality is not None and DicomModality(modality) is not DicomModality.rtstruct:
+            raise ValueError(
+                f"Cannot set modality {DicomModality(modality).value} for RTStructure."
+            )
         filename = Path(filename)
         if filename.suffix == ".dcm":
             if structure_name is None:

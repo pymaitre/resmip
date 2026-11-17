@@ -129,6 +129,37 @@ def _validate_modality(image_modality: str | DicomModality) -> DicomModality:
     return image_modality
 
 
+def _set_modality(
+    metadata: dict[str, str], requested_modality: DicomModality | str, force: bool = False
+) -> None:
+    """Write the modality requested by the caller into the metadata of a read image.
+
+    The file is the authority on what it contains: a requested modality may fill in a
+    missing one, but a different stated modality raises instead of being relabelled,
+    because the mismatch means the caller is wrong about the data.
+
+    Args:
+        metadata (dict[str, str]): Metadata of the read image, modified in place.
+        requested_modality (DicomModality | str): Modality requested by the caller.
+
+    Raises:
+        ValueError: If the requested modality is not a series modality, or differs
+            from the modality stated in the metadata.
+    """
+    if isinstance(requested_modality, DicomModality):
+        requested_modality = requested_modality.value
+    if requested_modality not in {modality.value for modality in SERIES_MODALITIES}:
+        raise ValueError(f"{requested_modality} is not a valid DICOM series modality.")
+    modality_tag = string_tag_for_keyword("Modality")
+    stated_modality = metadata.get(modality_tag, "")
+    if stated_modality not in ("", requested_modality) and not force:
+        raise ValueError(
+            f"Requested modality {requested_modality} differs from modality "
+            f"{stated_modality} stated by the file."
+        )
+    metadata[modality_tag] = requested_modality
+
+
 class Image(sitk.Image):
     """Wrapper class of SimpleITK.Image with support to headers."""
 
@@ -514,13 +545,15 @@ class Image(sitk.Image):
             Image: Image with metadata populated from the DICOM headers
                 or sidecar JSON file.
         """
-        if modality is not None:
-            raise NotImplementedError
         filename = Path(filename)
         if filename.is_dir():
             sitk_image, series_metadata = dicom_series.read(filename)
-            return cls(sitk_image, metadata=series_metadata)
-        return Image._read_nondicom(filename=filename, read_metadata=read_metadata)
+            image = cls(sitk_image, metadata=series_metadata)
+        else:
+            image = Image._read_nondicom(filename=filename, read_metadata=read_metadata)
+        if modality is not None:
+            _set_modality(image.metadata, modality)
+        return image
 
     @classmethod
     def _read_nondicom(cls, filename: PathLike, read_metadata: bool = True) -> Image:

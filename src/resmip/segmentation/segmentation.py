@@ -244,8 +244,10 @@ class Segmentation(Image):
         Returns:
             Segmentation: The segmentation read from the file.
         """
-        if modality is not None:
-            raise NotImplementedError("Cannot set modality for Segmentation.")
+        if modality is not None and DicomModality(modality) is not DicomModality.seg:
+            raise ValueError(
+                f"Cannot set modality {DicomModality(modality).value} for Segmentation."
+            )
         filename = Path(filename)
         if filename.suffix == ".dcm":
             return Segmentation._read_dicom(

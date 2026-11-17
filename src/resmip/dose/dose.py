@@ -116,8 +116,8 @@ class Dose(Image):
         Returns:
             Dose: RT Dose.
         """
-        if modality is not None:
-            raise NotImplementedError("Cannot set modality for Dose.")
+        if modality is not None and DicomModality(modality) is not DicomModality.rtdose:
+            raise ValueError(f"Cannot set modality {DicomModality(modality).value} for Dose.")
         image = super().read(filename=filename, read_metadata=read_metadata)
         new_dose = cls(image)
         try:
